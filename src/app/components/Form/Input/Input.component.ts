@@ -16,6 +16,7 @@ import { Component, input, OnInit, output } from '@angular/core';
       [placeholder]="placeholder()"
       (input)="onChange.emit($event)"
     >
+    <ng-content></ng-content>
   `,
 })
 export class InputComponent implements OnInit {

@@ -1,0 +1,197 @@
+<div class="card">
+  <div class="card-header">
+    <Text tag="h3" bold="bold"> Nueva factura </Text>
+  </div>
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-4">
+        <label class="form-label">
+          <Text>Caja</Text>
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          name="example-text-input"
+          placeholder="Caja #1"
+        />
+      </div>
+      <div class="col-4">
+        <label class="form-label">
+          <Text>Fecha</Text>
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          name="example-text-input"
+          placeholder="Input placeholder"
+        />
+      </div>
+      <div class="col-4">
+        <label class="form-label">
+          <Text>N° Factura</Text>
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          name="example-text-input"
+          placeholder="00000"
+        />
+      </div>
+      <div class="col">
+        <div class="input-group">
+          <span class="input-group-text">
+            <Text>Cliente</Text>
+          </span>
+          <input type="text" class="form-control" placeholder="Cliente" autocomplete="off" />
+        </div>
+      </div>
+      <div class="col-2">
+        <a href="#" class="btn btn-icon btn-secondary w-100" aria-label="Button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-user-plus m-0 me-1"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+            <path d="M16 19h6" />
+            <path d="M19 16v6" />
+            <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+          </svg>
+          <Text> Crear Cliente </Text>
+        </a>
+      </div>
+    </div>
+    <div class="card mt-2">
+      <div class="card-body">
+        <table class="table table-responsive">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="text-nowrap"><Text bold="bold" tag="h5">Producto</Text></th>
+              <th class="text-nowrap"><Text bold="bold" tag="h5">Precio N</Text></th>
+              <th class="text-nowrap"><Text bold="bold" tag="h5">Descuento</Text></th>
+              <th class="text-nowrap"><Text bold="bold" tag="h5">Cantidad</Text></th>
+              <th class="text-nowrap"><Text bold="bold" tag="h5">Precio</Text></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>1</th>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>0.0</Text></td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>Celda</Text></td>
+              <td><Text>0.0</Text></td>
+            </tr>
+            <tr class="Check-in-data">
+              <td colspan="4"></td>
+              <td><Text bold="bold" tag="h4">Sub-Total</Text></td>
+              <td><Text bold="bold" tag="h4">0.0</Text></td>
+            </tr>
+            <tr class="Check-in-data">
+              <td colspan="4"></td>
+              <td><Text bold="bold" tag="h4">Iva</Text></td>
+              <td><Text bold="bold" tag="h4">0.0 (15%)</Text></td>
+            </tr>
+            <tr class="Check-in-data">
+              <td colspan="4"></td>
+              <td><Text bold="bold" tag="h4">Total</Text></td>
+              <td><Text bold="bold" tag="h4">0.0</Text></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="input-group mb-2">
+          <span class="input-group-text">
+            <Text>Añadir productos</Text>
+          </span>
+          <input type="text" class="form-control" placeholder="Productos..." autocomplete="off" />
+        </div>
+        <table class="table">
+          <thead class="sticky-top">
+            <tr>
+              <th scope="col">N#</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Marca</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>001</td>
+              <td><Text>Producto</Text></td>
+              <td><Text>Marca</Text></td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <div class="card d-flex flex-column">
+                  <div class="row row-0 flex-fill">
+                    <div class="col-md-4">
+                      <a href="#">
+                        <img
+                          src="https://picsum.photos/200/300/?blur"
+                          class="w-100 h-100 object-cover"
+                          alt="Card side image"
+                        />
+                      </a>
+                    </div>
+                    <div class="col">
+                      <div class="card-body h-full d-flex flex-column">
+                        <Text tag="h3" bold="bold" class="card-title"> Mi producto #0000 </Text>
+                        <Text class="text-secondary">
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid aperiam
+                          voluptates porro est ullam incidunt reprehenderit, consequuntur quod? Qui
+                          sit optio architecto exercitationem fugiat at repellendus sint quaerat
+                          quia aliquid.
+                        </Text>
+                        <br />
+                        <Text bold="bold">
+                            Inventario: <Text>16</Text>
+                        </Text>
+                        <br />
+                        <product-sizes />
+                        <product-colors />
+                        <product-imgs />
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="card-footer">
+                        <button class="btn btn-primary">Comprar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>001</td>
+              <td><Text>Producto</Text></td>
+              <td><Text>Marca</Text></td>
+            </tr>
+            <tr>
+              <td colspan="3">Detalles del producto</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer"></div>
+</div>

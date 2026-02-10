@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { TextComponent } from '../components/Text/text.component';
 import { InputComponent } from '../components/Form/Input/Input.component';
 import { AuthService } from './services/auth.service';
@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { IconComponent } from '../components/Icon/icon.component';
 import { AuthHttpServices } from './services/auth-https.services';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
+import { validateEmail } from '../utils/commons';
 
 @Component({
   selector: 'login',
@@ -40,7 +41,12 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
           name="email"
           (onChange)="changeForm($event)"
           class="mb-3"
-        />
+          [iClass]="(invalidEmail() && 'is-invalid') || ''"
+        >
+          @if (invalidEmail()) {
+            <div class="invalid-feedback">Por favor, ingrese un correo electronico valido!</div>
+          }
+        </app-input>
         <app-input
           label="Contraseña"
           name="password"
@@ -51,7 +57,7 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
         <button
           (click)="login()"
           class="btn btn-primary w-100"
-          [disabled]="!formData['email'] || !formData['password']"
+          [disabled]="!formData()['email'] || !formData()['password']"
         >
           <Text>
             Acceder
@@ -71,9 +77,14 @@ import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 })
 export class LoginComponent implements OnInit {
   readonly icons = { Warehouse, Store };
-  formData: Record<string, string> = { email: '', password: '' };
+  formData = signal<Record<string, string>>({ email: '', password: '' });
   loading = signal<boolean>(false);
   errorMsg = signal<string>('');
+
+  invalidEmail = computed(() => {
+    if (this.formData()['email']) return !validateEmail(this.formData()['email']);
+    return false;
+  });
 
   constructor(
     private authService: AuthService,
@@ -85,13 +96,13 @@ export class LoginComponent implements OnInit {
 
   changeForm(e: Event) {
     const { name, value } = e.target as HTMLInputElement;
-    if (name in this.formData) this.formData[name] = value;
+    if (name in this.formData()) this.formData.update((prev) => ({ ...prev, [name]: value }));
   }
 
   login() {
     this.loading.update(() => true);
     this.authHttpService
-      .login(this.formData['email'], this.formData['password'])
+      .login(this.formData()['email'], this.formData()['password'])
       .pipe(
         map(({ error, data }) => {
           if (error) {
@@ -108,13 +119,14 @@ export class LoginComponent implements OnInit {
         }),
         filter((res) => !!res),
         switchMap((dataAuth) => {
-          console.log('prro dataAuth', dataAuth);
           return this.authHttpService.getUserInfo(dataAuth.user.id).pipe(
             tap(({ error, data }) => {
               if (error) this.errorMsg.update(() => 'No se encontro datos del email registrado.');
-              if (data) {
+              if (data && data.length) {
+                // this.authService.setLogin(true);
+                const user = this.authService.buildUserData(data[0]);
+                this.authService.setLogin(user);
                 this.router.navigateByUrl('/');
-                this.authService.setLogin(true)
               }
             }),
           );

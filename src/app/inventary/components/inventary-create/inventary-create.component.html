@@ -1,0 +1,96 @@
+<div class="inventary-create">
+  <div class="card mt-3">
+    <div class="card-header">
+      <Text tag="h5" bold="bold" tagClass="d-block">Creando nuevo producto</Text>
+    </div>
+    <div class="card-body">
+      <div class="row row-gap-3">
+        <div class="col-12 col-md-3">
+          <app-brands-selector
+            title="Selecciona una marca"
+            [data]="brands()"
+            (onSelect)="selectBrand($event)"
+          />
+        </div>
+        <div class="col-12 col-md-9">
+          <app-input class="mb-3" label="Nombre" name="nombre" (onChange)="onChangeInput($event)" />
+          <div class="row mb-3">
+            <div class="col-12 col-md-6">
+              <app-input
+                class="mb-3"
+                label="Modelo"
+                name="modelo"
+                (onChange)="onChangeInput($event)"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <app-input
+                class="mb-3"
+                label="Codigo"
+                name="codigo"
+                (onChange)="onChangeInput($event)"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <app-input
+                class="mb-3"
+                label="Costo"
+                name="costo"
+                iType="number"
+                (onChange)="onChangeInput($event)"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <app-input
+                class="mb-3"
+                label="Stock"
+                name="stock"
+                iType="number"
+                (onChange)="onChangeInput($event)"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <app-input
+                class="mb-3"
+                label="Stock minimo"
+                name="stock_minimo"
+                iType="number"
+                (onChange)="onChangeInput($event)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hr-text">
+        <Text>Clasificacion</Text>
+      </div>
+      <div class="row">
+        <div class="col-6 col-md-3">
+          <app-categories-selector
+            title="Selecciona una categoria"
+            [data]="categories()"
+            (onSelect)="selectCategory($event)"
+            class="d-block border border-danger"
+          />
+        </div>
+        <div class="col-6 col-md-3">
+          <app-subcategory-selector
+            title="Selecciona una sub-categoria"
+            [categoryId]="selectedCategory()?.id || 0"
+            [data]="subcategories()"
+            (onSelect)="selectSubcategory($event)"
+          />
+        </div>
+        <div class="col-12 col-md-9"></div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="button" class="btn btn-secondary">
+        <Text>Regresar</Text>
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveData()">
+        <Text> Guardar </Text>
+      </button>
+    </div>
+  </div>
+</div>

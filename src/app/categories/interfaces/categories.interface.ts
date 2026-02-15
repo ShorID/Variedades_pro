@@ -1,18 +1,18 @@
 import { IAttributesItem } from '../attributes/interfaces/attributes.interface';
 
 export interface ICategories {
-  active: boolean;
-  create_at: string;
+  activo: boolean;
+  icono?: string;
   id: number;
-  name: string;
-  subcategories?: ISubCategories[];
+  nombre: string;
+  sub_categoria?: ISubCategories[];
 }
 
 export interface ISubCategories {
-  active: boolean;
   related_attributes?: IAttributesItem[];
-  create_at: string;
+  activo: boolean;
+  icono?: string;
   id: number;
-  id_category: number;
-  name: string;
+  id_categoria: number;
+  nombre: string;
 }

@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, computed, input, OnInit } from '@angular/core';
 import {
   BadgeDollarSign,
   Boxes,
@@ -11,9 +11,19 @@ import {
   ArrowBigLeft,
   MapPinHouse,
   CircleAlert,
+  CircleUser,
+  Shirt,
+  Handbag,
+  LucideIconData,
+  Barcode,
+  RefreshCcw,
+  Pencil,
+  Trash,
+  Search,
+  X,
 } from 'lucide-angular';
 
-const AllIcons = {
+const lucidIconsObj = {
   Warehouse,
   Store,
   House,
@@ -23,19 +33,40 @@ const AllIcons = {
   UsersRound,
   ArrowBigLeft,
   MapPinHouse,
-  CircleAlert
+  CircleAlert,
+  CircleUser,
+  Shirt,
+  Handbag,
+  Barcode,
+  RefreshCcw,
+  Pencil,
+  Trash,
+  Search,
+  X
 };
-type AllIconsType = keyof typeof AllIcons;
+type LucidIconsType = keyof typeof lucidIconsObj;
 
 @Component({
   selector: 'app-icon',
-  template: ` <lucide-icon [img]="icons[name()]" [size]="size()" class="d-block" /> `,
+  templateUrl: './icon.component.html',
   imports: [LucideAngularModule],
 })
 export class IconComponent implements OnInit {
-  icons = AllIcons;
-  name = input<AllIconsType>('House');
-  size = input<number>(24);
+  icons: Record<string, LucideIconData> = lucidIconsObj;
+  name = input<LucidIconsType | string>('House');
+  size = input<number | string>(24);
+  iconClass = input<string>('d-block');
+  isTablerIcon = computed(() => !(this.name() in this.icons));
+
+  lucidIcon = computed<LucideIconData | undefined>(() => {
+    return this.name() in this.icons ? this.icons[this.name()] : undefined;
+  });
+
+  get classes(): string | string[] {
+    if (this.lucidIcon()) return this.iconClass();
+    else return ['ti', 'ti-' + this.name(), this.iconClass().split(' ')].flat();
+  }
+
   constructor() {}
 
   ngOnInit() {}

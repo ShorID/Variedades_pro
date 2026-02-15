@@ -1,6 +1,8 @@
 export interface IBrand {
-  active: boolean;
-  create_at: string;
   id: number;
-  name: string;
+  nombre: string;
+  activo: boolean;
+  icono?: string;
+  isNew?: boolean;
+  qty?: number;
 }

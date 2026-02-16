@@ -11,6 +11,18 @@ import {
   ArrowBigLeft,
   MapPinHouse,
   CircleAlert,
+  FolderOpen,
+  Folder,
+  Plus,
+  Package,
+  Tag,
+  Star,
+  RefreshCcw,
+  ChevronRight,
+  ChevronLeft,
+  Pencil,
+  Ellipsis,
+  Search
 } from 'lucide-angular';
 
 const AllIcons = {
@@ -23,7 +35,19 @@ const AllIcons = {
   UsersRound,
   ArrowBigLeft,
   MapPinHouse,
-  CircleAlert
+  CircleAlert,
+  FolderOpen,
+  Folder,
+  Plus,
+  Package,
+  Tag,
+  Star,
+  RefreshCcw,
+  ChevronRight,
+  ChevronLeft,
+  Pencil,
+  Ellipsis,
+  Search
 };
 type AllIconsType = keyof typeof AllIcons;
 

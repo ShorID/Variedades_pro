@@ -1,218 +1,628 @@
-<div class="Categories mt-3">
-  <app-breadcrumb />
-  <div class="row mt-3 row-gap-3">
-    <div class="col-12">
+<div class="Categories d-flex flex-column">
+  
+  <app-breadcrumb></app-breadcrumb>
+  
+  <div class="row mt-3">
+    <div class="col-sm-12 col-lg-12">
       <div class="card">
+        
+        <!-- Header de la card Principal -->
         <div class="card-header">
           <div class="w-100">
             <div class="row align-items-center">
               <div class="col">
-                <div class="page-pretitle">Administracion</div>
-                <h2 class="page-title">Categorias</h2>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-blue">
+                    <app-icon [name]="'FolderOpen'" [size]="34"></app-icon>
+                  </span>
+                  
+                  <div>
+                    <h2 class="page-title mb-0">Gestión de Categorías</h2>
+                    <div class="page-pretitle">
+                      Administra la estructura de tus catálogos
+                    </div>
+                  </div>
+                </div>
               </div>
+
               <div class="col-auto ms-auto">
                 <div class="btn-list">
-                  <span class="d-none d-sm-inline">
-                    <a href="#" class="btn"> New view </a>
-                  </span>
-                  <a
-                    href="#"
-                    class="btn btn-primary d-none d-sm-inline-block"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modal-report"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                      stroke="currentColor"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Create new report
+                  <a class="btn btn-primary d-none d-sm-inline-flex gap-1" data-bs-toggle="modal" data-bs-target="#modal-report">
+                    <app-icon [name]="'Plus'" [size]="17"></app-icon>
+                    Nueva Categoría
                   </a>
-                  <a
-                    href="#"
-                    class="btn btn-primary d-sm-none btn-icon"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modal-report"
-                    aria-label="Create new report"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="icon"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      stroke-width="2"
-                      stroke="currentColor"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+
+                  <a class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report">
+                    <app-icon [name]="'Plus'" [size]="17"></app-icon>
                   </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="card-body p-0">
-          <table class="table table-responsive">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="text-nowrap">Heading 1</th>
-                <th class="text-nowrap">Heading 2</th>
-                <th class="text-nowrap">Heading 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <Text> 10/200 </Text>
-          <app-pagination />
-        </div>
-      </div>
-    </div>
 
-    <div class="col-12 col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <Text bold="bold">
-            Sub-Categorias <span class="badge bg-blue-lt text-blue-lt-fg">8</span>
-          </Text>
-        </div>
-        <div class="card-body p-0">
-          <table class="table table-responsive">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="text-nowrap">Heading 1</th>
-                <th class="text-nowrap">Heading 2</th>
-                <th class="text-nowrap">Heading 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <Text> 10/200 </Text>
-          <app-pagination />
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <Text bold="bold">
-            Atributos <span class="badge bg-blue-lt text-blue-lt-fg">18</span>
-          </Text>
-        </div>
-        <div class="card-body p-0">
-          <table class="table table-responsive">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="text-nowrap">Heading 1</th>
-                <th class="text-nowrap">Heading 2</th>
-                <th class="text-nowrap">Heading 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <Text> 10/200 </Text>
-          <app-pagination />
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <Text bold="bold"> Marcas <span class="badge bg-blue-lt text-blue-lt-fg">24</span> </Text>
-        </div>
-        <div class="card-body p-0">
-          <table class="table table-responsive">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="text-nowrap">Heading 1</th>
-                <th class="text-nowrap">Heading 2</th>
-                <th class="text-nowrap">Heading 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>1</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-              <tr>
-                <th>2</th>
-                <td>Cell</td>
-                <td>Cell</td>
-                <td>Cell</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <Text> 10/200 </Text>
-          <app-pagination />
+        <!-- Body del card principal -->
+       <div class="card-body">
+          <div class="container-xl">
+
+            <!-- Cards -->
+            <div class="row row-cards">
+
+              <!-- Card para estadistica de categoria -->
+              <div class="col-sm-6 col-lg-3">
+                <div class="card bg-azure-lt">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="text-blue">  
+                        <app-icon [name]="'Folder'"></app-icon>
+                      </span>
+                      
+                      <div class="ms-1">
+                        <div class="d-flex align-items-baseline gap-2">
+                          <h2 class="mb-0 text-dark">12</h2>
+                          <span class="text-dark">Categorías</span>
+                        </div>
+                        <div class="text-secondary">8 665 productos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card para estadistica de Subcategorias -->
+              <div class="col-sm-6 col-lg-3">
+                <div class="card bg-azure-lt">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <span class="text-blue">
+                        <app-icon [name]="'Package'"></app-icon>
+                      </span>
+                      <div class="ms-3">
+                        <div class="d-flex align-items-baseline gap-2">
+                          <h2 class="mb-0 text-dark">48</h2>
+                          <span class="text-dark">Subcategorías</span>
+                        </div>
+                        <div class="text-secondary">5 420 productos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card para estadistica de atributos -->
+              <div class="col-sm-6 col-lg-3">
+                <div class="card bg-azure-lt">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <span class="text-blue">
+                        <app-icon [name]="'Tag'"></app-icon>
+                      </span>
+                      <div class="ms-3">
+                        <div class="d-flex align-items-baseline gap-2">
+                          <h2 class="mb-0 text-dark">132</h2>
+                          <span class="text-dark">Atributos</span>
+                        </div>
+                        <div class="text-secondary">1:3 productos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card para estadistica de Marcas -->
+              <div class="col-sm-6 col-lg-3">
+                <div class="card bg-azure-lt">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <span class="text-blue">
+                        <app-icon [name]="'Star'"></app-icon>
+                      </span>
+                      <div class="ms-3">
+                        <div class="d-flex align-items-baseline gap-2">
+                          <h2 class="mb-0 text-dark">24</h2>
+                          <span class="text-dark">Marcas</span>
+                        </div>
+                        <div class="text-secondary">23 productos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Apartado de categorias y subcategorias -->
+              <div class="col-sm-9 col-lg-9">
+                <div class="row row-cards">
+
+                  <!-- Panel de categorias -->
+                  <div class="col-sm-4 col-lg-4">
+                    <div class="card">
+
+                      <!-- Header del Panel de categorias -->
+                      <div class="card-header py-1 px-3">
+                        <div class="w-100">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <div class="d-flex align-items-center gap-2">
+                                <div>
+                                  <h2 class="page-title mb-0">Categorias</h2>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-auto ms-auto">
+                              <a class="btn btn-icon btn-sm p-2">
+                                <app-icon [name]="'RefreshCcw'" [size]="15"></app-icon>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Input de busqueda -->
+                      <div class="card-body border-bottom p-1">
+                        <div class="input-icon">
+                          <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar categoría...">
+                          <span class="input-icon-addon">
+                            <app-icon [name]="'Search'" [size]="16"></app-icon>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Cards para el panel de categorias -->
+                      <div class="card-body p-2" style="height: clamp(10rem,50vh,26rem);overflow-y: auto;overflow-x: hidden;">
+                        <div class="row flex-fill">
+                          <div class="col">
+                            <div class="list-group list-group-flush">
+
+                              <!-- Item de prueba para activos -->
+                              <div class="list-group-item rounded bg-azure-lt">
+                                <div class="d-flex align-items-center">
+
+                                  <span class="text-blue me-3">
+                                    <app-icon [name]="'Folder'" [size]="20"></app-icon>
+                                  </span>
+
+                                  <div class="flex-fill">
+                                    <div class="fw-semibold">Lácteos</div>
+                                    <div class="text-secondary small">
+                                      0 Subs · 0 productos
+                                    </div>
+                                  </div>
+
+                                  <div class="text-success small me-3 d-flex align-items-center">
+                                    <span class="me-1">●</span>
+                                    <span class="text-nowrap">Activo</span>
+                                  </div>
+
+                                  <a class="text-muted">
+                                    <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                  </a>
+
+                                </div>
+                              </div>
+
+                              <!-- Item de prueba para Inactivos -->
+                              <div class="list-group-item rounded">
+                                <div class="d-flex align-items-center">
+                                  <span class="text-muted me-3">
+                                    <app-icon [name]="'Folder'" [size]="20"></app-icon>
+                                  </span>
+
+                                  <div class="flex-fill">
+                                    <div class="fw-semibold">Ropa</div>
+                                    <div class="text-secondary small">
+                                      1000 Subs · 5000 productos
+                                    </div>
+                                  </div>
+
+                                  <div class="text-danger small me-3 d-flex align-items-center">
+                                    <span class="me-1">●</span>
+                                    <span class="text-nowrap">Inactivo</span>
+                                  </div>
+
+                                  <!-- <span class="text-secondary">
+                                    <app-icon [name]="'Pencil'" [size]="16"></app-icon>
+                                  </span> -->
+
+                                  <a class="text-muted">
+                                    <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Paginado del panel de categorias -->
+                      <div class="card-footer py-2 px-2">
+                        <ul class="pagination m-0">
+                          <li class="page-item disabled">
+                            <a class="page-link">Previous</a>
+                          </li>
+                          <li class="page-item active"><a class="page-link">1</a></li>
+                          <li class="page-item"><a class="page-link">2</a></li>
+                          <li class="page-item"><a class="page-link">3</a></li>
+                          <li class="page-item"><a class="page-link">Next</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Panel de Subcategorias -->
+                  <div class="col-lg-8">
+                    <div class="card">
+
+                      <!-- Header del panel de subcategorías -->
+                      <div class="card-header py-1 px-3">
+                        <div class="w-100">
+                          <div class="row align-items-center">
+                            <div class="col">
+                              <div class="d-flex align-items-center gap-2">
+                                <span class="text-blue">
+                                  <app-icon [name]="'FolderOpen'" [size]="22"></app-icon>
+                                </span>
+                                
+                                <h4 class="page-title mb-0">Lacteos</h4>
+                              </div>
+                            </div>
+
+
+                            <div class="col-auto ms-auto">
+                              <a class="btn btn-icon btn-sm p-2">
+                                <app-icon [name]="'Plus'" [size]="15"></app-icon>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Input de busqueda -->
+                      <div class="card-body border-bottom p-1" >
+                        <div class="input-icon">
+                          <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Subcategorías...">
+                          <span class="input-icon-addon">
+                            <app-icon [name]="'Search'" [size]="16"></app-icon>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Apartado para las cards de la Subcategoría seleccionada -->
+                      <div class="card-body p-2" style="height: clamp(10rem,50vh,26rem);overflow-y: auto;overflow-x: hidden;">
+                        <div class="row row-cards">
+
+                          <!-- Elemento a recorrer -->
+                          <div class="col-sm-6 col-lg-6">
+
+                            <!-- Card para las subcategorias -->
+                            <div class="card shadow-sm">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col">
+                                    <div class="d-flex align-items-center gap-2">
+                                      <span class="text-blue">
+                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
+                                      </span>
+                                      
+                                      <div>
+                                        <div class="flex-fill">
+                                          <div class="fw-semibold">Pantalon</div>
+                                          <div class="text-secondary small">
+                                            10 Productos
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="card-body p-2">
+                                <div class="row">
+                                  <div class="col">
+                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                      Editar
+                                    </button>
+                                  </div>
+                                  <div class="col-auto ms-auto">
+                                    <button type="button" class="btn btn-sm gap-2">
+                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
+                                      Atributos
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Elemento a recorrer -->
+                          <div class="col-sm-6 col-lg-6">
+                            <!-- Items de prueba -->
+                            <div class="card shadow-sm">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col">
+                                    <div class="d-flex align-items-center gap-2">
+                                      <span class="text-blue">
+                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
+                                      </span>
+                                      
+                                      <div>
+                                        <div class="flex-fill">
+                                          <div class="fw-semibold">Camisa</div>
+                                          <div class="text-secondary small">
+                                            5 Productos
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="card-body p-2">
+                                <div class="row">
+                                  <div class="col">
+                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                      Editar
+                                    </button>
+                                  </div>
+                                  <div class="col-auto ms-auto">
+                                    <button type="button" class="btn btn-sm gap-2">
+                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
+                                      Atributos
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Elemento a recorrer -->
+                          <div class="col-sm-6 col-lg-6">
+                            <!-- Items de prueba -->
+                            <div class="card shadow-sm">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col">
+                                    <div class="d-flex align-items-center gap-2">
+                                      <span class="text-blue">
+                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
+                                      </span>
+                                      
+                                      <div>
+                                        <div class="flex-fill">
+                                          <div class="fw-semibold">Chaqueta</div>
+                                          <div class="text-secondary small">
+                                            6 Productos
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="card-body p-2">
+                                <div class="row">
+                                  <div class="col">
+                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                      Editar
+                                    </button>
+                                  </div>
+                                  <div class="col-auto ms-auto">
+                                    <button type="button" class="btn btn-sm gap-2">
+                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
+                                      Atributos
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Elemento a recorrer -->
+                          <div class="col-sm-6 col-lg-6">
+                            <!-- Items de prueba -->
+                            <div class="card shadow-sm">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col">
+                                    <div class="d-flex align-items-center gap-2">
+                                      <span class="text-blue">
+                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
+                                      </span>
+                                      
+                                      <div>
+                                        <div class="flex-fill">
+                                          <div class="fw-semibold">Short</div>
+                                          <div class="text-secondary small">
+                                            6 Productos
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="card-body p-2">
+                                <div class="row">
+                                  <div class="col">
+                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                      Editar
+                                    </button>
+                                  </div>
+                                  <div class="col-auto ms-auto">
+                                    <button type="button" class="btn btn-sm gap-2">
+                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
+                                      Atributos
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Apartado de paginación para las Subcategorias -->
+                      <div class="card-footer py-2 px-2"> 
+                        <ul class="pagination m-0">
+                          <li class="page-item disabled">
+                            <a class="page-link">Previous</a>
+                          </li>
+                          <li class="page-item active"><a class="page-link">1</a></li>
+                          <li class="page-item"><a class="page-link">2</a></li>
+                          <li class="page-item"><a class="page-link">3</a></li>
+                          <li class="page-item"><a class="page-link">Next</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Apartado de Marcas y atributos -->
+              <div class="col-lg-3">
+                <div class=" col-sm col-lg">
+                  <div class="row row-cards">
+
+                    <!-- Panel de Marcas -->
+                    <div class="col-12">
+                      <div class="card">
+
+                        <!-- Header del Panel de Marcas -->
+                        <div class="card-header py-1 px-3">
+                          <div class="w-100">
+                            <div class="row align-items-center">
+                              <div class="col">
+                                <div class="d-flex align-items-center gap-2">
+                                  <div>
+                                    <h2 class="page-title mb-0">Marcas</h2>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="col-auto ms-auto">
+                                <a class="btn btn-icon btn-sm p-2">
+                                  <app-icon [name]="'Plus'" [size]="15"></app-icon>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Input de busqueda -->
+                        <div class="card-body border-bottom p-1">
+                          <div class="input-icon">
+                            <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Marcas...">
+                            <span class="input-icon-addon">
+                              <app-icon [name]="'Search'" [size]="16"></app-icon>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Apartado que tendra las cards de marcas -->
+                        <div class="card-body" style="height: clamp(5rem,50vh,8rem);overflow-y: auto;">
+                          <div class="row flex-fill">
+                            <div class="col">
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Apartado de paginacion para el panel de marcas -->
+                        <div class="card-footer py-2 px-2">
+                          <div class="d-flex align-items-center justify-content">
+                            <ul class="pagination m-0">
+                              <li class="page-item disabled">
+                                <a class="page-link">Previous</a>
+                              </li>
+                              <li class="page-item active"><a class="page-link">1</a></li>
+                              <li class="page-item"><a class="page-link">2</a></li>
+                              <li class="page-item"><a class="page-link">3</a></li>
+                              <li class="page-item"><a class="page-link">Next</a></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Apartado del panel de atributos -->
+                    <div class="col-12">
+                      <div class="card">
+
+                        <!-- Header del panel de atributos -->
+                        <div class="card-header py-1 px-3">
+                          <div class="w-100">
+                            <div class="row align-items-center">
+                              <div class="col">
+                                <div class="d-flex align-items-center gap-2">
+                                  <div>
+                                    <h2 class="page-title mb-0">Atributos</h2>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="col-auto ms-auto">
+                                <a class="btn btn-icon btn-sm p-2">
+                                  <app-icon [name]="'Plus'" [size]="15"></app-icon>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Input de busqueda -->
+                        <div class="card-body border-bottom p-1">
+                          <div class="input-icon">
+                            <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Atributos...">
+                            <span class="input-icon-addon">
+                              <app-icon [name]="'Search'" [size]="16"></app-icon>
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Apartado de cards de atributos -->
+                        <div class="card-body" style="height: clamp(5rem,50vh,8rem);overflow-y: auto;">
+                          <div class="row">
+                            <div class="col">
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Apartado de paginación para atributos -->
+                        <div class="card-footer py-2 px-2">
+                          <div class="d-flex align-items-center">
+                            <ul class="pagination m-0">
+                              <li class="page-item disabled">
+                                <a class="page-link">Previous</a>
+                              </li>
+                              <li class="page-item active"><a class="page-link">1</a></li>
+                              <li class="page-item"><a class="page-link">2</a></li>
+                              <li class="page-item"><a class="page-link">3</a></li>
+                              <li class="page-item"><a class="page-link">Next</a></li>
+                            </ul>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

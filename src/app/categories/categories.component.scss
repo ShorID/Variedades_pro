@@ -1,3 +1,8 @@
 .Categories{
     
 }
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: var(--tblr-primary);
+}

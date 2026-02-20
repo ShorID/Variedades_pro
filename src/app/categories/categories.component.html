@@ -48,93 +48,12 @@
             <!-- Cards -->
             <div class="row row-cards">
 
-              <!-- Card para estadistica de categoria -->
-              <div class="col-sm-6 col-lg-3">
-                <div class="card bg-azure-lt">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center gap-2">
-                      <span class="text-blue">  
-                        <app-icon [name]="'Folder'"></app-icon>
-                      </span>
-                      
-                      <div class="ms-1">
-                        <div class="d-flex align-items-baseline gap-2">
-                          <h2 class="mb-0 text-dark">12</h2>
-                          <span class="text-dark">Categorías</span>
-                        </div>
-                        <div class="text-secondary">8 665 productos</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card para estadistica de Subcategorias -->
-              <div class="col-sm-6 col-lg-3">
-                <div class="card bg-azure-lt">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <span class="text-blue">
-                        <app-icon [name]="'Package'"></app-icon>
-                      </span>
-                      <div class="ms-3">
-                        <div class="d-flex align-items-baseline gap-2">
-                          <h2 class="mb-0 text-dark">48</h2>
-                          <span class="text-dark">Subcategorías</span>
-                        </div>
-                        <div class="text-secondary">5 420 productos</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Card para estadistica de atributos -->
-              <div class="col-sm-6 col-lg-3">
-                <div class="card bg-azure-lt">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <span class="text-blue">
-                        <app-icon [name]="'Tag'"></app-icon>
-                      </span>
-                      <div class="ms-3">
-                        <div class="d-flex align-items-baseline gap-2">
-                          <h2 class="mb-0 text-dark">132</h2>
-                          <span class="text-dark">Atributos</span>
-                        </div>
-                        <div class="text-secondary">1:3 productos</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card para estadistica de Marcas -->
-              <div class="col-sm-6 col-lg-3">
-                <div class="card bg-azure-lt">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <span class="text-blue">
-                        <app-icon [name]="'Star'"></app-icon>
-                      </span>
-                      <div class="ms-3">
-                        <div class="d-flex align-items-baseline gap-2">
-                          <h2 class="mb-0 text-dark">24</h2>
-                          <span class="text-dark">Marcas</span>
-                        </div>
-                        <div class="text-secondary">23 productos</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Apartado de categorias y subcategorias -->
-              <div class="col-sm-9 col-lg-9">
+              <div class="col-sm-12 col-lg-9">
                 <div class="row row-cards">
 
                   <!-- Panel de categorias -->
-                  <div class="col-sm-4 col-lg-4">
+                  <div class="col-sm-12 col-lg-5">
                     <div class="card">
 
                       <!-- Header del Panel de categorias -->
@@ -160,78 +79,81 @@
 
                       <!-- Input de busqueda -->
                       <div class="card-body border-bottom p-1">
-                        <div class="input-icon">
-                          <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar categoría...">
-                          <span class="input-icon-addon">
-                            <app-icon [name]="'Search'" [size]="16"></app-icon>
-                          </span>
+                        <div class="row g-1">
+                          <div class="col">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                          </div>
+                          <div class="col-auto d-flex align-items-center">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <app-icon [name]="'Search'" [size]="14"></app-icon>
+                            </a>
+                          </div>
                         </div>
                       </div>
 
                       <!-- Cards para el panel de categorias -->
-                      <div class="card-body p-2" style="height: clamp(10rem,50vh,26rem);overflow-y: auto;overflow-x: hidden;">
-                        <div class="row flex-fill">
-                          <div class="col">
-                            <div class="list-group list-group-flush">
+                      <div  class="card-body py-2 px-1" 
+                            style="height: clamp(10rem,57vh,33rem);overflow-y: auto;overflow-x: hidden;"
+                            [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                        
+                        @if (loading()) {
+                          <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+                        } @else {
+                          <div class="row flex-fill">
+                            <div class="col">
+                              <div class="list-group list-group-flush">
 
-                              <!-- Item de prueba para activos -->
-                              <div class="list-group-item rounded bg-azure-lt">
-                                <div class="d-flex align-items-center">
+                                @for (cat of paginationCat().categories; track cat.id) {
+                                  <div id="cat-{{cat.id}}" class="list-group-item cursor-default"
+                                       [ngClass]="{'bg-azure-lt': (cat.id == catSelected().id)}" (click)="selectCat(cat)">
 
-                                  <span class="text-blue me-3">
-                                    <app-icon [name]="'Folder'" [size]="20"></app-icon>
-                                  </span>
+                                    <div class="d-flex align-items-center">
 
-                                  <div class="flex-fill">
-                                    <div class="fw-semibold">Lácteos</div>
-                                    <div class="text-secondary small">
-                                      0 Subs · 0 productos
+                                      <span class="me-3" 
+                                            [ngClass]="{'text-blue': (cat.id == catSelected().id), 'text-muted': (cat.id != catSelected().id)}">
+                                        <app-icon [name]="'Folder'" [size]="20"></app-icon>
+                                      </span>
+
+                                      <div class="flex-fill">
+                                        <div class="fw-semibold">{{cat.name}}</div>
+                                        <div class="text-secondary small">
+                                          {{cat.subcategories.length}} Subs · {{cat.p_record}} productos
+                                        </div>
+                                      </div>
+
+                                      <div class="small me-3 d-flex align-items-center" [ngClass]="{'text-success': cat.active, 'text-danger': !cat.active}">
+                                        <span class="me-1">●</span>
+                                        <span class="text-nowrap"> @if (cat.active) { Activo } @else { Inactivo } </span>
+                                      </div>
+
+                                      <div class="ms-auto d-flex align-items-center gap-3">
+                                        <a class="btn btn-icon btn-sm p-0 text-muted" 
+                                           style="background-color: transparent;border: none;" 
+                                           (click)="editCat(cat, $event)">
+                                          
+                                           <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                        </a>
+
+                                        <a class="btn btn-icon btn-sm p-0 text-red" 
+                                           style="background-color: transparent;border: none;" 
+                                           [ngClass]="{'text-danger': cat.active, 'text-success': !cat.active}"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#deleteModal"
+                                           (click)="showDisableModal(1, cat, $event)">
+
+                                          <app-icon [name]="'CirclePower'" [size]="15"></app-icon>
+                                        </a>
+                                      </div>
+
                                     </div>
                                   </div>
-
-                                  <div class="text-success small me-3 d-flex align-items-center">
-                                    <span class="me-1">●</span>
-                                    <span class="text-nowrap">Activo</span>
-                                  </div>
-
-                                  <a class="text-muted">
-                                    <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                  </a>
-
-                                </div>
-                              </div>
-
-                              <!-- Item de prueba para Inactivos -->
-                              <div class="list-group-item rounded">
-                                <div class="d-flex align-items-center">
-                                  <span class="text-muted me-3">
-                                    <app-icon [name]="'Folder'" [size]="20"></app-icon>
-                                  </span>
-
-                                  <div class="flex-fill">
-                                    <div class="fw-semibold">Ropa</div>
-                                    <div class="text-secondary small">
-                                      1000 Subs · 5000 productos
-                                    </div>
-                                  </div>
-
-                                  <div class="text-danger small me-3 d-flex align-items-center">
-                                    <span class="me-1">●</span>
-                                    <span class="text-nowrap">Inactivo</span>
-                                  </div>
-
-                                  <!-- <span class="text-secondary">
-                                    <app-icon [name]="'Pencil'" [size]="16"></app-icon>
-                                  </span> -->
-
-                                  <a class="text-muted">
-                                    <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                  </a>
-                                </div>
+                                }
                               </div>
                             </div>
                           </div>
-                        </div>
+                        }
+
+                        
                       </div>
 
                       <!-- Paginado del panel de categorias -->
@@ -250,7 +172,7 @@
                   </div>
 
                   <!-- Panel de Subcategorias -->
-                  <div class="col-lg-8">
+                  <div class="col-sm-12 col-lg-7">
                     <div class="card">
 
                       <!-- Header del panel de subcategorías -->
@@ -263,7 +185,7 @@
                                   <app-icon [name]="'FolderOpen'" [size]="22"></app-icon>
                                 </span>
                                 
-                                <h4 class="page-title mb-0">Lacteos</h4>
+                                <h4 class="page-title mb-0">{{catSelected().name}}</h4>
                               </div>
                             </div>
 
@@ -278,204 +200,78 @@
                       </div>
 
                       <!-- Input de busqueda -->
-                      <div class="card-body border-bottom p-1" >
-                        <div class="input-icon">
-                          <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Subcategorías...">
-                          <span class="input-icon-addon">
-                            <app-icon [name]="'Search'" [size]="16"></app-icon>
-                          </span>
+                      <div class="card-body border-bottom p-1">
+                        <div class="row g-1">
+                          <div class="col">
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                          </div>
+                          <div class="col-auto d-flex align-items-center">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <app-icon [name]="'Search'" [size]="14"></app-icon>
+                            </a>
+                          </div>
                         </div>
                       </div>
 
                       <!-- Apartado para las cards de la Subcategoría seleccionada -->
-                      <div class="card-body p-2" style="height: clamp(10rem,50vh,26rem);overflow-y: auto;overflow-x: hidden;">
-                        <div class="row row-cards">
-
-                          <!-- Elemento a recorrer -->
-                          <div class="col-sm-6 col-lg-6">
-
-                            <!-- Card para las subcategorias -->
-                            <div class="card shadow-sm">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col">
-                                    <div class="d-flex align-items-center gap-2">
-                                      <span class="text-blue">
-                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
-                                      </span>
-                                      
-                                      <div>
-                                        <div class="flex-fill">
-                                          <div class="fw-semibold">Pantalon</div>
-                                          <div class="text-secondary small">
-                                            10 Productos
+                      <div class="card-body py-2 px-1"
+                           style="height: clamp(10rem,62vh,36rem);overflow-y: auto;overflow-x: hidden;"
+                           [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                        
+                        @if (loading()) {
+                          <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+                        } @else {
+                          <div class="row row-cards">
+                            @for (subCat of catSelected().subcategories; track subCat.id) {
+                              <div class="col-sm-12 col-lg-6">
+                                <div class="card shadow-sm">
+                                  <div class="card-header">
+                                    <div class="row align-items-center">
+                                      <div class="col">
+                                        <div class="d-flex align-items-center gap-2">
+                                          <span class="text-blue">
+                                            <app-icon [name]="'Package'" [size]="28"></app-icon>
+                                          </span>
+                                          
+                                          <div>
+                                            <div class="flex-fill">
+                                              <div class="fw-semibold">{{subCat.name}}</div>
+                                              <div class="text-secondary small">
+                                                {{subCat.p_record}} Productos
+                                              </div>
+                                            </div>
                                           </div>
+
                                         </div>
                                       </div>
+                                    </div>
+                                  </div>
 
+                                  <div class="card-body p-2">
+                                    <div class="row">
+                                      <div class="col">
+                                        <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                          <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                          Editar
+                                        </button>
+                                      </div>
+                                      <div class="col-auto ms-auto">
+                                        <button type="button" class="btn btn-sm gap-2">
+                                          <app-icon [name]="'Tag'" [size]="15"></app-icon>
+                                          Atributos
+                                        </button>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-
-                              <div class="card-body p-2">
-                                <div class="row">
-                                  <div class="col">
-                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
-                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                      Editar
-                                    </button>
-                                  </div>
-                                  <div class="col-auto ms-auto">
-                                    <button type="button" class="btn btn-sm gap-2">
-                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
-                                      Atributos
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            }
                           </div>
-
-                          <!-- Elemento a recorrer -->
-                          <div class="col-sm-6 col-lg-6">
-                            <!-- Items de prueba -->
-                            <div class="card shadow-sm">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col">
-                                    <div class="d-flex align-items-center gap-2">
-                                      <span class="text-blue">
-                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
-                                      </span>
-                                      
-                                      <div>
-                                        <div class="flex-fill">
-                                          <div class="fw-semibold">Camisa</div>
-                                          <div class="text-secondary small">
-                                            5 Productos
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="card-body p-2">
-                                <div class="row">
-                                  <div class="col">
-                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
-                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                      Editar
-                                    </button>
-                                  </div>
-                                  <div class="col-auto ms-auto">
-                                    <button type="button" class="btn btn-sm gap-2">
-                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
-                                      Atributos
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Elemento a recorrer -->
-                          <div class="col-sm-6 col-lg-6">
-                            <!-- Items de prueba -->
-                            <div class="card shadow-sm">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col">
-                                    <div class="d-flex align-items-center gap-2">
-                                      <span class="text-blue">
-                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
-                                      </span>
-                                      
-                                      <div>
-                                        <div class="flex-fill">
-                                          <div class="fw-semibold">Chaqueta</div>
-                                          <div class="text-secondary small">
-                                            6 Productos
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="card-body p-2">
-                                <div class="row">
-                                  <div class="col">
-                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
-                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                      Editar
-                                    </button>
-                                  </div>
-                                  <div class="col-auto ms-auto">
-                                    <button type="button" class="btn btn-sm gap-2">
-                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
-                                      Atributos
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Elemento a recorrer -->
-                          <div class="col-sm-6 col-lg-6">
-                            <!-- Items de prueba -->
-                            <div class="card shadow-sm">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col">
-                                    <div class="d-flex align-items-center gap-2">
-                                      <span class="text-blue">
-                                        <app-icon [name]="'Package'" [size]="28"></app-icon>
-                                      </span>
-                                      
-                                      <div>
-                                        <div class="flex-fill">
-                                          <div class="fw-semibold">Short</div>
-                                          <div class="text-secondary small">
-                                            6 Productos
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="card-body p-2">
-                                <div class="row">
-                                  <div class="col">
-                                    <button type="button" class="btn btn-secondary btn-sm gap-2">
-                                      <app-icon [name]="'Pencil'" [size]="15"></app-icon>
-                                      Editar
-                                    </button>
-                                  </div>
-                                  <div class="col-auto ms-auto">
-                                    <button type="button" class="btn btn-sm gap-2">
-                                      <app-icon [name]="'Tag'" [size]="15"></app-icon>
-                                      Atributos
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        }
                       </div>
 
                       <!-- Apartado de paginación para las Subcategorias -->
-                      <div class="card-footer py-2 px-2"> 
+                      <!-- <div class="card-footer py-2 px-2"> 
                         <ul class="pagination m-0">
                           <li class="page-item disabled">
                             <a class="page-link">Previous</a>
@@ -485,7 +281,7 @@
                           <li class="page-item"><a class="page-link">3</a></li>
                           <li class="page-item"><a class="page-link">Next</a></li>
                         </ul>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
                 </div>
@@ -494,7 +290,7 @@
               <!-- Apartado de Marcas y atributos -->
               <div class="col-lg-3">
                 <div class=" col-sm col-lg">
-                  <div class="row row-cards">
+                  <div class="row row-cards gap-1">
 
                     <!-- Panel de Marcas -->
                     <div class="col-12">
@@ -523,21 +319,70 @@
 
                         <!-- Input de busqueda -->
                         <div class="card-body border-bottom p-1">
-                          <div class="input-icon">
-                            <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Marcas...">
-                            <span class="input-icon-addon">
-                              <app-icon [name]="'Search'" [size]="16"></app-icon>
-                            </span>
+                          <div class="row g-1">
+                            <div class="col">
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                                <app-icon [name]="'Search'" [size]="14"></app-icon>
+                              </a>
+                            </div>
                           </div>
                         </div>
 
                         <!-- Apartado que tendra las cards de marcas -->
-                        <div class="card-body" style="height: clamp(5rem,50vh,8rem);overflow-y: auto;">
-                          <div class="row flex-fill">
-                            <div class="col">
+                        <div class="card-body px-2 py-1" 
+                             style="height: clamp(10rem,20vh,12rem);overflow-y: auto;"
+                             [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                          
+                          @if (loading()) {
+                            <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+                          } @else {
+                            <div class="row flex-fill">
+                              <div class="col">
+                                <div class="list-group list-group-flush">
 
+                                  @for (brand of paginationBrand().brands; track brand.id) {
+                                    <div class="list-group-item cursor-default">
+                                      <div class="d-flex align-items-center">
+
+                                        <span class="text-blue me-2">
+                                          <app-icon [name]="'Star'" [size]="20"></app-icon>
+                                        </span>
+
+                                        <div class="flex-fill">
+                                          <div class="fw-semibold">{{brand.name}}</div>
+                                          <div class="text-secondary small">
+                                            {{brand.p_records}} Productos
+                                          </div>
+                                        </div>
+
+                                        <div class="small me-3 d-flex align-items-center" 
+                                            [ngClass]="{'text-success': brand.active, 'text-danger': !brand.active}">
+                                          <span class="me-1">●</span>
+                                          <span class="text-nowrap"> @if (brand.active) { Activo } @else { Inactivo } </span>
+                                        </div>
+
+                                        <div class="ms-auto d-flex align-items-center gap-3">
+                                          <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                            <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                          </a>
+
+                                          <a class="btn btn-icon btn-sm p-0" 
+                                            style="background-color: transparent;border: none;"
+                                            [ngClass]="{'text-danger': brand.active, 'text-success': !brand.active}">
+                                            <app-icon [name]="'CirclePower'" [size]="15"></app-icon>
+                                          </a>
+                                        </div>
+
+                                      </div>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          }
                         </div>
 
                         <!-- Apartado de paginacion para el panel de marcas -->
@@ -584,21 +429,73 @@
 
                         <!-- Input de busqueda -->
                         <div class="card-body border-bottom p-1">
-                          <div class="input-icon">
-                            <input type="text" class="form-control form-control-sm form-control-rounded" placeholder="Buscar Atributos...">
-                            <span class="input-icon-addon">
-                              <app-icon [name]="'Search'" [size]="16"></app-icon>
-                            </span>
+                          <div class="row g-1">
+                            <div class="col">
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                                <app-icon [name]="'Search'" [size]="14"></app-icon>
+                              </a>
+                            </div>
                           </div>
                         </div>
 
                         <!-- Apartado de cards de atributos -->
-                        <div class="card-body" style="height: clamp(5rem,50vh,8rem);overflow-y: auto;">
-                          <div class="row">
-                            <div class="col">
+                        <div class="card-body px-2 py-1" 
+                             style="height: clamp(10rem,20vh,12rem);overflow-y: auto;"
+                             [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
 
+                          @if (loading()) {
+                            <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+                          } @else {
+                            <div class="row flex-fill">
+                              <div class="col">
+
+                                <div class="list-group list-group-flush">
+
+                                  @for (attr of paginationAttr().attributes; track attr.id) {
+                                    @for (value of attr.values; track value.id) {
+                                      <div class="list-group-item cursor-default">
+                                        <div class="d-flex align-items-center">
+
+                                          <span class="text-blue me-2">
+                                            <app-icon [name]="'Tag'" [size]="20"></app-icon>
+                                          </span>
+
+                                          <div class="flex-fill">
+                                            <div class="fw-semibold">{{attr.name}}: {{value.value}}</div>
+                                            <div class="text-secondary small">
+                                              {{value.p_record}} productos
+                                            </div>
+                                          </div>
+
+                                          <div class="text-success small me-3 d-flex align-items-center">
+                                            <span class="me-1">●</span>
+                                            <span class="text-nowrap">@if (value.active) { Activo } @else { Inactivo }</span>
+                                          </div>
+
+                                          <div class="ms-auto d-flex align-items-center gap-3">
+                                            <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                              <app-icon [name]="'Pencil'" [size]="15"></app-icon>
+                                            </a>
+
+                                            <a class="btn btn-icon btn-sm p-0" 
+                                              style="background-color: transparent;border: none;"
+                                              [ngClass]="{'text-danger': value.active, 'text-success': !value.active}">
+                                              <app-icon [name]="'CirclePower'" [size]="15"></app-icon>
+                                            </a>
+                                          </div>
+
+                                        </div>
+                                      </div>
+                                    }
+                                  }
+                                </div>
+
+                              </div>
                             </div>
-                          </div>
+                          }
                         </div>
 
                         <!-- Apartado de paginación para atributos -->
@@ -628,3 +525,5 @@
     </div>
   </div>
 </div>
+
+<app-disableModal [id]="'deleteModal'" [modal]="modal()" (onConfirm)="disable()"></app-disableModal>

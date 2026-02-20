@@ -22,7 +22,8 @@ import {
   ChevronLeft,
   Pencil,
   Ellipsis,
-  Search
+  Search,
+  CirclePower 
 } from 'lucide-angular';
 
 const AllIcons = {
@@ -47,7 +48,8 @@ const AllIcons = {
   ChevronLeft,
   Pencil,
   Ellipsis,
-  Search
+  Search,
+  CirclePower
 };
 type AllIconsType = keyof typeof AllIcons;
 

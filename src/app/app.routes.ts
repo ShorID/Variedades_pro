@@ -5,9 +5,6 @@ import { CheckInComponent } from './check-in/check-in.component';
 import { LayoutComponent } from './layout/layout.component';
 import { Page404Component } from './page404/page404.component';
 import { CategoriesComponent } from './categories/categories.component';
-import { SubcategoriesComponent } from './categories/subcategories/subcategories.component';
-import { BrandsComponent } from './categories/brands/brands.component';
-import { AttributesComponent } from './categories/attributes/attributes.component';
 
 export const routes: Routes = [
   {
@@ -41,19 +38,7 @@ export const routes: Routes = [
           {
             path: '',
             component: CategoriesComponent,
-          },
-          {
-            path: 'subcategories',
-            component: SubcategoriesComponent,
-          },
-          {
-            path: 'attributes',
-            component: AttributesComponent,
-          },
-          {
-            path: 'brands',
-            component: BrandsComponent,
-          },
+          }
         ],
       },
     ],

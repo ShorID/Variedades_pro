@@ -24,7 +24,7 @@ export class InputComponent implements OnInit {
   name = input<string>('');
   value = input<string>('')
   placeholder = input<string>('');
-  onChange = output<Event>()
+  onChange = output<Event>();
 
   iClass = input<string>('');
   lClass = input<string>('');

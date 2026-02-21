@@ -12,7 +12,7 @@ import { TextComponent } from '../../../components/Text/text.component';
           <div class="input-group input-group-flat">
             <input
               type="text"
-              class="form-control"
+              class="form-control form-control-sm"
               (input)="onSearchInput($event)"
               [value]="searchText"
               autocomplete="off"
@@ -42,77 +42,123 @@ import { TextComponent } from '../../../components/Text/text.component';
             </span>
           </div>
         </div>
-        <div class="col">
-          <div class="dropdown">
-            <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                <Text tagClass="d-flex align-items-center">
-                    <app-icon name='filter' class='me-1 d-block-inline' [size]="16" />
-                    Subcategorias
-                </Text>
-            </a>
-            <div class="dropdown-menu" style="z-index: 1021;">
-              <a class="dropdown-item" href="#"> Action </a>
-              <a class="dropdown-item" href="#"> Another action </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Separated link</a>
-            </div>
-          </div>
+        <div class="col-12 col-md-auto">
+          <ng-content></ng-content>
         </div>
       </div>
     </div>
-    <table class="table">
-      <thead class="sticky-top">
-        <tr>
-          <th scope="col" [width]="'2rem'"></th>
-          <th scope="col" [width]="'2rem'">ID</th>
-          <th scope="col">Producto</th>
-          <th scope="col">Cantidad</th>
-          <th scope="col">Atributos</th>
-          <th scope="col" [width]="'5rem'"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of filteredItems(); track $index) {
-          @let stockStatus = getStockStatus(item);
+    <div class="d-none d-lg-block">
+      <table class="table">
+        <thead class="sticky-top">
           <tr>
-            <td><app-icon [name]="item.categoria.icono || 'Barcode'" /></td>
-            <td>{{ item.id }}</td>
-            <td>{{ item.nombre }}</td>
-            <td>
-              <span [class]="['status', 'status-' + stockStatus.status]">
-                <Text tag="smallBody"
-                  >Stock: {{ stockStatus.current }} | min: {{ stockStatus.min }}</Text
-                >
-              </span>
-            </td>
-            <td>
-              @for (inv of item.details; track inv.id_inventario) {
-                @for (attr of inv.attributes; track attr.id) {
+            <th scope="col" [width]="'2rem'"></th>
+            <th scope="col" [width]="'2rem'">ID</th>
+            <th scope="col">Sub categoria</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Atributos</th>
+            <th scope="col">Marca</th>
+            <th scope="col" [width]="'5rem'"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredItems(); track item.id + '-desktop') {
+            @let stockStatus = getStockStatus(item);
+            <tr>
+              <td><app-icon [name]="item.categoria.icono || 'Barcode'" /></td>
+              <td>{{ item.id }}</td>
+              <td>{{ item.sub_categoria.nombre }}</td>
+              <td>
+                <span [class]="['status', 'status-' + stockStatus.status]">
+                  <Text tag="smallBody"
+                    >Stock: {{ stockStatus.current }} | min: {{ stockStatus.min }}</Text
+                  >
+                </span>
+              </td>
+              <td>
+                @for (attr of item.attributes; track attr.id) {
                   <span class="status status-lite me-1">
                     <Text tag="smallBody">{{ attr.valor }}</Text>
                   </span>
                 }
-              }
-            </td>
-            <td class="d-flex gap-1">
-              <button type="button" class="btn btn-sm">
-                <app-icon name="Pencil" [size]="16" />
-              </button>
-              <button type="button" class="btn btn-sm">
-                <app-icon name="Trash" [size]="16" />
-              </button>
-            </td>
+              </td>
+              <td>
+                {{ item.marca.nombre }}
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-sm">
+                    <app-icon name="Pencil" [size]="16" />
+                  </button>
+                  <button type="button" class="btn btn-sm">
+                    <app-icon name="Trash" [size]="16" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="d-block d-lg-none">
+      <table class="table">
+        <thead class="sticky-top">
+          <tr>
+            <th scope="col">Lista</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (item of filteredItems(); track item.id + '-mobile') {
+            @let stockStatus = getStockStatus(item);
+            <tr>
+              <td>
+                <div class="card p-1">
+                  <div class="card-header p-1">
+                    <Text tagClass="d-flex">
+                      <app-icon [name]="item.categoria.icono || 'Barcode'" class="me-2" />
+                      Subcategoria: {{ item.sub_categoria.nombre }}
+                    </Text>
+                  </div>
+                  ID: {{ item.id }}<br />
+                  Subcategoria: {{ item.sub_categoria.nombre }}<br />
+                  <div>
+                    <span [class]="['status', 'status-' + stockStatus.status]">
+                      <Text tag="smallBody"
+                        >Stock: {{ stockStatus.current }} | min: {{ stockStatus.min }}</Text
+                      >
+                    </span>
+                  </div>
+                  Attributos:
+                  <div class="ps-1">
+                    @for (attr of item.attributes; track attr.id) {
+                      <span class="status status-lite me-1">
+                        <Text tag="smallBody">{{ attr.valor }}</Text>
+                      </span>
+                    }
+                  </div>
+                  Marca: {{ item.marca.nombre }}
+
+                  <div class="card-footer p-1 d-flex gap-1">
+                    <button type="button" class="btn btn-sm">
+                      <app-icon name="Pencil" [size]="16" />
+                    </button>
+                    <button type="button" class="btn btn-sm">
+                      <app-icon name="Trash" [size]="16" />
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   `,
   imports: [IconComponent, TextComponent],
 })
 export class InventaryTableComponent implements OnInit {
   items = input<IInventaryItem[]>([]);
   filters = signal<{ q?: string; cty?: number; subCty?: number }>({});
-  filteredItems = computed(() => {
+  filteredItems = computed<IInventaryItem[]>(() => {
     const currentFilters = this.filters();
 
     if (currentFilters.q || currentFilters.cty || currentFilters.subCty)
@@ -143,7 +189,7 @@ export class InventaryTableComponent implements OnInit {
       diff: 0,
       status: 'lime',
     };
-    item.details.forEach((inv) => {
+    item.inventary.forEach((inv) => {
       status.current = status.current + inv.stock;
       status.min = status.min + inv.stock_minimo;
     });

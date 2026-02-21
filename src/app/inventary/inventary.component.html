@@ -28,32 +28,49 @@
       </div>
     </div>
     <div class="card-body">
-      <div class="row">
-        <div class="col-2">
-          <app-categories-selector />
-        </div>
-        <div class="col-10">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between">
-              <Text bold="bold"
-                >Productos
-                @if (loading()) {
-                  <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
-                }
-              </Text>
-              <div class="btn-list justify-content-end">
-                <button class="btn btn-sm btn-square" type="button" (click)="refreshProducts()">
-                  <app-icon name="RefreshCcw" [size]="18" />
-                </button>
-              </div>
-            </div>
-            <div class="card-body p-0">
-              <inventary-table [items]="inventary()" />
-            </div>
-            <div class="card-footer">
-              <app-pagination />
-            </div>
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <Text bold="bold"
+            >Productos
+            @if (loading()) {
+              <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+            }
+          </Text>
+          <div class="btn-list justify-content-end">
+            <button class="btn btn-sm btn-square" type="button" (click)="refreshProducts()">
+              <app-icon name="RefreshCcw" [size]="18" />
+            </button>
           </div>
+        </div>
+        <div class="card-body p-0">
+          <inventary-table [items]="filteredInventary()">
+            <div class="d-block w-100 d-md-flex gap-2">
+              <app-categories-selector
+                [data]="categories()"
+                [canUnselect]="true"
+                icon="filter"
+                title="Categorias"
+                mode="select"
+                class="d-block mb-2"
+                style="min-width: 9rem;"
+                (onSelect)="setFilter('category',$event)"
+              />
+              <app-subcategory-selector
+                [data]="subcategories()"
+                [hearingCategory]="false"
+                [canUnselect]="true"
+                icon="filter"
+                title="Sub-categorias"
+                mode="select"
+                class="d-block"
+                style="min-width: 9rem;"
+                (onSelect)="setFilter('subcategory',$event)"
+              />
+            </div>
+          </inventary-table>
+        </div>
+        <div class="card-footer">
+          <app-pagination />
         </div>
       </div>
     </div>

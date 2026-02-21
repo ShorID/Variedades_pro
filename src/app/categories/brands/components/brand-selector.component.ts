@@ -13,6 +13,8 @@ import {
       [items]="parseData()"
       icon="sticker"
       (onSelect)="onChange($event)"
+      [canCreate]="canCreate()"
+      [mode]="mode()"
     />
   `,
   imports: [CardSelectComponent],
@@ -29,14 +31,16 @@ export class BrandSelectorComponent implements OnInit {
     }),
   );
 
+  mode = input<'select' | 'card'>('card');
+  canCreate = input<boolean>(false);
   onSelect = output<IBrand | undefined>();
 
   constructor() {}
 
   ngOnInit() {}
 
-  onChange(item: ICardSelectItem) {
-    const selected = this.data().find((dataItem) => dataItem.id === +item.value);
+  onChange(item: ICardSelectItem | null) {
+    const selected = this.data().find((dataItem) => dataItem.id === (item ? +item.value : item));
     this.onSelect.emit(selected);
   }
 }

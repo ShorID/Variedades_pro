@@ -6,17 +6,44 @@ import { TextComponent } from '../../Text/text.component';
   styleUrl: './Input.component.scss',
   template: `
     @if (label()) {
-      <Text [tagClass]="['form-label', lClass()].join(' ')">{{ label() }}</Text>
+      <Text [tagClass]="labelClass">
+        {{ label() }}
+        @if (required()) {
+          <span class="text-danger">*</span>
+        }
+      </Text>
     }
-    <input
-      [type]="iType()"
-      [class]="['form-control', iClass()]"
-      [name]="name()"
-      [placeholder]="placeholder()"
-      (input)="onInputChange($event)"
-      [value]="inputValue"
-      autocomplete="off"
-    />
+
+    @switch (iType()) {
+      @case ('textarea') {
+        <textarea
+          [class]="inputClass"
+          [name]="name()"
+          [placeholder]="placeholder()"
+          (input)="onInputChange($event)"
+          [value]="inputValue"
+          autocomplete="off"
+          [rows]="lines()"
+          [readOnly]="disabled()"
+          [disabled]="disabled()"
+        ></textarea>
+      }
+      @default {
+        <input
+          [type]="iType()"
+          [class]="inputClass"
+          [name]="name()"
+          [placeholder]="placeholder()"
+          (input)="onInputChange($event)"
+          [value]="inputValue"
+          [required]="required()"
+          [readOnly]="disabled()"
+          autocomplete="off"
+          [disabled]="disabled()"
+          [step]="step()"
+        />
+      }
+    }
     <ng-content></ng-content>
   `,
   imports: [TextComponent],
@@ -27,15 +54,30 @@ export class InputComponent implements OnInit, OnDestroy {
   value = input<string | undefined>(undefined);
   placeholder = input<string>('');
   onChange = output<Event>();
+  required = input<boolean>(false);
+  disabled = input<boolean>(false);
+  step = input<string>('1');
 
   iClass = input<string>('');
+  get inputClass() {
+    let classnames: string[] = ['form-control'];
+    classnames = classnames.concat(this.iClass().split(' '));
+    return classnames;
+  }
   lClass = input<string>('');
-  iType = input<'text' | 'password' | 'number'>();
+  get labelClass() {
+    let classnames: string[] = ['form-label'];
+    classnames = classnames.concat(this.lClass().split(' '));
+    return classnames.join(' ');
+  }
+  iType = input<'text' | 'password' | 'number' | 'textarea'>();
 
   inputValue: string = '';
   valueEffect = effect(() => {
     this.inputValue = this.value() || '';
   });
+
+  lines = input<number>(4);
 
   constructor() {}
 

@@ -10,7 +10,7 @@ import { IInventaryItem } from '../../interfaces/inventary.interfaces';
       <div class="row">
         <app-icon [name]="iconName" class="col-auto" />
         <div class="col-4">
-          <Text>{{data().nombre}}</Text>
+          <Text>{{data().categoria.nombre}}</Text>
         </div>
       </div>
     </div>

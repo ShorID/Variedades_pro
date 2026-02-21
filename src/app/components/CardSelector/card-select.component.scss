@@ -23,7 +23,7 @@ $card-body-mh: 10rem;
     }
 
     .card-body {
-        max-height: $card-body-mh;
+        height: $card-body-mh;
         overflow-y: auto;
     }
 
@@ -33,5 +33,35 @@ $card-body-mh: 10rem;
         min-height: $card-body-mh;
         justify-content: center;
         text-align: center;
+    }
+
+    &-mode-select {
+        position: relative;
+
+        .Card-selector-content {
+            background-color: var(--tblr-card-bg);
+            left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: ease-in-out max-height 0.3s;
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            z-index: 1099;
+        }
+        .Card-selector-content .card-header,
+        .Card-selector-content .card-body{
+            border: var(--tblr-card-border-color) solid 01px;
+            border-radius: 0;
+        }
+
+        &.isOpen{
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        &.isOpen .Card-selector-content {
+            max-height: 100vh;
+        }
     }
 }

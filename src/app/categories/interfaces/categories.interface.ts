@@ -6,6 +6,7 @@ export interface ICategories {
   id: number;
   nombre: string;
   sub_categoria?: ISubCategories[];
+  qty?: number
 }
 
 export interface ISubCategories {

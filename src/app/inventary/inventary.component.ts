@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { TextComponent } from '../components/Text/text.component';
 import { IconComponent } from '../components/Icon/icon.component';
 import { CategoriesSelectorComponent } from '../categories/components/category-selector-card/category-selector-card.component';
@@ -7,8 +7,10 @@ import { InventaryService } from './services/inventary.service';
 import { BehaviorSubject, catchError, of, Subscription, switchMap, tap } from 'rxjs';
 import { IInventaryItem } from './interfaces/inventary.interfaces';
 import { PaginationComponent } from '../components/pagination/pagination.component';
-import { InventaryTableComponent } from "./components/inventary-table/inventary-table.component";
+import { InventaryTableComponent } from './components/inventary-table/inventary-table.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ICategories, ISubCategories } from '../categories/interfaces/categories.interface';
+import { SubcategorySelectorComponent } from '../categories/subcategories/components/subcategory-selector-card/subcategory-selector-card.component';
 
 @Component({
   selector: 'page-inventary',
@@ -19,20 +21,34 @@ import { ActivatedRoute, Router } from '@angular/router';
     IconComponent,
     CategoriesSelectorComponent,
     PaginationComponent,
-    InventaryTableComponent
-],
+    InventaryTableComponent,
+    SubcategorySelectorComponent,
+  ],
 })
 export class InventaryComponent implements OnInit, OnDestroy {
   loading = signal<boolean>(true);
   inventary = signal<IInventaryItem[]>([]);
+  categories = signal<ICategories[]>([]);
+  subcategories = signal<ISubCategories[]>([]);
   suscriptions: Subscription[] = [];
   refresh$ = new BehaviorSubject(undefined);
+  filters = signal<Record<string, number | null>>({});
+  filteredInventary = computed(() => {
+    return this.inventary().filter((item) => {
+      if (this.filters()['subcategory'] || this.filters()['cateogory'])
+        return (
+          (this.filters()['subcategory'] || 0) === item.sub_categoria.id ||
+          (this.filters()['cateogory'] || 0) === item.sub_categoria.id_categoria
+        );
+      return true;
+    });
+  });
 
   constructor(
     private invHttpsService: InventaryHttpsService,
     private invService: InventaryService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -46,7 +62,9 @@ export class InventaryComponent implements OnInit, OnDestroy {
               tap(({ data, error }) => {
                 if (data) {
                   const inv = this.invService.buildData(data);
-                  this.invService.setItems(inv);
+                  this.invService.setItems(inv.items);
+                  this.categories.set(inv.categories);
+                  this.subcategories.set(inv.subcategories);
                 }
               }),
               catchError(() => {
@@ -69,7 +87,11 @@ export class InventaryComponent implements OnInit, OnDestroy {
     this.refresh$.next(undefined);
   }
 
-  redirectToCreate(){
-    this.router.navigate(['create'],{ relativeTo: this.route })
+  redirectToCreate() {
+    this.router.navigate(['create'], { relativeTo: this.route });
+  }
+
+  setFilter(key: string, value: ICategories | ISubCategories | undefined) {
+    this.filters.update((prev) => ({ ...prev, [key]: value ? value?.id : null }));
   }
 }

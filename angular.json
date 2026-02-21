@@ -23,13 +23,22 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            },
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css",
+              "node_modules/ngx-toastr/toastr.css",
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {

@@ -8,6 +8,8 @@ import { CategoriesComponent } from './categories/categories.component';
 import { SubcategoriesComponent } from './categories/subcategories/subcategories.component';
 import { BrandsComponent } from './categories/brands/brands.component';
 import { AttributesComponent } from './categories/attributes/attributes.component';
+import { InventaryComponent } from './inventary/inventary.component';
+import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
 
 export const routes: Routes = [
   {
@@ -53,6 +55,20 @@ export const routes: Routes = [
           {
             path: 'brands',
             component: BrandsComponent,
+          },
+        ],
+      },
+      {
+        path: 'inventary',
+        title: 'Inventario',
+        children: [
+          {
+            path: '',
+            component: InventaryComponent,
+          },
+          {
+            path: 'create',
+            component: InventaryCreateComponent,
           },
         ],
       },

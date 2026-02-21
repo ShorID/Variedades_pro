@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, map } from 'rxjs';
 import { IRawUser, IUser } from '../interfaces/user.interface';
 
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private user = new BehaviorSubject<IUser | null>(null);
@@ -30,6 +31,11 @@ export class AuthService {
       permissions,
     };
   }
+
+  // En tu servicio de auth
+getCurrentUser(): IUser | null {
+  return this.user.getValue(); // getValue() extrae el último objeto IUser guardado
+}
 
   logout() {
     this.user.next(null);

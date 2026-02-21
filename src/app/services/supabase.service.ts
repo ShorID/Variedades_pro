@@ -25,6 +25,11 @@ export class SupabaseService {
   async signOut() {
     await this.supabase.auth.signOut();
   }
+  //esto lo puse para facturacion
+  rpc(fn: string, params?: object) {
+  return this.supabase.rpc(fn, params);
+}
+
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

@@ -5,7 +5,7 @@ export interface IpaginationAttr{
 }
 
 export interface IAttribute {
-  id: Number,
+  id: number,
   name: string,
   active: boolean,
   values: IAttrValue[]

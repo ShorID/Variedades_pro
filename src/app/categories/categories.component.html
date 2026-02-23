@@ -94,9 +94,9 @@
                       <!-- Cards para el panel de categorias -->
                       <div  class="card-body py-2 px-1" 
                             style="height: clamp(10rem,57vh,33rem);overflow-y: auto;overflow-x: hidden;"
-                            [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                            [ngClass]="{'d-flex': loadingCat(), 'justify-content-center': loadingCat(), 'align-items-center': loadingCat()}">
                         
-                        @if (loading()) {
+                        @if (loadingCat()) {
                           <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
                         } @else {
                           <div class="row flex-fill">
@@ -134,7 +134,7 @@
                                            <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                         </a>
 
-                                        <a class="btn btn-icon btn-sm p-0 text-red" 
+                                        <a class="btn btn-icon btn-sm p-0" 
                                            style="background-color: transparent;border: none;" 
                                            [ngClass]="{'text-danger': cat.active, 'text-success': !cat.active}"
                                            data-bs-toggle="modal"
@@ -216,9 +216,9 @@
                       <!-- Apartado para las cards de la Subcategoría seleccionada -->
                       <div class="card-body py-2 px-1"
                            style="height: clamp(10rem,62vh,36rem);overflow-y: auto;overflow-x: hidden;"
-                           [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                           [ngClass]="{'d-flex': loadingSubcat(), 'justify-content-center': loadingSubcat(), 'align-items-center': loadingSubcat()}">
                         
-                        @if (loading()) {
+                        @if (loadingSubcat()) {
                           <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
                         } @else {
                           <div class="row row-cards">
@@ -334,9 +334,9 @@
                         <!-- Apartado que tendra las cards de marcas -->
                         <div class="card-body px-2 py-1" 
                              style="height: clamp(10rem,20vh,12rem);overflow-y: auto;"
-                             [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                             [ngClass]="{'d-flex': loadingBrand(), 'justify-content-center': loadingBrand(), 'align-items-center': loadingBrand()}">
                           
-                          @if (loading()) {
+                          @if (loadingBrand()) {
                             <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
                           } @else {
                             <div class="row flex-fill">
@@ -444,9 +444,9 @@
                         <!-- Apartado de cards de atributos -->
                         <div class="card-body px-2 py-1" 
                              style="height: clamp(10rem,20vh,12rem);overflow-y: auto;"
-                             [ngClass]="{'d-flex': loading(), 'justify-content-center': loading(), 'align-items-center': loading()}">
+                             [ngClass]="{'d-flex': loadingattr(), 'justify-content-center': loadingattr(), 'align-items-center': loadingattr()}">
 
-                          @if (loading()) {
+                          @if (loadingattr()) {
                             <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
                           } @else {
                             <div class="row flex-fill">
@@ -526,4 +526,4 @@
   </div>
 </div>
 
-<app-disableModal [id]="'deleteModal'" [modal]="modal()" (onConfirm)="disable()"></app-disableModal>
+<app-disableModal [modal]="modal()" (onConfirm)="disable()"></app-disableModal>

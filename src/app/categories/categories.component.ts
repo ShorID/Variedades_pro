@@ -3,10 +3,10 @@ import { BreadcrumbsComponent } from "../components/Breadcrumbs/breadcrumbs.comp
 import { IconComponent } from '../components/Icon/icon.component';
 import { disableModalComponent } from './components/disableModal.component';
 import { CategoriesServices } from './services/categories.services';
-import { catchError, filter, map, of, switchMap, tap, BehaviorSubject } from 'rxjs';
-import { IpaginationCat, ICategories } from './interfaces/categories.interface'
-import { IpaginationBrand } from './interfaces/brand.interface';
-import { IpaginationAttr } from './interfaces/attributes.interface';
+import { catchError, filter, map, of, switchMap, tap, BehaviorSubject, EMPTY } from 'rxjs';
+import { IpaginationCat, ICategories } from './interfaces/categories.interface';
+import { IBrand, IpaginationBrand } from './interfaces/brand.interface';
+import { IAttrValue, IpaginationAttr } from './interfaces/attributes.interface';
 import { IModal } from './interfaces/components.interface'
 import { NgClass } from "@angular/common";
 
@@ -24,16 +24,24 @@ export class CategoriesComponent implements OnInit {
 
   paginationBrand = signal<IpaginationBrand>({brands: [], totalRecords : 0, totalPages: 0});
   paginationAttr = signal<IpaginationAttr>({attributes: [], totalRecords : 0, totalPages: 0});
-  loading = signal<boolean>(false);
+  loadingCat = signal<boolean>(false);
+  loadingSubcat = signal<boolean>(false);
+  loadingBrand = signal<boolean>(false);
+  loadingattr = signal<boolean>(false);
 
-  modal = signal<IModal>({isOpen: false, type: "", textQuestion: "", textAdditional: ""});
+  modal = signal<IModal>({isOpen: false, type: "", textQuestion: "", textAdditional: "", textbold: ""});
+  limit = signal<number>(10);
 
   ngOnInit() {
-    this.loadInfo();
+    this.loadInfo(this.limit());
   }
 
   loadInfo(limit: number = 10){
-    this.loading.set(true);
+    this.loadingCat.set(true);
+    this.loadingSubcat.set(true);
+    this.loadingBrand.set(true);
+    this.loadingattr.set(true);
+
     this.categoriesService.getBrands()
     .pipe(
       tap(({ data, count }) => {
@@ -77,7 +85,10 @@ export class CategoriesComponent implements OnInit {
       })
     )
     .subscribe(() => {
-      this.loading.set(false);
+      this.loadingCat.set(false);
+      this.loadingSubcat.set(false);
+      this.loadingBrand.set(false);
+      this.loadingattr.set(false);
     });
   }
 
@@ -93,27 +104,94 @@ export class CategoriesComponent implements OnInit {
   }
 
   // ** Metodo para inactivar una categoria
-  showDisableModal(type: number, item:ICategories, event: MouseEvent){
+  showDisableModal(type: number, item: ICategories | IBrand | IAttrValue, event: MouseEvent){
     event.stopPropagation();
-    if(type == 1){
-      this.modal
-      .set({
-            isOpen: true, 
-            type: "categoria", 
-            textQuestion: "¿Estas seguro?", 
-            textAdditional: "Desea deshabilitar la categoria", 
-            item: item
-          });
+
+    if(!item) return;
+
+    if(type === 1 && 'name' in item){
+      this.modal.set({
+        isOpen: true,
+        type: "categoria",
+        textQuestion: "¿Estas seguro?",
+        textAdditional: `Desea ${item.active ? "deshabilitar" : "habilitar"} la categoria`,
+        textbold: item.name,
+        item: item
+      });
+
+    } else if(type === 2 && 'name' in item){
+      this.modal.set({
+        isOpen: true,
+        type: "marca",
+        textQuestion: "¿Estas seguro?",
+        textAdditional: `Desea ${item.active ? "deshabilitar" : "habilitar"} la marca`,
+        textbold: item.name,
+        item: item
+      });
+
+    } else if(type === 3 && 'value' in item){
+      this.modal.set({
+        isOpen: true,
+        type: "atributo",
+        textQuestion: "¿Estas seguro?",
+        textAdditional: `Desea ${item.active ? "deshabilitar" : "habilitar"} el valor`,
+        textbold: item.value,
+        item: item
+      });
     }
   }
 
   disable(){
     const { type, item } = this.modal();
+    this.modal.update((obj) => {
+      obj.isOpen = false;
+      return obj;
+    });
 
     if (!item) return;
 
+    if(type == "categoria")
+      this.loadingCat.set(true);
+    else if(type == "marca")
+      this.loadingBrand.set(true);
+    else if(type == "atributo")
+      this.loadingattr.set(true);
+
     this.categoriesService
-      .updateState(type, item.id, item.active)
-      .subscribe();
-    }
+    .updateState(type, item.id, item.active)
+    .pipe(
+      switchMap(() =>{
+        switch (type) {
+          case "categoria":
+            return this.categoriesService.getCats()
+            .pipe(
+              tap(({data, count}) => {
+                this.paginationCat.set({
+                  categories: data ?? [],
+                  totalRecords: count ?? 0,
+                  totalPages: Math.ceil((count ?? 0) / this.limit())
+                });
+              })
+            )
+
+          case "marca":
+            return this.categoriesService.getBrands();
+
+          case "atributo":
+            return this.categoriesService.getAtrs();
+
+          default:
+            return EMPTY;
+        }
+      })
+    )
+    .subscribe(() => {
+      if(type == "categoria")
+        this.loadingCat.set(false);
+      else if(type == "marca")
+        this.loadingBrand.set(false);
+      else if(type == "atributo")
+        this.loadingattr.set(false);
+    });
+  }
 }

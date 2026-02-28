@@ -158,7 +158,6 @@ export class CardSelectComponent implements OnInit {
     }
     const newValue = Object.values(this.selectedItem);
     
-    console.log(newValue)
     this.selectedItemQty = newValue.length;
 
     if (this.multiSelect()) this.onMultiSelect.emit(newValue);

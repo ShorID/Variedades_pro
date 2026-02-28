@@ -28,7 +28,7 @@ export class InventaryService {
     let subCategories: Record<string, ISubCategories> = {};
     const newData: IInventaryItem[] = data.map((item) => {
       let itemAttr: IInvAttrItem[] = [];
-      
+
       const subCategory =
         Array.isArray(item.sub_categoria) && item.sub_categoria.length
           ? item.sub_categoria[0]
@@ -50,8 +50,12 @@ export class InventaryService {
         sub_categoria: subCategory,
         descripcion: item.descripcion,
         marca: Array.isArray(item.marca) && item.marca.length ? item.marca[0] : item.marca,
-        packs: item.articulo_empaque,
+        packs: item.articulo_empaque.map((item) => ({
+          ...item,
+          unidades_empaques: item.unidades_empaque,
+        })),
         inventary: item.inventario,
+        costo: item.costo,
         attributes: item.articulo_variante_atr_val
           .map(({ atr_val }) => {
             return (Array.isArray(atr_val) ? atr_val : [atr_val]).map((item) => {

@@ -1,4 +1,4 @@
-import { Component, computed, input, OnInit, output } from '@angular/core';
+import { Component, computed, effect, input, OnDestroy, OnInit, output } from '@angular/core';
 import {
   ICardSelectItem,
   CardSelectComponent,
@@ -17,11 +17,12 @@ import { ISubCategories } from '../../../interfaces/categories.interface';
       [canUnselect]="canUnselect()"
       [canCreate]="canCreate()"
       [mode]="mode()"
+      [value]="selectedItems"
     />
   `,
   imports: [CardSelectComponent],
 })
-export class SubcategorySelectorComponent implements OnInit {
+export class SubcategorySelectorComponent implements OnInit, OnDestroy {
   canUnselect = input<boolean>(false);
   title = input<string>('Categorias');
   icon = input<string>('Shapes');
@@ -47,9 +48,21 @@ export class SubcategorySelectorComponent implements OnInit {
   canCreate = input<boolean>(false);
   onSelect = output<ISubCategories | undefined>();
 
+  selectedItems: string[] = [];
+  value = input<string | string[]>();
+
+  valueEffect = effect(() => {
+    const value = this.value();
+    this.selectedItems = value ? [value].flat() : [];
+  });
+
   constructor() {}
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.valueEffect.destroy();
+  }
 
   onChange(item: ICardSelectItem | null) {
     const selected = this.data().find((dataItem) => dataItem.id === (item ? +item.value : item));

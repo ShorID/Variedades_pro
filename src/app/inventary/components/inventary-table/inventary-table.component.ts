@@ -2,6 +2,7 @@ import { Component, computed, input, OnInit, signal } from '@angular/core';
 import { IInventaryItem } from '../../interfaces/inventary.interfaces';
 import { IconComponent } from '../../../components/Icon/icon.component';
 import { TextComponent } from '../../../components/Text/text.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'inventary-table',
@@ -75,7 +76,7 @@ import { TextComponent } from '../../../components/Text/text.component';
                 </span>
               </td>
               <td>
-                @for (attr of item.attributes; track attr.id) {
+                @for (attr of item.attributes; track attr.id + '-' + $index) {
                   <span class="status status-lite me-1">
                     <Text tag="smallBody">{{ attr.valor }}</Text>
                   </span>
@@ -86,7 +87,7 @@ import { TextComponent } from '../../../components/Text/text.component';
               </td>
               <td>
                 <div class="d-flex gap-1">
-                  <button type="button" class="btn btn-sm">
+                  <button type="button" class="btn btn-sm" (click)="redirectToProduct(item)">
                     <app-icon name="Pencil" [size]="16" />
                   </button>
                   <button type="button" class="btn btn-sm">
@@ -129,7 +130,7 @@ import { TextComponent } from '../../../components/Text/text.component';
                   </div>
                   Attributos:
                   <div class="ps-1">
-                    @for (attr of item.attributes; track attr.id) {
+                    @for (attr of item.attributes; track attr.id + '-' + $index) {
                       <span class="status status-lite me-1">
                         <Text tag="smallBody">{{ attr.valor }}</Text>
                       </span>
@@ -138,7 +139,7 @@ import { TextComponent } from '../../../components/Text/text.component';
                   Marca: {{ item.marca.nombre }}
 
                   <div class="card-footer p-1 d-flex gap-1">
-                    <button type="button" class="btn btn-sm">
+                    <button type="button" class="btn btn-sm" (click)="redirectToProduct(item)">
                       <app-icon name="Pencil" [size]="16" />
                     </button>
                     <button type="button" class="btn btn-sm">
@@ -178,7 +179,7 @@ export class InventaryTableComponent implements OnInit {
   searchText: string = '';
   searchTextTimeout: number | undefined = undefined;
 
-  constructor() {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {}
 
@@ -219,5 +220,9 @@ export class InventaryTableComponent implements OnInit {
   clearSearch(e: Event) {
     e.preventDefault();
     this.setSearchText('');
+  }
+
+  redirectToProduct(product: IInventaryItem) {
+    this.router.navigate(['product',product.id], { relativeTo: this.route });
   }
 }

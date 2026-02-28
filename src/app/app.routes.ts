@@ -10,6 +10,7 @@ import { BrandsComponent } from './categories/brands/brands.component';
 import { AttributesComponent } from './categories/attributes/attributes.component';
 import { InventaryComponent } from './inventary/inventary.component';
 import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
+import { InventaryEditComponent } from './inventary/components/inventary-edit/inventary-edit.component';
 
 export const routes: Routes = [
   {
@@ -69,6 +70,10 @@ export const routes: Routes = [
           {
             path: 'create',
             component: InventaryCreateComponent,
+          },
+          {
+            path: 'product/:id',
+            component: InventaryEditComponent,
           },
         ],
       },

@@ -142,4 +142,5 @@ export interface IInventaryItem {
   inventary: IInventary[];
   descripcion: string;
   forSearch: string;
+  costo?: string
 }

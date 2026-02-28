@@ -1,7 +1,7 @@
 <div class="inventary-create">
   <div class="card mt-3">
     <div class="card-header">
-      <Text tag="h5" bold="bold" tagClass="d-block">Creando nuevo producto</Text>
+      <Text tag="h5" bold="bold" tagClass="d-block">{{ title() }}</Text>
     </div>
     <div class="card-body">
       <div class="row row-gap-3">
@@ -63,7 +63,7 @@
           </div>
         </div>
         <div class="col-12 col-md-8">
-          <app-inventary-packs (onChange)="selectPacks($event)" />
+          <app-inventary-packs (onChange)="selectPacks($event)" [value]="this.selectedPacks()" />
         </div>
       </div>
       <div class="hr-text">
@@ -76,6 +76,7 @@
             [data]="brands()"
             (onSelect)="selectBrand($event)"
             [canCreate]="true"
+            [value]="selectedBrand()?.id + ''"
           />
         </div>
         <div class="col-6 col-md-3">
@@ -85,6 +86,7 @@
             (onSelect)="selectCategory($event)"
             class="d-block"
             [canCreate]="true"
+            [value]="selectedCategory()?.id + ''"
           />
         </div>
         <div class="col-6 col-md-3">
@@ -94,6 +96,7 @@
             [data]="subcategories()"
             (onSelect)="selectSubcategory($event)"
             [canCreate]="true"
+            [value]="selectedSubCategory()?.id + ''"
           />
         </div>
         <div class="col-6 col-md-3">
@@ -103,13 +106,14 @@
             (onSelect)="selectAttr($event)"
             [subCategoryId]="selectedSubCategory()?.id || 0"
             [canCreate]="true"
+            [value]="selectedAttr()"
           />
         </div>
         <!-- <div class="col-12 col-md-9"></div> -->
       </div>
     </div>
     <div class="card-footer d-flex justify-content-between">
-      <button type="button" class="btn btn-secondary">
+      <button type="button" class="btn btn-secondary" (click)="goBack()" >
         <Text tagClass="d-flex"><app-icon name="arrow-back-up" class="me-2" /> Regresar</Text>
       </button>
       <button type="button" class="btn btn-primary" (click)="saveData()">

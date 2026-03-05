@@ -1,5 +1,4 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { BreadcrumbsComponent } from "../components/Breadcrumbs/breadcrumbs.component";
 import { IconComponent } from '../components/Icon/icon.component';
 import { disableModalComponent } from './components/disableModal.component';
 import { CategoriesServices } from './services/categories.services';
@@ -14,7 +13,7 @@ import { NgClass } from "@angular/common";
   selector: 'categories-page',
   templateUrl: 'categories.component.html',
   styleUrl: 'categories.component.scss',
-  imports: [BreadcrumbsComponent, IconComponent, NgClass, disableModalComponent],
+  imports: [IconComponent, NgClass, disableModalComponent],
 })
 export class CategoriesComponent implements OnInit {
   constructor(private categoriesService: CategoriesServices) {}

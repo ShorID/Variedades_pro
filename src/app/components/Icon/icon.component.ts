@@ -17,15 +17,10 @@ import {
   Package,
   Tag,
   Star,
-  RefreshCcw,
   ChevronRight,
   ChevronLeft,
-  Pencil,
   Ellipsis,
-  Search,
-  CirclePower 
-  CircleUser,
-  Shirt,
+  CirclePower,
   Handbag,
   LucideIconData,
   Barcode,
@@ -47,8 +42,6 @@ const lucidIconsObj = {
   ArrowBigLeft,
   MapPinHouse,
   CircleAlert,
-  CircleUser,
-  Shirt,
   Handbag,
   Barcode,
   RefreshCcw,
@@ -62,13 +55,10 @@ const lucidIconsObj = {
   Package,
   Tag,
   Star,
-  RefreshCcw,
   ChevronRight,
   ChevronLeft,
-  Pencil,
   Ellipsis,
-  Search,
-  CirclePower
+  CirclePower,
 };
 type LucidIconsType = keyof typeof lucidIconsObj;
 

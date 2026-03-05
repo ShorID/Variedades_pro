@@ -3,7 +3,7 @@ import {
   ICardSelectItem,
   CardSelectComponent,
 } from '../../../../components/CardSelector/card-select.component';
-import { ISubCategories } from '../../../interfaces/categories.interface';
+import { IInvSubCategory } from '../../../../inventary/interfaces/inventary.interfaces';
 
 @Component({
   selector: 'app-subcategory-selector',
@@ -27,7 +27,7 @@ export class SubcategorySelectorComponent implements OnInit, OnDestroy {
   title = input<string>('Categorias');
   icon = input<string>('Shapes');
   categoryId = input<number>(0);
-  data = input<ISubCategories[]>([]);
+  data = input<IInvSubCategory[]>([]);
   hearingCategory = input<boolean>(true);
   parseData = computed<ICardSelectItem[]>(() => {
     if (this.hearingCategory() && !this.categoryId()) return [];
@@ -46,7 +46,7 @@ export class SubcategorySelectorComponent implements OnInit, OnDestroy {
 
   mode = input<'select' | 'card'>('card');
   canCreate = input<boolean>(false);
-  onSelect = output<ISubCategories | undefined>();
+  onSelect = output<IInvSubCategory | undefined>();
 
   selectedItems: string[] = [];
   value = input<string | string[]>();

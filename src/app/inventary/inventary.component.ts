@@ -5,11 +5,10 @@ import { CategoriesSelectorComponent } from '../categories/components/category-s
 import { InventaryHttpsService } from './services/inventary-https.service';
 import { InventaryService } from './services/inventary.service';
 import { BehaviorSubject, catchError, of, Subscription, switchMap, tap } from 'rxjs';
-import { IInventaryItem } from './interfaces/inventary.interfaces';
+import { IInvCategory, IInventaryItem, IInvSubCategory } from './interfaces/inventary.interfaces';
 import { PaginationComponent } from '../components/pagination/pagination.component';
 import { InventaryTableComponent } from './components/inventary-table/inventary-table.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ICategories, ISubCategories } from '../categories/interfaces/categories.interface';
 import { SubcategorySelectorComponent } from '../categories/subcategories/components/subcategory-selector-card/subcategory-selector-card.component';
 
 @Component({
@@ -28,8 +27,8 @@ import { SubcategorySelectorComponent } from '../categories/subcategories/compon
 export class InventaryComponent implements OnInit, OnDestroy {
   loading = signal<boolean>(true);
   inventary = signal<IInventaryItem[]>([]);
-  categories = signal<ICategories[]>([]);
-  subcategories = signal<ISubCategories[]>([]);
+  categories = signal<IInvCategory[]>([]);
+  subcategories = signal<IInvSubCategory[]>([]);
   suscriptions: Subscription[] = [];
   refresh$ = new BehaviorSubject(undefined);
   filters = signal<Record<string, number | null>>({});
@@ -91,7 +90,7 @@ export class InventaryComponent implements OnInit, OnDestroy {
     this.router.navigate(['create'], { relativeTo: this.route });
   }
 
-  setFilter(key: string, value: ICategories | ISubCategories | undefined) {
+  setFilter(key: string, value: IInvCategory | IInvSubCategory | undefined) {
     this.filters.update((prev) => ({ ...prev, [key]: value ? value?.id : null }));
   }
 }

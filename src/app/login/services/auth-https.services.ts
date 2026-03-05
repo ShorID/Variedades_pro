@@ -19,6 +19,10 @@ export class AuthHttpServices {
     );
   }
 
+  getAuthUserId() {
+    return from(this.supabase.client.auth.getUser())
+  }
+
   logout() {
     return from(this.supabase.signOut());
   }

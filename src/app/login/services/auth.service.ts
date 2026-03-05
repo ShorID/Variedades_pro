@@ -15,6 +15,11 @@ export class AuthService {
     this.user.next(user);
   }
 
+  isLogin() {
+    const user = this.user.getValue();
+    return user?.id && user?.id_login;
+  }
+
   buildUserData(rawData: IRawUser): IUser {
     const roles: string[] = [];
     const permissions: string[] = [];

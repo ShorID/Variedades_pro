@@ -1,0 +1,124 @@
+<div class="inventary-create">
+  <div class="card mt-3">
+    <div class="card-header">
+      <Text tag="h5" bold="bold" tagClass="d-block">{{ title() }}</Text>
+    </div>
+    <div class="card-body">
+      <div class="row row-gap-3">
+        <div class="col-12 col-md-4">
+          <app-input
+            class="mb-3"
+            label="Codigo"
+            name="codigo"
+            [value]="formData['codigo'] || ''"
+            (onChange)="onChangeInput($event)"
+            iClass="form-control-sm"
+          />
+          <app-input
+            class="mb-3"
+            label="Costo"
+            name="costo"
+            iType="number"
+            step="0.01"
+            [required]="true"
+            [value]="formData['costo'] || ''"
+            (onChange)="onChangeInput($event)"
+            iClass="form-control-sm"
+          />
+          <app-input
+            class="mb-3"
+            label="Descripcion"
+            name="descripcion"
+            [value]="formData['descripcion'] || ''"
+            (onChange)="onChangeInput($event)"
+            iType="textarea"
+            [lines]="5"
+            iClass="form-control-sm"
+          />
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <app-input
+                label="Stock"
+                name="stock"
+                iType="number"
+                step="0.01"
+                [required]="true"
+                [value]="formData['stock'] || ''"
+                (onChange)="onChangeInput($event)"
+                iClass="form-control-sm"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <app-input
+                label="Stock Minimo"
+                name="stock_minimo"
+                iType="number"
+                step="0.01"
+                [required]="true"
+                [value]="formData['stock_minimo'] || ''"
+                (onChange)="onChangeInput($event)"
+                iClass="form-control-sm"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-8">
+          <app-inventary-packs (onChange)="selectPacks($event)" [value]="this.selectedPacks()" />
+        </div>
+      </div>
+      <div class="hr-text">
+        <Text>Clasificacion</Text>
+      </div>
+      <div class="row gy-2">
+        <div class="col-6 col-md-3">
+          <app-brands-selector
+            title="Selecciona una marca"
+            [data]="brands()"
+            (onSelect)="selectBrand($event)"
+            [canCreate]="true"
+            [value]="selectedBrand()?.id + ''"
+          />
+        </div>
+        <div class="col-6 col-md-3">
+          <app-categories-selector
+            title="Selecciona una categoria"
+            [data]="categories()"
+            (onSelect)="selectCategory($event)"
+            class="d-block"
+            [canCreate]="true"
+            [value]="selectedCategory()?.id + ''"
+          />
+        </div>
+        <div class="col-6 col-md-3">
+          <app-subcategory-selector
+            title="Selecciona una sub-categoria"
+            [categoryId]="selectedCategory()?.id || 0"
+            [data]="subcategories()"
+            (onSelect)="selectSubcategory($event)"
+            [canCreate]="true"
+            [value]="selectedSubCategory()?.id + ''"
+          />
+        </div>
+        <div class="col-6 col-md-3">
+          <app-attributes-selector
+            title="Selecciona los atributos"
+            [data]="attributes()"
+            (onSelect)="selectAttr($event)"
+            [subCategoryId]="selectedSubCategory()?.id || 0"
+            [canCreate]="true"
+            [value]="selectedAttr()"
+          />
+        </div>
+        <!-- <div class="col-12 col-md-9"></div> -->
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <button type="button" class="btn btn-secondary" (click)="goBack()" >
+        <Text tagClass="d-flex"><app-icon name="arrow-back-up" class="me-2" /> Regresar</Text>
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveData()">
+        <Text tagClass="d-flex"> Guardar <app-icon name="device-floppy" class="ms-2" /> </Text>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,9 +1,9 @@
 import { Component, computed, effect, input, OnDestroy, OnInit, output } from '@angular/core';
-import { IBrand } from '../interfaces/brand.interface';
 import {
   CardSelectComponent,
   ICardSelectItem,
 } from '../../../components/CardSelector/card-select.component';
+import { IInvBrand } from '../../../inventary/interfaces/inventary.interfaces';
 
 @Component({
   selector: 'app-brands-selector',
@@ -22,7 +22,7 @@ import {
 })
 export class BrandSelectorComponent implements OnInit, OnDestroy {
   title = input<string>('Marcas');
-  data = input<IBrand[]>([]);
+  data = input<IInvBrand[]>([]);
   parseData = computed<ICardSelectItem[]>(() =>
     this.data().map((item): ICardSelectItem => {
       return {
@@ -34,7 +34,7 @@ export class BrandSelectorComponent implements OnInit, OnDestroy {
 
   mode = input<'select' | 'card'>('card');
   canCreate = input<boolean>(false);
-  onSelect = output<IBrand | undefined>();
+  onSelect = output<IInvBrand | undefined>();
 
   selectedItems: string[] = [];
   value = input<string | string[]>();

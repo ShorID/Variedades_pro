@@ -2,7 +2,6 @@ import { Component, computed, effect, input, OnDestroy, OnInit, signal } from '@
 import { InventaryHttpsService } from '../../services/inventary-https.service';
 import { concatMap, filter, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { TextComponent } from '../../../components/Text/text.component';
-import { IBrand } from '../../../categories/brands/interfaces/brand.interface';
 import { BrandSelectorComponent } from '../../../categories/brands/components/brand-selector.component';
 import { InputComponent } from '../../../components/Form/Input/Input.component';
 import { CategoriesSelectorComponent } from '../../../categories/components/category-selector-card/category-selector-card.component';
@@ -15,6 +14,7 @@ import {
   IInventaryItem,
   IInvPack,
   IInvSubCategory,
+  IInvBrand
 } from '../../interfaces/inventary.interfaces';
 import { InventaryPacksComponent } from '../inventary-packs/inventary-packs.component';
 import { NotifyService } from '../../../services/notify.service';
@@ -60,9 +60,9 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
     }
   });
 
-  brands = signal<IBrand[]>([]);
+  brands = signal<IInvBrand[]>([]);
   categories = signal<IInvCategory[]>([]);
-  selectedBrand = signal<IBrand | undefined>(undefined);
+  selectedBrand = signal<IInvBrand | undefined>(undefined);
   subcategories = signal<IInvSubCategory[]>([]);
   attributes = signal<IInvAttr[]>([]);
   showValidations = signal<boolean>(false);
@@ -129,7 +129,7 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
   selectSubcategory(item: IInvSubCategory | undefined) {
     this.selectedSubCategory.update(() => item);
   }
-  selectBrand(item: IBrand | undefined) {
+  selectBrand(item: IInvBrand | undefined) {
     this.selectedBrand.update(() => item);
   }
   selectAttr(items: IInvAttrItem[]) {

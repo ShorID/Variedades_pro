@@ -4,6 +4,7 @@ import {
   ICardSelectItem,
 } from '../../../components/CardSelector/card-select.component';
 import { ICategories } from '../../interfaces/categories.interface';
+import { IInvCategory } from '../../../inventary/interfaces/inventary.interfaces';
 
 @Component({
   selector: 'app-categories-selector',
@@ -25,7 +26,7 @@ export class CategoriesSelectorComponent implements OnInit, OnDestroy {
   canUnselect = input<boolean>(false);
   title = input<string>('Categorias');
   icon = input<string>('Shapes');
-  data = input<ICategories[]>([]);
+  data = input<IInvCategory[]>([]);
   parseData = computed<ICardSelectItem[]>(() =>
     this.data().map((item): ICardSelectItem => {
       return {
@@ -36,7 +37,7 @@ export class CategoriesSelectorComponent implements OnInit, OnDestroy {
   );
   mode = input<'select' | 'card'>('card');
   canCreate = input<boolean>(false);
-  onSelect = output<ICategories | undefined>();
+  onSelect = output<IInvCategory | undefined>();
 
   selectedItems: string[] = [];
   value = input<string | string[]>();

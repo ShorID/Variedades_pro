@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import {
-  IInvAttr,
   IInvAttrItem,
+  IInvCategory,
   IInventaryItem,
+  IInvSubCategory,
   IRawInventaryItem,
 } from '../interfaces/inventary.interfaces';
 import { BehaviorSubject } from 'rxjs';
-import { ICategories, ISubCategories } from '../../categories/interfaces/categories.interface';
 
 @Injectable({ providedIn: 'root' })
 export class InventaryService {
@@ -21,11 +21,11 @@ export class InventaryService {
 
   buildData(data: IRawInventaryItem[]): {
     items: IInventaryItem[];
-    categories: ICategories[];
-    subcategories: ISubCategories[];
+    categories: IInvCategory[];
+    subcategories: IInvSubCategory[];
   } {
-    let categories: Record<string, ICategories> = {};
-    let subCategories: Record<string, ISubCategories> = {};
+    let categories: Record<string, IInvCategory> = {};
+    let subCategories: Record<string, IInvSubCategory> = {};
     const newData: IInventaryItem[] = data.map((item) => {
       let itemAttr: IInvAttrItem[] = [];
 

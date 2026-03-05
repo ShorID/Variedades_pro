@@ -53,7 +53,7 @@ export class InputComponent implements OnInit, OnDestroy {
   name = input<string>('');
   value = input<string | undefined>(undefined);
   placeholder = input<string>('');
-  onChange = output<Event>();
+  onChange = output<Event>();;
   required = input<boolean>(false);
   disabled = input<boolean>(false);
   step = input<string>('1');

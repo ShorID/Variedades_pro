@@ -117,7 +117,7 @@
                                       <div class="flex-fill">
                                         <div class="fw-semibold">{{cat.name}}</div>
                                         <div class="text-secondary small">
-                                          {{cat.subcategories.length}} Subs · {{cat.p_record}} productos
+                                          {{cat.sc_record}} Subs · {{cat.p_record}} productos
                                         </div>
                                       </div>
 
@@ -215,14 +215,14 @@
 
                       <!-- Apartado para las cards de la Subcategoría seleccionada -->
                       <div class="card-body py-2 px-1"
-                           style="height: clamp(10rem,62vh,36rem);overflow-y: auto;overflow-x: hidden;"
+                           style="height: clamp(10rem,57vh,33rem);overflow-y: auto;overflow-x: hidden;"
                            [ngClass]="{'d-flex': loadingSubcat(), 'justify-content-center': loadingSubcat(), 'align-items-center': loadingSubcat()}">
                         
                         @if (loadingSubcat()) {
                           <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
                         } @else {
                           <div class="row row-cards">
-                            @for (subCat of catSelected().subcategories; track subCat.id) {
+                            @for (subCat of paginationSubCat().Subcategories; track subCat.id) {
                               <div class="col-sm-12 col-lg-6">
                                 <div class="card shadow-sm">
                                   <div class="card-header">
@@ -271,7 +271,7 @@
                       </div>
 
                       <!-- Apartado de paginación para las Subcategorias -->
-                      <!-- <div class="card-footer py-2 px-2"> 
+                      <div class="card-footer py-2 px-2"> 
                         <ul class="pagination m-0">
                           <li class="page-item disabled">
                             <a class="page-link">Previous</a>
@@ -281,7 +281,7 @@
                           <li class="page-item"><a class="page-link">3</a></li>
                           <li class="page-item"><a class="page-link">Next</a></li>
                         </ul>
-                      </div> -->
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -371,7 +371,8 @@
 
                                           <a class="btn btn-icon btn-sm p-0" 
                                             style="background-color: transparent;border: none;"
-                                            [ngClass]="{'text-danger': brand.active, 'text-success': !brand.active}">
+                                            [ngClass]="{'text-danger': brand.active, 'text-success': !brand.active}"
+                                            (click)="showDisableModal(2, brand, $event)">
                                             <app-icon [name]="'CirclePower'" [size]="15"></app-icon>
                                           </a>
                                         </div>
@@ -455,7 +456,6 @@
                                 <div class="list-group list-group-flush">
 
                                   @for (attr of paginationAttr().attributes; track attr.id) {
-                                    @for (value of attr.values; track value.id) {
                                       <div class="list-group-item cursor-default">
                                         <div class="d-flex align-items-center">
 
@@ -464,15 +464,15 @@
                                           </span>
 
                                           <div class="flex-fill">
-                                            <div class="fw-semibold">{{attr.name}}: {{value.value}}</div>
+                                            <div class="fw-semibold">{{attr.attribute}}: {{attr.value}}</div>
                                             <div class="text-secondary small">
-                                              {{value.p_record}} productos
+                                              {{attr.p_record}} productos
                                             </div>
                                           </div>
 
                                           <div class="text-success small me-3 d-flex align-items-center">
                                             <span class="me-1">●</span>
-                                            <span class="text-nowrap">@if (value.active) { Activo } @else { Inactivo }</span>
+                                            <span class="text-nowrap">@if (attr.active) { Activo } @else { Inactivo }</span>
                                           </div>
 
                                           <div class="ms-auto d-flex align-items-center gap-3">
@@ -482,14 +482,14 @@
 
                                             <a class="btn btn-icon btn-sm p-0" 
                                               style="background-color: transparent;border: none;"
-                                              [ngClass]="{'text-danger': value.active, 'text-success': !value.active}">
+                                              [ngClass]="{'text-danger': attr.active, 'text-success': !attr.active}"
+                                              (click)="showDisableModal(3, attr, $event, attr.attribute)">
                                               <app-icon [name]="'CirclePower'" [size]="15"></app-icon>
                                             </a>
                                           </div>
 
                                         </div>
                                       </div>
-                                    }
                                   }
                                 </div>
 

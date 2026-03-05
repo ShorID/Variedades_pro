@@ -1,6 +1,6 @@
 import { ICategories, ISubCategories } from './categories.interface';
 import { IBrand } from './brand.interface'
-import { IAttrValue } from './attributes.interface';
+import { IAttribute } from './attributes.interface';
 
 export interface IModal {
     isOpen: boolean, 
@@ -8,5 +8,5 @@ export interface IModal {
     textQuestion: string,
     textAdditional: string,
     textbold: string,
-    item?: ICategories | ISubCategories | IBrand | IAttrValue
+    item?: ICategories | ISubCategories | IBrand | IAttribute
 }

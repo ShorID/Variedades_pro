@@ -6,14 +6,9 @@ export interface IpaginationAttr{
 
 export interface IAttribute {
   id: number,
-  name: string,
-  active: boolean,
-  values: IAttrValue[]
-}
-
-export interface IAttrValue{
-  id:number,
+  attribute: string,
   value: string,
   active: boolean,
+  active_atr: boolean,
   p_record: number
 }

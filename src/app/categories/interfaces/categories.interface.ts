@@ -4,12 +4,18 @@ export interface IpaginationCat {
   totalPages: number
 }
 
+export interface IpaginationSubCat {
+  Subcategories: ISubCategories[],
+  totalRecords: number
+  totalPages: number
+}
+
 export interface ICategories {
   id: number,
   name: string,
   active: boolean,
   icon: string
-  subcategories: ISubCategories[],
+  sc_record: number,
   p_record: number
 }
 

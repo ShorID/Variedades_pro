@@ -4,9 +4,9 @@ import { IconComponent } from '../components/Icon/icon.component';
 import { disableModalComponent } from './components/disableModal.component';
 import { CategoriesServices } from './services/categories.services';
 import { catchError, filter, map, of, switchMap, tap, BehaviorSubject, EMPTY } from 'rxjs';
-import { IpaginationCat, ICategories } from './interfaces/categories.interface';
+import { IpaginationCat, ICategories, IpaginationSubCat } from './interfaces/categories.interface';
 import { IBrand, IpaginationBrand } from './interfaces/brand.interface';
-import { IAttrValue, IpaginationAttr } from './interfaces/attributes.interface';
+import { IAttribute, IpaginationAttr } from './interfaces/attributes.interface';
 import { IModal } from './interfaces/components.interface'
 import { NgClass } from "@angular/common";
 
@@ -19,11 +19,16 @@ import { NgClass } from "@angular/common";
 export class CategoriesComponent implements OnInit {
   constructor(private categoriesService: CategoriesServices) {}
   
-  paginationCat = signal<IpaginationCat>({categories: [], totalRecords: 0, totalPages: 0});
-  catSelected = signal<ICategories>({id: 0, name : "", active: false, icon: "", subcategories: [], p_record: 0});
+  // Variables de seleccion
+  catSelected = signal<ICategories>({id: 0, name : "", active: false, icon: "", sc_record: 0, p_record: 0});
 
+  // Variables para paginacion
+  paginationCat = signal<IpaginationCat>({categories: [], totalRecords: 0, totalPages: 0});
+  paginationSubCat = signal<IpaginationSubCat>({Subcategories: [], totalRecords: 0, totalPages: 0});
   paginationBrand = signal<IpaginationBrand>({brands: [], totalRecords : 0, totalPages: 0});
   paginationAttr = signal<IpaginationAttr>({attributes: [], totalRecords : 0, totalPages: 0});
+
+  // Variables de carga
   loadingCat = signal<boolean>(false);
   loadingSubcat = signal<boolean>(false);
   loadingBrand = signal<boolean>(false);
@@ -33,10 +38,11 @@ export class CategoriesComponent implements OnInit {
   limit = signal<number>(10);
 
   ngOnInit() {
-    this.loadInfo(this.limit());
+    this.loadInfo();
   }
 
-  loadInfo(limit: number = 10){
+  // Carga toda la info de inicio
+  loadInfo(){
     this.loadingCat.set(true);
     this.loadingSubcat.set(true);
     this.loadingBrand.set(true);
@@ -48,7 +54,7 @@ export class CategoriesComponent implements OnInit {
         this.paginationBrand.set({
           brands: data ?? [],
           totalRecords: count ?? 0,
-          totalPages: Math.ceil((count ?? 0) / limit)
+          totalPages: Math.ceil((count ?? 0) / this.limit())
         });
 
       }),
@@ -62,7 +68,7 @@ export class CategoriesComponent implements OnInit {
             this.paginationAttr.set({
               attributes: data ?? [],
               totalRecords: count ?? 0,
-              totalPages: Math.ceil((count ?? 0) / limit)
+              totalPages: Math.ceil((count ?? 0) / this.limit())
             });
           })
         )
@@ -74,12 +80,25 @@ export class CategoriesComponent implements OnInit {
             this.paginationCat.set({
               categories: data ?? [],
               totalRecords: count ?? 0,
-              totalPages: Math.ceil((count ?? 0) / limit)
+              totalPages: Math.ceil((count ?? 0) / this.limit())
             });
 
             if (data && data.length > 0) {
               this.catSelected.set(data[0]);
             }
+          })
+        )
+        
+      }),
+      switchMap(() => {
+        return this.categoriesService.getSubCats(this.catSelected().id)
+        .pipe(
+          tap(({data, count}) => {
+            this.paginationSubCat.set({
+              Subcategories: data ?? [],
+              totalRecords: count ?? 0,
+              totalPages: Math.ceil((count ?? 0) / this.limit())
+            });
           })
         )
       })
@@ -95,7 +114,21 @@ export class CategoriesComponent implements OnInit {
   // Funcionalidad panel de categorias
   // ** Metodo de seleccion de categoria
   selectCat(cat: ICategories){
+    this.loadingSubcat.set(true);
     this.catSelected.set(cat);
+    this.categoriesService.getSubCats(this.catSelected().id)
+    .pipe(
+      tap(({data, count}) => {
+        this.paginationSubCat.set({
+          Subcategories: data ?? [],
+          totalRecords: count ?? 0,
+          totalPages: Math.ceil((count ?? 0) / this.limit())
+        });
+      })
+    ).
+    subscribe(() => {
+      this.loadingSubcat.set(false);
+    });
   }
 
   // ** Metodo para editar categoria
@@ -104,7 +137,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   // ** Metodo para inactivar una categoria
-  showDisableModal(type: number, item: ICategories | IBrand | IAttrValue, event: MouseEvent){
+  showDisableModal(type: number, item: ICategories | IBrand | IAttribute, event: MouseEvent, additional: string = ""){
     event.stopPropagation();
 
     if(!item) return;
@@ -132,10 +165,10 @@ export class CategoriesComponent implements OnInit {
     } else if(type === 3 && 'value' in item){
       this.modal.set({
         isOpen: true,
-        type: "atributo",
+        type: "atr_val",
         textQuestion: "¿Estas seguro?",
-        textAdditional: `Desea ${item.active ? "deshabilitar" : "habilitar"} el valor`,
-        textbold: item.value,
+        textAdditional: `Desea ${item.active ? "deshabilitar" : "habilitar"} el atributo`,
+        textbold: `${additional}: ${item.value}`,
         item: item
       });
     }
@@ -154,7 +187,7 @@ export class CategoriesComponent implements OnInit {
       this.loadingCat.set(true);
     else if(type == "marca")
       this.loadingBrand.set(true);
-    else if(type == "atributo")
+    else if(type == "atr_val")
       this.loadingattr.set(true);
 
     this.categoriesService
@@ -172,13 +205,31 @@ export class CategoriesComponent implements OnInit {
                   totalPages: Math.ceil((count ?? 0) / this.limit())
                 });
               })
-            )
+            );
 
           case "marca":
-            return this.categoriesService.getBrands();
+            return this.categoriesService.getBrands()
+            .pipe(
+              tap(({data, count}) => {
+                this.paginationBrand.set({
+                  brands: data ?? [],
+                  totalRecords: count ?? 0,
+                  totalPages: Math.ceil((count ?? 0) / this.limit())
+                });
+              })
+            );
 
-          case "atributo":
-            return this.categoriesService.getAtrs();
+          case "atr_val":
+            return this.categoriesService.getAtrs()
+            .pipe(
+              tap(({data, count}) => {
+                this.paginationAttr.set({
+                  attributes: data ?? [],
+                  totalRecords: count ?? 0,
+                  totalPages: Math.ceil((count ?? 0) / this.limit())
+                });
+              })
+            );
 
           default:
             return EMPTY;
@@ -190,7 +241,7 @@ export class CategoriesComponent implements OnInit {
         this.loadingCat.set(false);
       else if(type == "marca")
         this.loadingBrand.set(false);
-      else if(type == "atributo")
+      else if(type == "atr_val")
         this.loadingattr.set(false);
     });
   }

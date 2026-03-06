@@ -8,9 +8,35 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
   private supabase: SupabaseClient;
+  private sessionKey: string = 'sb-session'
 
   constructor() {
     this.supabase = createClient(environment.apiUrl, environment.apiToken);
+    this.restoreSession();
+    this.listenSessionChange();
+  }
+
+  private listenSessionChange() {
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        sessionStorage.setItem(this.sessionKey, JSON.stringify(session));
+      } else {
+        sessionStorage.removeItem(this.sessionKey);
+      }
+    });
+  }
+
+  private restoreSession() {
+    const savedSession = sessionStorage.getItem(this.sessionKey);
+
+    if (savedSession) {
+      const session = JSON.parse(savedSession);
+
+      this.supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      });
+    }
   }
 
   get client() {
@@ -25,7 +51,7 @@ export class SupabaseService {
   async signOut() {
     await this.supabase.auth.signOut();
   }
-  //esto lo puse para facturacion
+
   rpc(fn: string, params?: object) {
   return this.supabase.rpc(fn, params);
 }

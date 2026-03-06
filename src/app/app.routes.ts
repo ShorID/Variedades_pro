@@ -8,6 +8,10 @@ import { CategoriesComponent } from './categories/categories.component';
 import { SubcategoriesComponent } from './categories/subcategories/subcategories.component';
 import { BrandsComponent } from './categories/brands/brands.component';
 import { AttributesComponent } from './categories/attributes/attributes.component';
+import { InventaryComponent } from './inventary/inventary.component';
+import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
+import { HistorialComponent } from './check-in/historial/historial.component';
+import { ClienteComponent } from './check-in/clientes/cliente.component';
 
 export const routes: Routes = [
   {
@@ -33,7 +37,18 @@ export const routes: Routes = [
         path: 'check-in',
         title: 'Facturar',
         component: CheckInComponent,
+        
       },
+      {
+            path: 'history',
+            title: 'Historial de Facturas',
+            component: HistorialComponent,
+          },
+      {
+            path: 'clients',
+            title: 'Clientes',
+            component: ClienteComponent,
+          },
       {
         path: 'categories',
         title: 'Categorias',
@@ -53,6 +68,20 @@ export const routes: Routes = [
           {
             path: 'brands',
             component: BrandsComponent,
+          },
+        ],
+      },
+      {
+        path: 'inventary',
+        title: 'Inventario',
+        children: [
+          {
+            path: '',
+            component: InventaryComponent,
+          },
+          {
+            path: 'create',
+            component: InventaryCreateComponent,
           },
         ],
       },

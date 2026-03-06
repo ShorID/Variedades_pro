@@ -1,0 +1,208 @@
+@if (!soloModal) {
+<div class="page-header d-print-none">
+  
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">Directorio de Clientes</h2>
+        <div class="text-muted mt-1">{{ totalClientes }} registrados ({{ clientesActivos }} activos)</div>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button (click)="abrirModal()" class="btn btn-primary d-none d-sm-inline-block">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          Registrar Cliente
+        </button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="input-icon">
+          <span class="input-icon-addon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+          </span>
+          <input type="text" [(ngModel)]="filtroNombre" class="form-control" placeholder="Buscar por nombre o teléfono...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Contacto</th>
+              <th>Estado</th>
+              <th>Total Compras</th>
+              <th class="w-1">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of clientes; track c.id) {
+              <tr>
+                <td>
+                  <div class="d-flex py-1 align-items-center">
+                    <span class="avatar me-2 rounded">{{ c.nombre.charAt(0) }}</span>
+                    <div class="flex-fill">
+                      <div class="font-weight-medium">{{ c.nombre || 'Sin nombre' | titlecase }}</div>
+                      <div class="text-muted">{{ c.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>{{ c.telefono }}</div>
+                  <div class="text-muted">Visita: {{ c.fecha_facturacion | date:'shortDate' }}</div>
+                </td>
+                <td>
+                  <span class="badge" [class.bg-success]="c.activo === 'Activo'" [class.bg-secondary]="c.activo === 'Inactivo'">
+                    <td>
+                        @if (c.activo) {
+                        <span class="badge bg-success-lt">Activo</span>
+                        } @else {
+                        <span class="badge bg-secondary-lt">Inactivo</span>
+                        }
+                    </td>
+                  </span>
+                </td>
+                <td class="text-muted">
+                  {{ c.total_acumulado | currency:'NIO':'symbol-narrow' }}
+                </td>
+                <td>
+                  <div class="btn-list flex-nowrap">
+                    <button class="btn btn-icon btn-ghost-primary" (click)="verCompras(c)" title="Ver Historial">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg>
+                    </button>
+                    <button class="btn btn-white btn-sm" (click)="abrirModalEditar(c)">
+                        Editar</button>
+                    <button class="btn btn-danger btn-sm" (click)="eliminarCliente(c.id)">
+                        Borrar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">No se encontraron clientes</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+}
+<div class="modal modal-blur fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditing ? 'Editar Cliente' : 'Nuevo Cliente' }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoClienteObj.nombre" placeholder="Ej: Juan Pérez">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Teléfono / WhatsApp</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevoClienteObj.telefono" placeholder="8888-8888">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" [(ngModel)]="nuevoClienteObj.email" placeholder="cliente@correo.com">
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div>
+              <label class="form-label">Dirección (Opcional)</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="nuevoClienteObj.direccion"></textarea>
+            </div>
+          </div>
+          <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Identificación (Cédula/RUC)</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoClienteObj.identificacion">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Personería</label>
+            <select class="form-select" [(ngModel)]="nuevoClienteObj.personeria">
+            <option value="Natural">Natural</option>
+            <option value="Juridica">Jurídica</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Clasificación</label>
+          <select class="form-select" [(ngModel)]="nuevoClienteObj.clasificacion">
+          <option value="Minorista">Minorista (Final)</option>
+          <option value="Mayorista">Mayorista (Reventa)</option>
+          <option value="VIP">Cliente VIP / Frecuente</option>
+          </select>
+        </div>
+       </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary" (click)="cerrarModal()">
+            Cancelar
+        </button>
+        <button 
+  class="btn btn-primary ms-auto" 
+  (click)="guardarCliente()" 
+  [disabled]="isSaving || !nuevoClienteObj.nombre || nuevoClienteObj.nombre.length < 3">
+  
+  @if (isSaving) {
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    Guardando...
+  } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-4 0l0 -4" />
+      </svg>
+    {{ isEditing ? 'Actualizar Cliente' : 'Guardar Cliente' }}
+  }
+</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--el modal de agregar cliente-->
+@if (showModal) {
+  <div class="modal-backdrop fade show"></div>
+}
+<!--para qie sepa que esta cargando los clientes-->
+@if (loading) {
+  <div class="progress progress-sm">
+    <div class="progress-bar progress-bar-indeterminate"></div>
+  </div>
+}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-vcenter card-table table-striped">
+      <tbody>
+        @for (c of clientes; track c.id) {
+           } @empty {
+          @if (!loading) {
+            <tr>
+              <td colspan="5" class="text-center py-4">
+                <div class="text-muted">No hay clientes en la base de datos.</div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IconComponent } from '../components/Icon/icon.component';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'page-404',
@@ -9,14 +10,14 @@ import { IconComponent } from '../components/Icon/icon.component';
       <p class="empty-title">Oops… ha ocurrido un error!</p>
       <p class="empty-subtitle text-secondary">Intenta acceder a un ruta valida!</p>
       <div class="empty-action">
-        <a href="#" class="btn btn-primary">
+        <a [routerLink]="'/'" class="btn btn-primary">
           <app-icon name="ArrowBigLeft" class="d-block me-2" />
           Regresar al inicio
         </a>
       </div>
     </div>
   `,
-  imports: [IconComponent],
+  imports: [IconComponent, RouterLink],
 })
 export class Page404Component implements OnInit {
   constructor() {}

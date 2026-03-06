@@ -123,7 +123,6 @@ export class LoginComponent implements OnInit {
             tap(({ error, data }) => {
               if (error) this.errorMsg.update(() => 'No se encontro datos del email registrado.');
               if (data && data.length) {
-                // this.authService.setLogin(true);
                 const user = this.authService.buildUserData(data[0]);
                 this.authService.setLogin(user);
                 this.router.navigateByUrl('/');
@@ -133,7 +132,6 @@ export class LoginComponent implements OnInit {
         }),
       )
       .subscribe((e) => {
-        console.log('prro final');
         this.loading.update(() => false);
       });
   }

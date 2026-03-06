@@ -1,0 +1,5 @@
+@if (!!lucidIcon() && typeof this.classes === 'string') {
+  <lucide-icon [img]="lucidIcon()" [size]="size()" [class]="classes" />
+} @else {
+  <i [style.font-size.px]="size()" [class]="classes"></i>
+}

@@ -1,9 +1,9 @@
-import { Component, computed, input, OnInit, output } from '@angular/core';
+import { Component, computed, effect, input, OnDestroy, OnInit, output } from '@angular/core';
 import {
   ICardSelectItem,
   CardSelectComponent,
 } from '../../../../components/CardSelector/card-select.component';
-import { ISubCategories } from '../../../interfaces/categories.interface';
+import { IInvSubCategory } from '../../../../inventary/interfaces/inventary.interfaces';
 
 @Component({
   selector: 'app-subcategory-selector',
@@ -17,16 +17,17 @@ import { ISubCategories } from '../../../interfaces/categories.interface';
       [canUnselect]="canUnselect()"
       [canCreate]="canCreate()"
       [mode]="mode()"
+      [value]="selectedItems"
     />
   `,
   imports: [CardSelectComponent],
 })
-export class SubcategorySelectorComponent implements OnInit {
+export class SubcategorySelectorComponent implements OnInit, OnDestroy {
   canUnselect = input<boolean>(false);
   title = input<string>('Categorias');
   icon = input<string>('Shapes');
   categoryId = input<number>(0);
-  data = input<ISubCategories[]>([]);
+  data = input<IInvSubCategory[]>([]);
   hearingCategory = input<boolean>(true);
   parseData = computed<ICardSelectItem[]>(() => {
     if (this.hearingCategory() && !this.categoryId()) return [];
@@ -45,11 +46,23 @@ export class SubcategorySelectorComponent implements OnInit {
 
   mode = input<'select' | 'card'>('card');
   canCreate = input<boolean>(false);
-  onSelect = output<ISubCategories | undefined>();
+  onSelect = output<IInvSubCategory | undefined>();
+
+  selectedItems: string[] = [];
+  value = input<string | string[]>();
+
+  valueEffect = effect(() => {
+    const value = this.value();
+    this.selectedItems = value ? [value].flat() : [];
+  });
 
   constructor() {}
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.valueEffect.destroy();
+  }
 
   onChange(item: ICardSelectItem | null) {
     const selected = this.data().find((dataItem) => dataItem.id === (item ? +item.value : item));

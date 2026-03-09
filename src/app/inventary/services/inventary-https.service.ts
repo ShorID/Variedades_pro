@@ -35,6 +35,28 @@ export class InventaryHttpsService {
     );
   }
 
+  getInventaryById(productId: number) {
+    return from(
+      this.supabase.client
+        .from('articulo_variante')
+        .select(
+          `id,
+        costo,
+        codigo,
+        activo,
+        descripcion,
+        inventario!inner(*),
+        articulo_variante_atr_val!inner(
+            atr_val!inner(*)
+        ),
+        articulo_empaque!inner(*),
+        sub_categoria!inner(*, categoria!inner(*)),
+        marca!inner(*)`,
+        )
+        .eq('id', productId),
+    );
+  }
+
   getInvClasification(): Observable<{
     categories: IInvCategory[];
     subCategories: IInvSubCategory[];

@@ -1,4 +1,4 @@
-import { Component, OnInit, output, signal } from '@angular/core';
+import { Component, effect, input, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { InputComponent } from '../../../components/Form/Input/Input.component';
 import { TextComponent } from '../../../components/Text/text.component';
 import { IconComponent } from '../../../components/Icon/icon.component';
@@ -212,32 +212,27 @@ import { IInvPack } from '../../interfaces/inventary.interfaces';
   `,
   imports: [InputComponent, TextComponent, IconComponent],
 })
-export class InventaryPacksComponent implements OnInit {
+export class InventaryPacksComponent implements OnInit, OnDestroy {
   onChange = output<IInvPack[]>();
-  currentPacks = signal<IInvPack[]>([
-    {
-      abreviatura: 'UND',
-      nombre: 'Unidad',
-      codigo: '',
-      precio_venta: 0,
-      unidades_empaques: 0,
-      default: true,
-      required: true,
-    },
-    {
-      abreviatura: 'CJ',
-      nombre: 'Caja',
-      codigo: '',
-      precio_venta: 0,
-      unidades_empaques: 0,
-      default: true,
-    },
-  ]);
+  value = input<IInvPack[]>();
+  valueEffect = effect(() => {
+    const value = this.value();
+    if (Array.isArray(value))
+      queueMicrotask(() => {
+        this.currentPacks.set(value);
+      });
+  });
+
+  currentPacks = signal<IInvPack[]>([]);
   showValidations = signal<boolean>(false);
 
   constructor() {}
 
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.valueEffect.destroy();
+  }
 
   addMore() {
     this.currentPacks.update((prev) => [

@@ -68,12 +68,12 @@
             </app-navItem>
           </li>
           <li class="nav-item">
-            <app-navItem link="/categories" [hasOptions]="true">
+            <app-navItem link="/categories">
               <Text tagClass="d-flex align-items-center">
                 <app-icon name="Shapes" class="me-1 d-inline-block" />
                 Categorias
               </Text>
-              <ng-container ngProjectAs="navItem-options">
+              <!-- <ng-container ngProjectAs="navItem-options">
                 <div>
                   <app-navItem link="/categories/subcategories">
                     <Text>Subcategorias</Text>
@@ -89,7 +89,7 @@
                     <Text>Marcas</Text>
                   </app-navItem>
                 </div>
-              </ng-container>
+              </ng-container> -->
             </app-navItem>
           </li>
           <li class="nav-item">

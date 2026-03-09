@@ -1,19 +1,28 @@
-import { IAttributesItem } from '../attributes/interfaces/attributes.interface';
+export interface IpaginationCat {
+  categories: ICategories[],
+  totalRecords: number
+  totalPages: number
+}
+
+export interface IpaginationSubCat {
+  Subcategories: ISubCategories[],
+  totalRecords: number
+  totalPages: number
+}
 
 export interface ICategories {
-  activo: boolean;
-  icono?: string;
-  id: number;
-  nombre: string;
-  sub_categoria?: ISubCategories[];
-  qty?: number
+  id: number,
+  name: string,
+  active: boolean,
+  icon: string
+  sc_record: number,
+  p_record: number
 }
 
 export interface ISubCategories {
-  related_attributes?: IAttributesItem[];
-  activo: boolean;
-  icono?: string;
-  id: number;
-  id_categoria: number;
-  nombre: string;
+  id: number,
+  name : string,
+  icon: string,
+  active: boolean
+  p_record: number
 }

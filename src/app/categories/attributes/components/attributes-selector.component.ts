@@ -70,19 +70,12 @@ export class AttributesSelectorComponent implements OnInit, OnDestroy {
     this.selectedItems = value ? [value].flat() : [];
   });
 
-  subcategoryEffect = effect(() => {
-    this.subCategoryId();
-    this.selectedItems = [];
-    this.onSelect.emit([]);
-  });
-
   constructor() {}
 
   ngOnInit() {}
 
   ngOnDestroy(): void {
     this.valueEffect.destroy();
-    this.subcategoryEffect.destroy();
   }
 
   onChange(items: ICardSelectItem[]) {

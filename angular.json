@@ -29,6 +29,11 @@
                 "src/styles"
               ]
             },
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            },
             "assets": [
               {
                 "glob": "**/*",

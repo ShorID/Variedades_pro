@@ -86,6 +86,7 @@ export interface IInvCategory {
   activo: boolean;
   nombre: string;
   subCategories?: IInvSubCategory[];
+  qty?: number
 }
 
 export interface IInvSubCategory {
@@ -142,4 +143,14 @@ export interface IInventaryItem {
   inventary: IInventary[];
   descripcion: string;
   forSearch: string;
+  costo?: string
+}
+
+export interface IInvBrand {
+  id: number;
+  nombre: string;
+  activo: boolean;
+  icono?: string;
+  isNew?: boolean;
+  qty?: number;
 }

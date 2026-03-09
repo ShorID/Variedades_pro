@@ -1,8 +1,7 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, input, OnDestroy, OnInit, signal } from '@angular/core';
 import { InventaryHttpsService } from '../../services/inventary-https.service';
-import { concatMap, filter, from, map, Observable, switchMap, tap } from 'rxjs';
+import { concatMap, filter, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { TextComponent } from '../../../components/Text/text.component';
-import { IBrand } from '../../../categories/brands/interfaces/brand.interface';
 import { BrandSelectorComponent } from '../../../categories/brands/components/brand-selector.component';
 import { InputComponent } from '../../../components/Form/Input/Input.component';
 import { CategoriesSelectorComponent } from '../../../categories/components/category-selector-card/category-selector-card.component';
@@ -12,13 +11,16 @@ import {
   IInvAttr,
   IInvAttrItem,
   IInvCategory,
+  IInventaryItem,
   IInvPack,
   IInvSubCategory,
+  IInvBrand
 } from '../../interfaces/inventary.interfaces';
 import { InventaryPacksComponent } from '../inventary-packs/inventary-packs.component';
 import { NotifyService } from '../../../services/notify.service';
 import { Router } from '@angular/router';
-import { IconComponent } from "../../../components/Icon/icon.component";
+import { IconComponent } from '../../../components/Icon/icon.component';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'page-inventary-create',
@@ -31,13 +33,36 @@ import { IconComponent } from "../../../components/Icon/icon.component";
     SubcategorySelectorComponent,
     AttributesSelectorComponent,
     InventaryPacksComponent,
-    IconComponent
-],
+    IconComponent,
+  ],
 })
-export class InventaryCreateComponent implements OnInit {
-  brands = signal<IBrand[]>([]);
+export class InventaryCreateComponent implements OnInit, OnDestroy {
+  title = input<string>('Creando nuevo producto');
+  defaultData = input<IInventaryItem>();
+
+  defaultDataEffect = effect(() => {
+    const defaultData = this.defaultData();
+    if (defaultData) {
+      this.formData['codigo'] = defaultData.codigo || '';
+      this.formData['costo'] = defaultData.costo || '';
+      this.formData['descripcion'] = defaultData.descripcion;
+      if (defaultData.inventary?.length) {
+        this.formData['stock'] = defaultData.inventary[0].stock + '';
+        this.formData['stock_minimo'] = defaultData.inventary[0].stock_minimo + '';
+      }
+      queueMicrotask(() => {
+        this.selectedCategory.set(defaultData.categoria);
+        this.selectedSubCategory.set(defaultData.sub_categoria);
+        this.selectedPacks.set(defaultData.packs);
+        this.selectedAttribute.set(defaultData.attributes);
+        this.selectedBrand.set(defaultData.marca);
+      });
+    }
+  });
+
+  brands = signal<IInvBrand[]>([]);
   categories = signal<IInvCategory[]>([]);
-  selectedBrand = signal<IBrand | undefined>(undefined);
+  selectedBrand = signal<IInvBrand | undefined>(undefined);
   subcategories = signal<IInvSubCategory[]>([]);
   attributes = signal<IInvAttr[]>([]);
   showValidations = signal<boolean>(false);
@@ -46,12 +71,34 @@ export class InventaryCreateComponent implements OnInit {
   selectedSubCategory = signal<IInvSubCategory | undefined>(undefined);
   selectedCategory = signal<IInvCategory | undefined>(undefined);
   selectedAttribute = signal<IInvAttrItem[]>([]);
-  selectedPacks = signal<IInvPack[]>([]);
+  selectedAttr = computed(() => {
+    return this.selectedAttribute().map((i) => i.id + '');
+  });
+  selectedPacks = signal<IInvPack[]>([
+    {
+      abreviatura: 'UND',
+      nombre: 'Unidad',
+      codigo: '',
+      precio_venta: 0,
+      unidades_empaques: 0,
+      default: true,
+      required: true,
+    },
+    {
+      abreviatura: 'CJ',
+      nombre: 'Caja',
+      codigo: '',
+      precio_venta: 0,
+      unidades_empaques: 0,
+      default: true,
+    },
+  ]);
 
   constructor(
     private invHttpService: InventaryHttpsService,
     private notify: NotifyService,
-    private router: Router
+    private router: Router,
+    private location: Location,
   ) {}
 
   ngOnInit() {
@@ -71,13 +118,18 @@ export class InventaryCreateComponent implements OnInit {
       .subscribe();
   }
 
+  ngOnDestroy(): void {
+    this.defaultDataEffect.destroy();
+  }
+
   selectCategory(item: IInvCategory | undefined) {
     this.selectedCategory.update(() => item);
+    this.selectedAttribute.update(() => []);
   }
   selectSubcategory(item: IInvSubCategory | undefined) {
     this.selectedSubCategory.update(() => item);
   }
-  selectBrand(item: IBrand | undefined) {
+  selectBrand(item: IInvBrand | undefined) {
     this.selectedBrand.update(() => item);
   }
   selectAttr(items: IInvAttrItem[]) {
@@ -111,16 +163,16 @@ export class InventaryCreateComponent implements OnInit {
           }),
           filter((res) => !!res),
           switchMap((id) => {
-            let inserts: Observable<any>[] = [];
-            inserts.push(
+            let inserts: Observable<any>[] = [
               this.invHttpService.insertProductInv(id, {
                 stock: +this.formData['stock'],
                 stock_minimo: +this.formData['stock_minimo'],
               }),
               this.invHttpService.insertProductAttr(id, this.selectedAttribute()),
               this.invHttpService.insertProductPack(id, this.selectedPacks()),
-            );
-            return from(inserts).pipe(concatMap((req) => req));
+            ];
+
+            return forkJoin(inserts);
           }),
         )
         .subscribe({
@@ -132,5 +184,9 @@ export class InventaryCreateComponent implements OnInit {
             this.notify.error('Ocurrio un error al crear el producto');
           },
         });
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

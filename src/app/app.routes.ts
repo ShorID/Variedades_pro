@@ -5,13 +5,11 @@ import { CheckInComponent } from './check-in/check-in.component';
 import { LayoutComponent } from './layout/layout.component';
 import { Page404Component } from './page404/page404.component';
 import { CategoriesComponent } from './categories/categories.component';
-import { SubcategoriesComponent } from './categories/subcategories/subcategories.component';
-import { BrandsComponent } from './categories/brands/brands.component';
-import { AttributesComponent } from './categories/attributes/attributes.component';
-import { InventaryComponent } from './inventary/inventary.component';
-import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
 import { HistorialComponent } from './check-in/historial/historial.component';
 import { ClienteComponent } from './check-in/clientes/cliente.component';
+import { InventaryComponent } from './inventary/inventary.component';
+import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
+import { InventaryEditComponent } from './inventary/components/inventary-edit/inventary-edit.component';
 
 export const routes: Routes = [
   {
@@ -57,17 +55,23 @@ export const routes: Routes = [
             path: '',
             component: CategoriesComponent,
           },
+        ],
+      },
+      {
+        path: 'inventary',
+        title: 'Inventario',
+        children: [
           {
-            path: 'subcategories',
-            component: SubcategoriesComponent,
+            path: '',
+            component: InventaryComponent,
           },
           {
-            path: 'attributes',
-            component: AttributesComponent,
+            path: 'create',
+            component: InventaryCreateComponent,
           },
           {
-            path: 'brands',
-            component: BrandsComponent,
+            path: 'product/:id',
+            component: InventaryEditComponent,
           },
         ],
       },

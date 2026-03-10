@@ -51,6 +51,11 @@ export class SupabaseService {
   async signOut() {
     await this.supabase.auth.signOut();
   }
+
+  rpc(fn: string, params?: object) {
+  return this.supabase.rpc(fn, params);
+}
+
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

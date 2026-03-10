@@ -3,7 +3,6 @@ import {
   CardSelectComponent,
   ICardSelectItem,
 } from '../../../components/CardSelector/card-select.component';
-import { ICategories } from '../../interfaces/categories.interface';
 import { IInvCategory } from '../../../inventary/interfaces/inventary.interfaces';
 
 @Component({

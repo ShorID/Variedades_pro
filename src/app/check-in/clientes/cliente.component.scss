@@ -1,0 +1,22 @@
+/* clientes.component.css */
+:host {
+  display: block;
+}
+
+.table-responsive {
+  min-height: 300px;
+}
+
+.avatar {
+  background-color: var(--tblr-primary-lighten);
+  color: var(--tblr-primary);
+  font-weight: bold;
+}
+/* clientes.component.css */
+.modal.show {
+    background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo manualmente si el backdrop falla */
+}
+
+.modal-blur {
+    backdrop-filter: blur(4px); /* Efecto moderno de Tabler */
+}

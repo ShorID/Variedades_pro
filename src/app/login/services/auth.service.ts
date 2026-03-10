@@ -39,4 +39,10 @@ export class AuthService {
   logout() {
     this.user.next(null);
   }
+// En tu servicio de auth
+getCurrentUser(): IUser | null {
+  return this.user.getValue(); // getValue() extrae el último objeto IUser guardado
+}
+
+
 }

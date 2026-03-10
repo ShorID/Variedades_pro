@@ -1,0 +1,236 @@
+¡Excelente elección! **Tabler** (basado en Bootstrap) es perfecto para esto porque es limpio y muy profesional para sistemas administrativos.
+
+Para que la facturación sea fluida, lo ideal es una **tabla dinámica**. El usuario busca el producto, y en la misma fila tiene un `<select>` de Bootstrap para cambiar el empaque, lo que actualiza el precio automáticamente.
+
+### 1. El Modelo de Datos (Interfaz)
+
+Primero, asegúrate de que tu interfaz soporte la relación:
+
+```typescript
+export interface Empaque {
+  id: number;
+  nombre_empaque: string;
+  precio: number;
+}
+
+export interface Producto {
+  id: number;
+  nombre: string;
+  empaques: Empaque[]; // Lista de empaques del producto
+  empaqueSeleccionado?: Empaque; // Para guardar la elección actual
+}
+
+```
+
+---
+
+### 2. El HTML con Tabler y Bootstrap
+
+Aquí tienes cómo estructurar la fila de la factura para que sea intuitiva:
+
+```html
+<div class="table-responsive">
+  <table class="table table-vcenter card-table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th class="w-25">Empaque / Unidad</th>
+        <th>Precio Unit.</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+        <th class="w-1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of carrito; let i = index">
+        <td>{{ item.nombre }}</td>
+        <td>
+          <select class="form-select" 
+                  [(ngModel)]="item.empaqueSeleccionado" 
+                  (change)="actualizarPrecio(i)">
+            <option *ngFor="let emp of item.empaques" [ngValue]="emp">
+              {{ emp.nombre_empaque }}
+            </option>
+          </select>
+        </td>
+        <td class="text-muted">
+          {{ item.empaqueSeleccionado?.precio | currency }}
+        </td>
+        <td>
+          <input type="number" class="form-control" [(ngModel)]="item.cantidad" (input)="calcularSubtotal(i)">
+        </td>
+        <td class="fw-bold">
+          {{ (item.empaqueSeleccionado?.precio * item.cantidad) | currency }}
+        </td>
+        <td>
+          <button class="btn btn-icon btn-ghost-danger" (click)="eliminar(i)">
+             <i class="ti ti-trash"></i> </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+```
+
+---
+
+### 3. La Lógica en el Componente (`.ts`)
+
+Cuando el usuario cambia el empaque en el HTML, la lógica debe reaccionar:
+
+```typescript
+// Al agregar un producto al carrito
+agregarAlCarrito(producto: Producto) {
+  // Por defecto seleccionamos el primer empaque disponible
+  const nuevoItem = {
+    ...producto,
+    empaqueSeleccionado: producto.empaques[0], 
+    cantidad: 1
+  };
+  this.carrito.push(nuevoItem);
+}
+
+// Esta función se dispara con el (change) del select
+actualizarPrecio(index: number) {
+  const item = this.carrito[index];
+  console.log(`Cambiado a ${item.empaqueSeleccionado.nombre_empaque}, nuevo precio: ${item.empaqueSeleccionado.precio}`);
+  // Aquí podrías disparar cálculos adicionales de impuestos si es necesario
+}
+
+```
+
+### ¿Por qué esta es la mejor forma?
+
+1. **Menos clics:** El usuario no tiene que abrir ventanas emergentes para cambiar de "Caja" a "Unidad".
+2. **Visualización clara:** El precio se actualiza en tiempo real en la columna de al lado, evitando errores de cobro.
+3. **Estética Tabler:** Usando las clases `table-vcenter` y `card-table`, tu sistema se verá como una aplicación profesional moderna.
+
+**¿Te gustaría que te ayude a crear la función en Supabase (RPC) que trae el producto ya unido con sus empaques para alimentar esta tabla?**
+
+
+
+Tu función RPC actual tiene un problema para lo que necesitamos: **está devolviendo una fila por cada empaque**, lo que hará que en tu buscador el mismo producto aparezca repetido varias veces (una por cada unidad/caja).
+
+Para llenar tu interfaz `Producto` y manejar los empaques dinámicamente, necesitamos que el SQL agrupe esos precios en un objeto JSON.
+
+Aquí tienes la solución ajustada a tu estructura:
+
+### 1. Nueva Función SQL (Agrupada)
+
+Esta función devuelve **una sola fila por producto**, con todos sus empaques dentro de una columna llamada `empaques_json`.
+
+```sql
+create or replace function get_articulos_detalle_v2()
+returns table (
+  id int,
+  nombre text,
+  codigo int,
+  categoria text,
+  stock int,
+  empaques_json jsonb -- Aquí metemos la lógica de precios
+) 
+language plpgsql
+as $$
+begin
+  return query
+  select 
+    a.id,
+    (a.nombre || ' ' || m.nombre || ' ' || at.nombre || ' ' || aval.valor)::text as nombre,
+    a.codigo, -- Asegúrate que esta columna exista en 'articulo'
+    c.nombre as categoria, -- Asumiendo una tabla categoria
+    av.stock, -- Stock de la variante
+    jsonb_agg(
+      jsonb_build_object(
+        'id', ae.id,
+        'nombre_empaque', e.nombre, -- Nombre del empaque (Caja, Unidad, etc)
+        'precio', ae.precio_venta
+      )
+    ) as empaques_json
+  from articulo a
+  inner join marca m on a.id_marca = m.id
+  inner join categoria c on a.id_categoria = c.id
+  inner join articulo_variante av on a.id = av.id_articulo
+  inner join articulo_variante_atr_val avav on av.id = avav.id_articulo_variante
+  inner join atr_val aval on avav.id_art_val = aval.id
+  inner join atributo at on aval.id_atributo = at.id
+  inner join articulo_empaque ae on av.id = ae.id_articulo_variante
+  inner join empaque e on ae.id_empaque = e.id -- Para traer el nombre del empaque
+  group by a.id, m.nombre, at.nombre, aval.valor, a.codigo, c.nombre, av.stock;
+end;
+$$;
+
+```
+
+---
+
+### 2. Actualización de la Interfaz en Angular
+
+Debemos añadir la propiedad para recibir los empaques que envía el JSON de arriba:
+
+```typescript
+export interface EmpaqueDetalle {
+  id: number;
+  nombre_empaque: string;
+  precio: number;
+}
+
+export interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;     // Precio del empaque seleccionado actualmente
+  stock: number;
+  cantidad?: number;
+  categoria: string;
+  codigo: number;
+  empaques: EmpaqueDetalle[]; // <--- Nueva propiedad para el JSONB
+  empaqueSeleccionado?: EmpaqueDetalle; // <--- Para controlar el select de Tabler
+}
+
+```
+
+---
+
+### 3. El Servicio Angular
+
+Al llamar al RPC, vamos a "preparar" el producto para que el primer empaque sea el seleccionado por defecto.
+
+```typescript
+getProductosDetalle(): Observable<Producto[]> {
+  return from(this.supabase.client.rpc('get_articulos_detalle_v2')).pipe(
+    map(res => {
+      if (res.error) throw res.error;
+
+      return (res.data as any[]).map(item => {
+        const empaques = item.empaques_json as EmpaqueDetalle[];
+        const empaqueInicial = empaques[0]; // Tomamos el primero (ej: Unidad)
+
+        return {
+          id: item.id,
+          nombre: item.nombre,
+          codigo: item.codigo,
+          categoria: item.categoria,
+          stock: item.stock,
+          empaques: empaques,
+          empaqueSeleccionado: empaqueInicial,
+          precio: empaqueInicial ? empaqueInicial.precio : 0, // Seteamos el precio inicial
+          cantidad: 1
+        } as Producto;
+      });
+    })
+  );
+}
+
+```
+
+### ¿Cómo funciona esto en tu tabla de Tabler?
+
+Cuando el usuario elija un empaque en el `<select>`, simplemente haces:
+`producto.precio = producto.empaqueSeleccionado.precio`.
+
+**¿Te parece bien esta estructura o necesitas que el stock también cambie dependiendo del empaque (ej: 1 caja = 12 unidades)?** Si es así, necesitaríamos agregar el "factor de conversión" a la consulta SQL.
+
+
+
+
+z-index: 1100; top: 100%; border: 1px solid #ddd;

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-// Servicio e Interfaces
+// Servicio
 import { InventaryHttpsService } from '../../inventary/services/inventary-https.service';
 
 // Componentes Standalone
@@ -16,7 +16,6 @@ interface Producto {
   costo: number;
   codigo: string;
   descripcion: string;
-  name?: string; 
   marca: { nombre: string; icono: string };
   sub_categoria: { 
     nombre: string; 
@@ -46,23 +45,27 @@ interface DetalleProducto {
   imports: [
     CommonModule, 
     FormsModule,
-    RouterModule, // Necesario para Named Outlets
+    RouterModule,
     BreadcrumbsComponent, 
     PaginationComponent
   ]
 })
 export class IncommingsComponent implements OnInit {
   
-  // Estado de Búsqueda y Lista
+  // Búsqueda
   searchTerm: string = '';
   products: Producto[] = [];
   filteredProducts: Producto[] = [];
   
-  // Estado de Modales
-  showModal: boolean = false; // Modal de "Agregar/Configurar" (Manual)
-  isCreateModalActive: boolean = false; // Modal de "Crear Producto" (Ruta Auxiliar)
+  // Gestión de Modales
+  showModal: boolean = false; 
+  isCreateModalActive: boolean = false; 
+
+  // La "Cesta" de productos para la tabla
+  selectedProductsList: any[] = []; 
   
-  selectedProduct: Producto | null = null;
+  // Producto que se está configurando actualmente
+  currentProductEditing: Producto | null = null;
 
   details: DetalleProducto = {
     category: '', subCategory: '', brand: '',
@@ -75,7 +78,6 @@ export class IncommingsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
   ) {
-    // Escuchar cambios en la URL para activar/desactivar visualmente el modal de creación
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -87,16 +89,10 @@ export class IncommingsComponent implements OnInit {
     this.loadProducts();
   }
 
-  // --- Lógica de Datos ---
-
   loadProducts(): void {
     this.inventoryService.getInventary().subscribe({
       next: (res: any) => {
-        // Mapeamos para que 'name' sea igual a 'descripcion' para compatibilidad
-        this.products = (res.data || []).map((p: any) => ({ 
-          ...p, 
-          name: p.descripcion 
-        }));
+        this.products = (res.data || []);
       },
       error: (err: any) => console.error('Error al cargar inventario:', err)
     });
@@ -117,11 +113,11 @@ export class IncommingsComponent implements OnInit {
   }
 
   selectItem(item: Producto): void {
-    this.selectedProduct = item;
+    this.currentProductEditing = item;
     this.searchTerm = item.descripcion;
     this.filteredProducts = []; 
 
-    // Reset de detalles con info del item
+    // Reset de los campos del modal con info base
     this.details = {
       category: item.sub_categoria?.categoria?.nombre || '',
       subCategory: item.sub_categoria?.nombre || '',
@@ -131,7 +127,7 @@ export class IncommingsComponent implements OnInit {
       model: '', size: '', color: '', material: ''
     };
 
-    // Mapeo dinámico de atributos desde el esquema SQL
+    // Mapeo de atributos
     item.articulo_variante_atr_val?.forEach(rel => {
       const nom = rel.atr_val?.atributo?.nombre?.toLowerCase() || '';
       const val = rel.atr_val?.valor || '';
@@ -142,10 +138,8 @@ export class IncommingsComponent implements OnInit {
     });
   }
 
-  // --- Manejo del Modal de Configuración (Agregar) ---
-
   openModal(): void {
-    if (this.selectedProduct) this.showModal = true;
+    if (this.currentProductEditing) this.showModal = true;
   }
 
   closeModal(): void {
@@ -153,27 +147,41 @@ export class IncommingsComponent implements OnInit {
   }
 
   confirmAdd(): void {
-    console.log('Confirmando ingreso de producto:', this.details);
-    // Aquí iría la lógica para guardar la entrada en la BD
-    this.closeModal();
-    this.selectedProduct = null;
-    this.searchTerm = '';
+    if (this.currentProductEditing) {
+      // Creamos el objeto para la tabla
+      const itemParaLista = {
+        id: this.currentProductEditing.id,
+        descripcion: this.currentProductEditing.descripcion,
+        marca: this.currentProductEditing.marca.nombre,
+        codigo: this.details.code,
+        costo: this.details.cost,
+        meta: { ...this.details } // Guardamos todo por si acaso
+      };
+
+      this.selectedProductsList.push(itemParaLista);
+      
+      // Limpieza para el siguiente producto
+      this.closeModal();
+      this.currentProductEditing = null;
+      this.searchTerm = '';
+    }
   }
 
-  // --- Manejo del Modal de Creación (Ruta Auxiliar) ---
+  removeItem(index: number): void {
+    this.selectedProductsList.splice(index, 1);
+  }
 
   redirectToCreate(): void {
-    // Navega a la ruta actual activando el outlet 'modal' con el componente 'create'
-    // Se usa parent para asegurar que la ruta se resuelva desde /inventary
-    
-    this.router.navigate([ '/inventary/incommings', { outlets: { modal: ['create'] } }]);
+    // Usamos navegación absoluta para evitar problemas de rutas relativas
+    this.router.navigate(['/inventary/incommings', { outlets: { modal: ['create'] } }]);
   }
 
   closeCreateModal(): void {
-    // Cierra el modal de ruta auxiliar limpiando el outlet
-    this.router.navigate([{ outlets: { modal: null } }], { 
-      relativeTo: this.route.parent 
-    });
+    this.router.navigate(['/inventary/incommings', { outlets: { modal: null } }]);
   }
-
+  
+  registrarEntradaCompleta(): void {
+    console.log('Enviando a base de datos:', this.selectedProductsList);
+    // Aquí llamarías a tu servicio de inserción masiva
+  }
 }

@@ -18,7 +18,7 @@ import {
 } from '../../interfaces/inventary.interfaces';
 import { InventaryPacksComponent } from '../inventary-packs/inventary-packs.component';
 import { NotifyService } from '../../../services/notify.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent } from '../../../components/Icon/icon.component';
 import { Location } from '@angular/common';
 
@@ -98,6 +98,7 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
     private invHttpService: InventaryHttpsService,
     private notify: NotifyService,
     private router: Router,
+    private route: ActivatedRoute,
     private location: Location,
   ) {}
 
@@ -178,7 +179,9 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.notify.success('Articulo Creado correctamente!');
-            this.router.navigateByUrl('inventary');
+            // this.router.navigateByUrl('inventary');
+            // this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route.parent });
+            this.location.back();
           },
           error: (err) => {
             this.notify.error('Ocurrio un error al crear el producto');

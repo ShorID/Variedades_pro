@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
-// Ruta de importación actualizada según tu indicación
+// Servicio e Interfaces
 import { InventaryHttpsService } from '../../inventary/services/inventary-https.service';
 
-// Importación de componentes standalone (Asegúrate que los selectores en el HTML coincidan)
+// Componentes Standalone
 import { BreadcrumbsComponent } from "../../components/Breadcrumbs/breadcrumbs.component";
 import { PaginationComponent } from "../../components/pagination/pagination.component";
 
@@ -45,16 +46,22 @@ interface DetalleProducto {
   imports: [
     CommonModule, 
     FormsModule,
+    RouterModule, // Necesario para Named Outlets
     BreadcrumbsComponent, 
     PaginationComponent
   ]
 })
 export class IncommingsComponent implements OnInit {
   
+  // Estado de Búsqueda y Lista
   searchTerm: string = '';
   products: Producto[] = [];
   filteredProducts: Producto[] = [];
-  showModal: boolean = false;
+  
+  // Estado de Modales
+  showModal: boolean = false; // Modal de "Agregar/Configurar" (Manual)
+  isCreateModalActive: boolean = false; // Modal de "Crear Producto" (Ruta Auxiliar)
+  
   selectedProduct: Producto | null = null;
 
   details: DetalleProducto = {
@@ -63,19 +70,29 @@ export class IncommingsComponent implements OnInit {
     size: '', color: '', material: ''
   };
 
-  constructor(private inventoryService: InventaryHttpsService,
+  constructor(
+    private inventoryService: InventaryHttpsService,
     private router: Router,
     private route: ActivatedRoute,
-  ) {}
+  ) {
+    // Escuchar cambios en la URL para activar/desactivar visualmente el modal de creación
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.isCreateModalActive = this.router.url.includes('modal:create');
+    });
+  }
 
   ngOnInit(): void {
     this.loadProducts();
   }
 
+  // --- Lógica de Datos ---
+
   loadProducts(): void {
     this.inventoryService.getInventary().subscribe({
       next: (res: any) => {
-        // Mapeamos para que 'name' sea igual a 'descripcion' y el HTML no dé error
+        // Mapeamos para que 'name' sea igual a 'descripcion' para compatibilidad
         this.products = (res.data || []).map((p: any) => ({ 
           ...p, 
           name: p.descripcion 
@@ -104,6 +121,7 @@ export class IncommingsComponent implements OnInit {
     this.searchTerm = item.descripcion;
     this.filteredProducts = []; 
 
+    // Reset de detalles con info del item
     this.details = {
       category: item.sub_categoria?.categoria?.nombre || '',
       subCategory: item.sub_categoria?.nombre || '',
@@ -113,6 +131,7 @@ export class IncommingsComponent implements OnInit {
       model: '', size: '', color: '', material: ''
     };
 
+    // Mapeo dinámico de atributos desde el esquema SQL
     item.articulo_variante_atr_val?.forEach(rel => {
       const nom = rel.atr_val?.atributo?.nombre?.toLowerCase() || '';
       const val = rel.atr_val?.valor || '';
@@ -123,6 +142,8 @@ export class IncommingsComponent implements OnInit {
     });
   }
 
+  // --- Manejo del Modal de Configuración (Agregar) ---
+
   openModal(): void {
     if (this.selectedProduct) this.showModal = true;
   }
@@ -132,15 +153,27 @@ export class IncommingsComponent implements OnInit {
   }
 
   confirmAdd(): void {
-    // Lógica para procesar el ingreso
-    console.log('Agregando producto:', this.details);
+    console.log('Confirmando ingreso de producto:', this.details);
+    // Aquí iría la lógica para guardar la entrada en la BD
     this.closeModal();
     this.selectedProduct = null;
     this.searchTerm = '';
   }
 
- redirectToCreate() {
-    this.router.navigate(['create'], { relativeTo: this.route });
+  // --- Manejo del Modal de Creación (Ruta Auxiliar) ---
+
+  redirectToCreate(): void {
+    // Navega a la ruta actual activando el outlet 'modal' con el componente 'create'
+    // Se usa parent para asegurar que la ruta se resuelva desde /inventary
+    
+    this.router.navigate([ '/inventary/incommings', { outlets: { modal: ['create'] } }]);
+  }
+
+  closeCreateModal(): void {
+    // Cierra el modal de ruta auxiliar limpiando el outlet
+    this.router.navigate([{ outlets: { modal: null } }], { 
+      relativeTo: this.route.parent 
+    });
   }
 
 }

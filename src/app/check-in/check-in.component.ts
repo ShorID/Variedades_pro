@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild,ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild,ChangeDetectorRef, AfterContentChecked,ChangeDetectionStrategy,HostListener } from '@angular/core';
 import { TextComponent } from '../components/Text/text.component';
 import { ProductImagesComponent } from './product-imgs/product-imgs.component';
 import { ProductColorsComponent } from './product-colors/product-colors.component';
@@ -24,6 +24,7 @@ import { ClienteComponent } from './clientes/cliente.component';
   standalone: true,
   templateUrl: './check-in.component.html',
   styleUrl: './check-in.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, CurrencyPipe,TitleCasePipe,ClienteComponent], //estos estaban importados TextComponent, ProductImagesComponent, ProductColorsComponent, ProductSizesComponent,
 })
 export class CheckInComponent implements OnInit {
@@ -64,6 +65,8 @@ export class CheckInComponent implements OnInit {
   @ViewChild('cantidadInput') cantidadInput!: ElementRef;
   //esto es para abrir el modald e clientes desde facturacion tambien tuve que importarlo
   @ViewChild('modalClientes') modalClientes!: ClienteComponent;
+  //este es para que del cliente salte al producto
+  @ViewChild('txtBuscarProducto') txtBuscarProducto!: ElementRef<HTMLInputElement>;
   // Variables en tu componente
   montoRecibido: number = 0;
   cambio: number = 0;
@@ -81,6 +84,12 @@ export class CheckInComponent implements OnInit {
   atributoFiltro: string = '';
   valorAtributo: string = '';
   private debounceTimer?: any;
+  //estas variables para la nueva version de productos que se filtran
+  public productosFiltradosList: any[] = [];
+  public productosPaginadosList: any[] = [];
+  // 1. Define las variables como números normales
+  public totalPaginas: number = 1;
+  public totalItemsFiltrados: number = 0;
 
   constructor(
     private service: VentasHttpServices,
@@ -93,16 +102,28 @@ export class CheckInComponent implements OnInit {
     //this.service.getProductos().subscribe(res => this.productos = res);
     this.cargarDatosIniciales();
     from(this.service.obteneratributos()).subscribe((attr) => {
+      //setTimeout(() => {
       this.listaAtributos = attr;
+      this.cdr.markForCheck(); // <--- Notifica el cambio de forma segura
+      //});
     });
-
+    
+    
+    
     this.service.getProductos().subscribe((res) => {
       this.productos = res;
       const cats = [...new Set(res.map((p) => p.categoria))]; // Extrae nombres únicos
       this.categorias = ['Todas', ...cats];
+
+      // ¡Llamamos a la actualización manual!
+     this.actualizarListaVisible();
+      this.cdr.markForCheck(); // <--- Notifica el cambio de forma segura
     });
   }
-
+  ngAfterContentChecked(): void {
+  this.cdr.detectChanges(); // Esto resuelve el error "ExpressionChanged" de forma global
+  }
+  /*
   get productosFiltrados() {
     return this.productos.filter((p) => {
       const termino = this.buscarpro.toLowerCase();
@@ -113,19 +134,36 @@ export class CheckInComponent implements OnInit {
       return (coincideNombre || coincideCodigo) && coincideCat;
     });
   }
-
-  /*
-  // Cambia la lógica de filtrado
-  get productosFiltrados() {
-    return this.productos.filter(p => {
-    const coincideNombre = p.nombre.toLowerCase().includes(this.buscarpro.toLowerCase());
-    const coincideCat = this.categoriaSeleccionada === 'Todas' || p.categoria  === this.categoriaSeleccionada;
-    const coincideCodigo = p.codigo?.toString().includes(this.buscarpro);
-    //return coincideNombre && coincideCat; //esto es para buscar por nombre y categoria
-    return (coincideNombre || coincideCodigo) && coincideCat; //esto ya agrega al codigo
-  });
-  }
   */
+  actualizarListaVisible() {
+  // 1. Filtrar
+  const termino = this.buscarpro.toLowerCase();
+  const filtrados = this.productos.filter((p) => {
+    const coincideNombre = p.nombre.toLowerCase().includes(termino);
+    const coincideCodigo = p.codigo?.toString().includes(termino);
+    const coincideCat = this.categoriaSeleccionada === 'Todas' || p.categoria === this.categoriaSeleccionada;
+    return (coincideNombre || coincideCodigo) && coincideCat;
+  });
+
+  // 2. Calcular Paginación basándonos en los resultados FILTRADOS
+  this.totalItemsFiltrados = filtrados.length;
+  this.totalPaginas = Math.ceil(this.totalItemsFiltrados / this.itemsPorPagina);
+  
+  // 3. Validar que la página actual no se quede "huérfana"
+  if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
+    this.paginaActual = 1;
+  }
+
+  // 2. Paginar
+  const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+  const fin = inicio + this.itemsPorPagina;
+
+  // 3. Asignar con un pequeño delay para evitar el error NG0100
+  setTimeout(() => {
+    this.productosFiltradosList = filtrados;
+    this.productosPaginadosList = filtrados.slice(inicio, fin);
+  });
+}
 
   // 2. Luego cortamos el resultado para la página actual
   get productosPaginados() {
@@ -138,18 +176,21 @@ export class CheckInComponent implements OnInit {
     const fin = inicio + this.itemsPorPagina;
 
     // 4. "Cortar" el array principal para obtener solo los de la página actual
+    
     return this.productos.slice(inicio, fin);
+    
   }
-
+  /*
   get totalPaginas() {
     //return Math.ceil(this.productosFiltrados.length / this.itemsPorPagina);
     return Math.ceil(this.productos.length / this.itemsPorPagina);
   }
-
+  */
   cambiarPagina(nueva: number) {
     if (nueva >= 1 && nueva <= this.totalPaginas) {
-      this.paginaActual = nueva;
-    }
+    this.paginaActual = nueva;
+    this.actualizarListaVisible(); // <--- IMPORTANTE: Refresca la vista
+   }
   }
 
   actualizarPaginacion() {
@@ -164,6 +205,8 @@ export class CheckInComponent implements OnInit {
 
   seleccionarCategoria(cat: string) {
     this.categoriaSeleccionada = cat;
+  this.paginaActual = 1; // Siempre vuelve a la página 1 al filtrar
+  this.actualizarListaVisible(); // <--- IMPORTANTE: Refresca la vista
   }
   /*
   get productosFiltrados() {
@@ -188,6 +231,12 @@ export class CheckInComponent implements OnInit {
     // 1. Limpiamos el timer anterior
   if (this.debounceTimer) clearTimeout(this.debounceTimer);
 
+  // Si acabamos de limpiar el buscador (por el Enter), no busques nada
+  if (!this.buscarpro.trim() && !this.valorAtributo.trim()) {
+    this.sugerencias = [];
+    return;
+  }
+
    if (this.buscarpro.length > 1 || this.valorAtributo.length > 1) {
     this.debounceTimer = setTimeout(async () => {
       const res = await this.service.obtenerSugerenciasRapidas(
@@ -203,6 +252,8 @@ export class CheckInComponent implements OnInit {
         descuentoPorLinea: 0,                // Inicializamos en 0
         empaqueSeleccionado: s.empaques?.[0] || null
       })) as Producto[]; // Ahora sí es compatible con Producto[]
+      
+      this.cdr.detectChanges();
       
     }, 300);
    } else {
@@ -242,6 +293,7 @@ export class CheckInComponent implements OnInit {
     // 1. Limpiamos buscador y sugerencias inmediatamente
     this.buscarpro = '';
     this.sugerencias = [];
+    this.productosPaginadosList = []; // O la lista que uses para el @for
     //esto apra validar que este en cero
       const stockDisponible = prod.stock || 0;
     if (stockDisponible <= 0) {
@@ -276,6 +328,13 @@ export class CheckInComponent implements OnInit {
       
     }
     this.calcularTotal();
+    //esto es de prueba para despues de agregar pone elcursor en producto
+    setTimeout(() => {
+    // 3. Regresamos el cursor al buscador de productos
+    this.enfocarBuscadorProductos();
+    // 4. Notificamos el cambio para que las listas desaparezcan visualmente
+    this.cdr.markForCheck();
+   }, 150);
   }
 
   /*
@@ -499,9 +558,21 @@ export class CheckInComponent implements OnInit {
 }
 */
   seleccionarCliente(cli: Cliente) {
+    setTimeout(() => {
     this.clienteSeleccionado = cli;
-    this.buscarCli = cli.nombre; // Ponemos el nombre en el input
-    this.sugerenciasClientes = []; // Cerramos las sugerencias
+    this.buscarCli = cli.nombre;     // Se llena el input
+    this.sugerenciasClientes = [];    // Se limpia la lista de búsqueda
+
+    // Después de seleccionar al cliente, el cursor se va directo a los productos
+    this.txtBuscarProducto.nativeElement.focus();
+    // ¡IMPORTANTE! Si usas OnPush, necesitas esta línea:
+    this.cdr.markForCheck(); 
+    
+    // Si NO usas OnPush pero el error persiste, usa:
+    // this.cdr.detectChanges();
+    
+    //console.log("Cliente seleccionado con éxito:", cli.nombre);
+  }, 0);
   }
 
   //para cargar un cliente siempre
@@ -516,15 +587,17 @@ export class CheckInComponent implements OnInit {
         );
 
         if (predeterminado) {
-          
+          setTimeout(() => {
           // 1. Asignamos la referencia
         this.clienteSeleccionado = predeterminado; 
-        
+        this.buscarCli = predeterminado.nombre;
+        this.sugerenciasClientes = [];
         // 2. Ejecutamos tu función de selección para llenar variables
-        this.seleccionarCliente(predeterminado);
+        //this.seleccionarCliente(predeterminado);
 
         // 3. Forzamos a Angular a detectar que el valor cambió
         this.cdr.detectChanges();
+        }, 0);
         }
       },
       error: (err) => console.error('Error cargando clientes:', err),
@@ -1020,10 +1093,11 @@ export class CheckInComponent implements OnInit {
   abrirModalNuevoCliente() {
   if (this.modalClientes) {
     // Le enviamos lo que el usuario escribió en el buscador
-    this.modalClientes.abrirDesdeVentas(this.buscarCli);
-    
-    // Opcional: limpiar las sugerencias para que no estorben al fondo
-    this.sugerenciasClientes = [];
+    setTimeout(() => {
+      this.modalClientes.abrirDesdeVentas(this.buscarCli);
+      this.sugerenciasClientes = [];
+      this.cdr.markForCheck();
+    }, 10);
   }
 }
 limpiarClienteSeleccionado() {
@@ -1038,4 +1112,176 @@ limpiarClienteSeleccionado() {
 
   //console.log("Buscador de clientes reiniciado.");
 }
+@HostListener('window:keydown', ['$event'])
+handleKeyboardEvent(event: KeyboardEvent) {
+  // Verificamos si la tecla presionada es F2
+  if (event.key === 'F2') {
+    // Evitamos que el navegador haga su función por defecto
+    event.preventDefault();
+    
+    // Mandamos el cursor al buscador de productos
+    this.enfocarBuscadorProductos();
+  }
+
+  // Atajo para nuevo cliente (F4)
+  if (event.key === 'F4') {
+    event.preventDefault();
+    if (this.modalClientes) {
+      this.abrirModalNuevoCliente();
+      
+      // Forzamos la detección de cambios para que el modal aparezca de inmediato
+      this.cdr.markForCheck(); 
+      // O si prefieres ser más agresivo con los cambios:
+      // this.cdr.detectChanges();
+    }
+  }
+  // Esc: Limpiar y Regresar
+  if (event.key === 'Escape') {
+    // 1. Limpiamos sugerencias de clientes y productos que estén abiertas
+    this.sugerenciasClientes = [];
+    this.productosFiltradosList = []; // Opcional: si quieres limpiar la vista previa
+    
+    // 2. Si tienes una variable para cerrar el modal manualmente:
+    if (this.modalClientes) {
+    this.modalClientes.cerrarModal(); 
+    }
+
+    // 3. Regresamos el cursor al buscador de productos
+    setTimeout(() => {
+    // 3. Regresamos el cursor al buscador de productos
+    this.enfocarBuscadorProductos();
+    // 4. Notificamos el cambio para que las listas desaparezcan visualmente
+    this.cdr.markForCheck();
+   }, 150);
+
+    
+    //this.cdr.markForCheck();
+  }
+  if (event.key === 'Enter') {
+    // Solo actuamos si el usuario está en el buscador de productos
+    const estaEnBuscador = document.activeElement === this.txtBuscarProducto.nativeElement;
+    
+    if (estaEnBuscador) {
+      this.agregarProductoAutomatico();
+      // Evitamos que el Enter haga un "submit" del formulario si existe
+      event.preventDefault();
+    }
+  }
+  }
+// Creamos una pequeña función reutilizable
+ enfocarBuscadorProductos() {
+  if (this.txtBuscarProducto) {
+    setTimeout(() => {
+    this.txtBuscarProducto.nativeElement.focus();
+    this.cdr.markForCheck();
+      }, 10);
+    // Opcional: Selecciona el texto existente para sobrescribir rápido
+    this.txtBuscarProducto.nativeElement.select(); 
+    
+    this.cdr.markForCheck();
+  }
+ }
+  agregarProductoAutomatico() {
+  // Si solo hay un producto visible después del filtro
+   if (this.productosPaginadosList.length === 1) {
+    const productoUnico = this.productosPaginadosList[0];
+    
+    // Llamamos a tu función existente de agregar al carrito
+    this.seleccionarProducto(productoUnico);
+
+    // Limpiamos el buscador para la siguiente venta
+    this.buscarpro = '';
+    this.actualizarListaVisible(); // Para que la lista se limpie/refresque
+    
+    console.log("Producto agregado automáticamente:", productoUnico.nombre);
+    
+    this.cdr.markForCheck();
+   } else if (this.productosPaginadosList.length > 1) {
+    // Opcional: Si hay varios, podrías agregar el primero de la lista
+    // o simplemente no hacer nada para que el usuario elija.
+    console.warn("Hay más de un resultado, por favor sea más específico.");
+   }
+  }
+
+  async ejecutarEnterProducto(textoBusqueda: string) {
+  const termino = textoBusqueda?.trim();
+  if (!termino) return;
+
+  // 1. PRIORIDAD ESCÁNER: Si el texto parece un código o el debounce no ha terminado
+  // Hacemos la búsqueda directa a la base de datos sin esperar a las sugerencias.
+  const parametros = {
+    texto: termino,
+    atributo: '', // Buscamos global para no fallar por filtros
+    valorAtributo: '',
+    categoria: this.categoriaSeleccionada,
+  };
+
+  try {
+    const resultados = await this.service.buscarProductosFiltrados(parametros);
+
+    if (resultados && resultados.length > 0) {
+      // Si el código es exacto o hay coincidencias, agarramos el primero
+      this.seleccionarProducto(resultados[0]);
+      this.finalizarCaptura(); // Limpia todo y da el Beep
+    } 
+    // 2. SEGUNDA OPCIÓN: Si la búsqueda directa falló (raro), intentamos con lo que haya en sugerencias
+    else if (this.sugerencias.length > 0) {
+      this.seleccionarProducto(this.sugerencias[0]);
+      this.finalizarCaptura();
+    } 
+    else {
+      console.warn("No se encontró el producto:", termino);
+      this.reproducirErrorBeep(); 
+    }
+  } catch (error) {
+    console.error("Error en Enter:", error);
+  }
+ }//find e enter
+
+  finalizarCaptura() {
+  this.reproducirBeep();
+  this.buscarpro = '';
+  this.sugerencias = [];
+  if (this.debounceTimer) clearTimeout(this.debounceTimer);
+  
+  // Limpieza física del input para asegurar que quede vacío para el siguiente escaneo
+  if (this.txtBuscarProducto) {
+    this.txtBuscarProducto.nativeElement.value = '';
+    this.txtBuscarProducto.nativeElement.focus();
+  }
+  this.cdr.markForCheck();
+ }
+
+  reproducirBeep() {
+  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.type = 'sine'; // Tono suave
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Nota La (A5)
+  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volumen bajo
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.1); // Duración de 100ms
+ }
+
+  reproducirErrorBeep() {
+  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.type = 'square'; // Sonido más tosco
+  oscillator.frequency.setValueAtTime(150, audioCtx.currentTime); // Frecuencia baja
+  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.3); // Más largo
+}
+
 }

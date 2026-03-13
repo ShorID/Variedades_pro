@@ -16,11 +16,13 @@
                 (change)="valorAtributo = ''; onBuscarChange()"
               >
                 <option value="">Atributo...</option>
+                @if (listaAtributos && listaAtributos.length > 0) {
                 @for (attr of listaAtributos; track attr.nombre_atributo) {
                   <option [value]="attr.nombre_atributo">
                     {{ attr.nombre_atributo | titlecase }}
                   </option>
                 }
+              }
               </select>
 
               @if (atributoFiltro) {
@@ -39,12 +41,13 @@
                   <i class="ti ti-search"></i>
                 </span>
                 <input
+                  #txtBuscarProducto
                   type="text"
                   class="form-control"
                   [(ngModel)]="buscarpro"
-                  (input)="onBuscarChange()"
+                  (input)="onBuscarChange()" (keyup.enter)="ejecutarEnterProducto($event.target.value)"
                   (input)="paginaActual = 1"
-                  placeholder="Nombre o código de producto..."
+                  placeholder="F2 - Buscar Nombre o código de producto..."
                 />
               </div>
 
@@ -94,7 +97,7 @@
 
       <div class="card-body flex-fill">
         <div class="row row-cards">
-          @for (p of productosPaginados; track p.id) {
+          @for (p of productosPaginadosList; track p.id) {
             <div class="col-sm-6 col-md-4">
               <div
                 class="card card-sm card-link card-link-pop"

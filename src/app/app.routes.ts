@@ -77,6 +77,13 @@ export const routes: Routes = [
           {
             path: 'incommings',
             component: IncommingsComponent,
+            children: [
+              {
+                path: 'create',
+                component: InventaryCreateComponent,
+                outlet: 'modal' 
+              }
+            ]
           },
         ],
       },

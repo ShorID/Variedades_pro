@@ -1,0 +1,20 @@
+:host {
+    min-height: 100vh;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .card {
+        border-radius: 1.125rem;
+        max-width: 28rem;
+        margin: auto;
+        overflow: hidden;
+        padding-top: 1.125rem;
+        padding-bottom: 1.125rem;
+        width: 100%;
+
+        border-top: rgba(var(--tblr-primary-rgb),var(--tblr-bg-opacity, 1)) 5px solid !important;
+    }
+}

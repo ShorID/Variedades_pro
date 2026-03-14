@@ -1,0 +1,123 @@
+--para traer los productos
+create or replace function get_articulos_detalle()
+returns table (
+  id int, -- Ajusta el tipo de dato si tu ID es uuid o bigint
+  descripcion text,
+  precio numeric -- Ajusta si usas money o float
+) 
+language plpgsql
+as $$
+begin
+  return query
+  select 
+    a.id,
+    (a.nombre || ' ' || m.nombre || ' ' || at.nombre || ' ' || aval.valor)::text as descripcion,
+    ae.precio_venta as precio
+  from articulo a
+  inner join marca m on a.id_marca = m.id
+  inner join articulo_variante av on a.id = av.id_articulo -- Corregido: id_articulo
+  inner join articulo_variante_atr_val avav on av.id = avav.id_articulo_variante
+  inner join atr_val aval on avav.id_art_val = aval.id
+  inner join atributo at on aval.id_atributo = at.id
+  inner join articulo_empaque ae on av.id = ae.id_articulo_variante; -- Corregido: id_articulo_variante
+end;
+$$;
+
+
+--para crear la factura
+create or replace function crear_factura(
+  p_cliente text,
+  p_items jsonb,
+  p_total numeric
+) returns jsonb as $$
+declare
+  v_factura record;
+begin
+  -- Insertar la factura principal
+  insert into facturas (cliente, total)
+  values (p_cliente, p_total)
+  returning * into v_factura;
+
+  -- Insertar detalles
+  insert into detalles_factura (factura_id, producto_id, cantidad, precio_unitario)
+  select v_factura.id,
+         (item->>'id')::int,
+         (item->>'cantidad')::int,
+         (item->>'precio')::numeric
+  from jsonb_array_elements(p_items) as item;
+
+  -- Actualizar stock (ejemplo simple)
+  update productos
+  set stock = stock - (item->>'cantidad')::int
+  from jsonb_array_elements(p_items) as item
+  where productos.id = (item->>'id')::int;
+
+  return jsonb_build_object('success', true, 'id', v_factura.id);
+end;
+$$ language plpgsql;
+
+
+
+
+--para consultar los datos de la factura y susdetalle
+create or replace function crear_factura(
+  p_cliente text,
+  p_items jsonb,
+  p_total numeric
+) returns jsonb as $$
+declare
+  v_factura record;
+begin
+  insert into facturas (cliente, total)
+  values (p_cliente, p_total)
+  returning * into v_factura;
+
+  insert into detalles_factura (factura_id, producto_id, cantidad, precio_unitario)
+  select v_factura.id,
+         (item->>'id')::int,
+         (item->>'cantidad')::int,
+         (item->>'precio')::numeric
+  from jsonb_array_elements(p_items) as item;
+
+  update productos
+  set stock = stock - (item->>'cantidad')::int
+  from jsonb_array_elements(p_items) as item
+  where productos.id = (item->>'id')::int;
+
+  return jsonb_build_object('success', true, 'id', v_factura.id);
+end;
+$$ language plpgsql;
+
+
+//para traer la factura completa
+create or replace function obtener_factura(p_id int)
+returns jsonb as $$
+declare
+  v_factura jsonb;
+begin
+  select jsonb_build_object(
+    'id', f.id,
+    'cliente', f.cliente,
+    'total', f.total,
+    'fecha', f.created_at,
+    'detalles', (
+      select jsonb_agg(
+        jsonb_build_object(
+          'producto', p.nombre,
+          'cantidad', d.cantidad,
+          'precio', d.precio_unitario
+        )
+      )
+      from detalles_factura d
+      join productos p on p.id = d.producto_id
+      where d.factura_id = f.id
+    )
+  )
+  into v_factura
+  from facturas f
+  where f.id = p_id;
+
+  return v_factura;
+end;
+$$ language plpgsql;
+

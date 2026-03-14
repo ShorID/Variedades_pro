@@ -1,0 +1,135 @@
+<div class="Inventary">
+  <div class="card mt-3">
+    <div class="card-header">
+      <div class="w-100">
+        <div class="row align-items-center">
+          <div class="col">
+            <div class="me-auto d-flex">
+              <app-icon
+                name="Boxes"
+                [size]="32"
+                class="d-flex align-items-center me-2 text-primary"
+              />
+              <div class="text-black">
+                <Text tag="smallBody" tagClass="page-pretitle"> Administracion </Text>
+                <Text tag="h5" bold="bold" tagClass="d-block"> Inventario </Text>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto ms-auto">
+            <div class="btn-list">
+              <button type="button" class="btn btn-sm btn-primary" (click)="redirectToCreate()">
+                <app-icon name="plus" class="me-1" />
+                <Text> Crear Producto </Text>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <Text bold="bold"
+            >Productos
+            @if (loading()) {
+              <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+            }
+          </Text>
+          <div class="btn-list justify-content-end">
+            <button class="btn btn-sm btn-square" type="button" (click)="refreshProducts()">
+              <app-icon name="RefreshCcw" [size]="18" />
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <inventary-table [items]="filteredInventary()" (onDelete)="deleteItem($event)">
+            <div class="d-block w-100 d-md-flex gap-2">
+              <app-categories-selector
+                [data]="categories()"
+                [canUnselect]="true"
+                icon="filter"
+                title="Categorias"
+                mode="select"
+                class="d-block mb-2"
+                style="min-width: 9rem"
+                (onSelect)="setFilter('category', $event)"
+                [value]="filters()['category'] ? filters()['category'] + '' : ''"
+              />
+              <app-subcategory-selector
+                [data]="subcategories()"
+                [hearingCategory]="false"
+                [canUnselect]="true"
+                icon="filter"
+                title="Sub-categorias"
+                mode="select"
+                class="d-block"
+                style="min-width: 9rem"
+                (onSelect)="setFilter('subcategory', $event)"
+                [value]="filters()['subcategory'] ? filters()['subcategory'] + '' : ''"
+              />
+            </div>
+          </inventary-table>
+        </div>
+        @if (paginationStatus().pages > 1) {
+          <div class="card-footer d-flex align-items-center">
+            Mostrando {{ this.filteredInventary().length }} / {{ paginationStatus().count }}
+            <app-pagination
+              [totalPages]="paginationStatus().pages"
+              [page]="page$.getValue()"
+              (onChange)="onChangePage($event)"
+              class="ms-auto"
+            />
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@if(openConfirmDelete()){
+  <div class="modal show d-flex align-items-center" tabindex="-1">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="cancelDelete()"></button>
+      <div class="modal-status bg-danger"></div>
+      <div class="modal-body text-center py-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="icon mb-2 text-danger icon-lg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12 9v2m0 4v.01" />
+          <path
+            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"
+          />
+        </svg>
+        <h3>Estas seguro?</h3>
+        <div class="text-secondary">
+          Estas a punto de eliminar el producto con id {{openConfirmDelete()?.id}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <button class="btn w-100" data-bs-dismiss="modal" (click)="cancelDelete()"> Cancelar </button>
+            </div>
+            <div class="col">
+              <button class="btn btn-danger w-100" data-bs-dismiss="modal" (click)="confirmDelete()"> Eliminar </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

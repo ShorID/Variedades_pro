@@ -1,0 +1,15 @@
+.Categories{
+
+  .form-control:focus {
+    box-shadow: none;
+    border-color: var(--tblr-primary);
+  }
+    
+  [id^="cat-"]{
+    transition: background-color .15s ease;
+
+    &:hover {
+      background-color: var(--tblr-gray-50);
+    }
+  }
+}

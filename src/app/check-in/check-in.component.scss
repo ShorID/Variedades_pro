@@ -1,0 +1,248 @@
+.Check-in{
+    &-data,
+    &-data td{
+        border: none;
+    }
+    &-data td{
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+.container {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 20px;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  height: 100vh;
+}
+
+/* Sección de Inventario */
+.inventory-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  overflow-y: auto;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Tarjetas de Producto */
+.product-card {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  border-color: #3f51b5;
+}
+
+.product-card h4 { margin: 10px 0 5px; color: #333; }
+.product-card .price { color: #2e7d32; font-weight: bold; font-size: 1.1em; }
+.product-card .stock { font-size: 0.8em; color: #777; }
+
+/* Barra Lateral de Facturación */
+.billing-side {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.client-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Tabla de Carrito */
+.cart-items {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item-info { flex: 1; }
+.cart-item-qty { width: 50px; text-align: center; margin: 0 10px; border: 1px solid #eee;}
+
+/* Footer de Factura */
+.billing-footer {
+  border-top: 2px solid #eee;
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.btn-pay {
+  width: 100%;
+  padding: 15px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-pay:disabled { background-color: #ccc; cursor: not-allowed; }
+.btn-pay:hover:not(:disabled) { background-color: #303f9f; }
+
+/* Botón eliminar */
+.btn-remove {
+  background: none;
+  border: none;
+  color: #ff5252;
+  cursor: pointer;
+  margin-left: 15px;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.btn-remove:hover {
+  color: #b71c1c;
+}
+
+/* Estilo para cuando no hay productos en el carrito */
+.cart-empty {
+  text-align: center;
+  color: #999;
+  margin-top: 50px;
+  font-style: italic;
+}
+
+/* Feedback visual de stock */
+.out-of-stock {
+  border: 2px solid #ff5252 !important;
+  background-color: #ffebee;
+}
+.btn-secondary {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #607d8b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.header-inventory {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  position: relative;
+  width: 300px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+  border-color: #3f51b5;
+  box-shadow: 0 0 5px rgba(63, 81, 181, 0.2);
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-style: italic;
+}
+.categories-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.categories-bar button {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #3f51b5;
+  background: white;
+  color: #3f51b5;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.categories-bar button.active {
+  background: #3f51b5;
+  color: white;
+}
+
+.categories-bar button:hover:not(.active) {
+  background: #f0f2ff;
+}
+
+/* Badge decorativo en la tarjeta */
+.badge {
+  font-size: 0.7em;
+  background: #e8eaf6;
+  color: #3f51b5;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+/* El modal debe estar por encima de todo */
+.modal {
+    z-index: 1060 !important;
+}
+
+/* El fondo oscuro debe estar un nivel por debajo */
+.modal-backdrop {
+    z-index: 1050 !important;
+}

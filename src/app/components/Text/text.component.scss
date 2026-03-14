@@ -1,0 +1,74 @@
+$font-size: 1rem;
+
+.Text {
+    &-h1 {
+        font-size: 48px;
+    }
+
+    &-h2 {
+        font-size: 32px;
+    }
+
+    &-h3 {
+        font-size: 24px;
+    }
+
+    &-h4 {
+        font-size: 20px;
+    }
+
+    &-h5 {
+        font-size: 16px;
+    }
+
+    &-bigBody {
+        font-size: 14px;
+    }
+
+    &-smallBody {
+        font-size: 12px;
+    }
+
+    //Text weight
+    &-w {
+        &-thin {
+            font-weight: 100;
+        }
+
+        &-lighter {
+            font-weight: 200;
+        }
+
+        &-light {
+            font-weight: 300;
+        }
+
+        &-regular {
+            font-weight: 400;
+        }
+
+        &-medium {
+            font-weight: 500;
+        }
+
+        &-semiBold {
+            font-weight: 600;
+        }
+
+        &-bold {
+            font-weight: 700;
+        }
+
+        &-bolder {
+            font-weight: 800;
+        }
+
+        &-black {
+            font-weight: 900;
+        }
+    }
+
+    &-italic{
+        font-style: italic;
+    }
+}

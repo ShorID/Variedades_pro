@@ -1,0 +1,115 @@
+<div class="page">
+  <!-- Sidebar -->
+  <aside class="navbar navbar-vertical navbar-expand-sm position-md-absolute" data-bs-theme="dark">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" (click)="handleSidebar()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-brand navbar-brand-autodark">
+        <span
+          class="p-2 bg-primary text-white d-block"
+          style="border-radius: 50%; width: fit-content"
+        >
+          <app-icon name="Store" class="d-block" [size]="18" />
+        </span>
+        <Text tag="h4" class="text-white" [italic]="true" [bold]="'black'"> Variedades Pro </Text>
+      </div>
+      <div
+        [class]="{ collapse: true, 'navbar-collapse': true, show: showSidebar }"
+        id="sidebar-menu"
+      >
+        <ul class="navbar-nav navbar-vertical pt-lg-3">
+          <li class="nav-item">
+            <app-navItem link="/">
+              <Text tagClass="d-flex align-items-center">
+                <app-icon name="House" class="me-1 d-inline-block" />
+                Inicio
+              </Text>
+            </app-navItem>
+          </li>
+          <li class="nav-item">
+            <app-navItem link="/check-in" [hasOptions]="true">
+              <Text tagClass="d-flex align-items-center">
+                <app-icon name="BadgeDollarSign" class="me-1 d-inline-block" />
+                Facturacion
+              </Text>
+              <ng-container ngProjectAs="navItem-options">
+                <div>
+                  <app-navItem link="/clients">
+                    <Text>Clientes</Text>
+                  </app-navItem>
+                </div>
+                <div>
+                  <app-navItem link="/history">
+                    <Text>Historial</Text>
+                  </app-navItem>
+                </div>
+              </ng-container>
+            </app-navItem>
+          </li>
+          <li class="nav-item">
+            <app-navItem link="/inventary" [hasOptions]="true">
+              <Text tagClass="d-flex align-items-center">
+                <app-icon name="Boxes" class="me-1 d-inline-block" />
+                Inventario
+              </Text>
+              <ng-container ngProjectAs="navItem-options">
+                <div>
+                  <app-navItem link="/inventary/providers">
+                    <Text>Proveedores</Text>
+                  </app-navItem>
+                </div>
+                <div>
+                  <app-navItem link="/inventary/shipping">
+                    <Text>Entradas</Text>
+                  </app-navItem>
+                </div>
+              </ng-container>
+            </app-navItem>
+          </li>
+          <li class="nav-item">
+            <app-navItem link="/categories">
+              <Text tagClass="d-flex align-items-center">
+                <app-icon name="Shapes" class="me-1 d-inline-block" />
+                Categorias
+              </Text>
+              <!-- <ng-container ngProjectAs="navItem-options">
+                <div>
+                  <app-navItem link="/categories/subcategories">
+                    <Text>Subcategorias</Text>
+                  </app-navItem>
+                </div>
+                <div>
+                  <app-navItem link="/categories/attributes">
+                    <Text>Atributos</Text>
+                  </app-navItem>
+                </div>
+                <div>
+                  <app-navItem link="/categories/brands">
+                    <Text>Marcas</Text>
+                  </app-navItem>
+                </div>
+              </ng-container> -->
+            </app-navItem>
+          </li>
+          <li class="nav-item">
+            <app-navItem link="/users">
+              <Text tagClass="d-flex align-items-center">
+                <app-icon name="UsersRound" class="me-1 d-inline-block" />
+                Usuarios
+              </Text>
+            </app-navItem>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+  <div class="page-wrapper">
+    <div class="page-header d-print-none mt-0">
+      <app-header />
+    </div>
+    <div class="container-xl">
+      <router-outlet />
+    </div>
+  </div>
+</div>

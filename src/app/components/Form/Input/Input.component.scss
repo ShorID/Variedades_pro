@@ -1,0 +1,24 @@
+@use "variables" as v;
+
+:host {
+    display: block;
+    position: relative;
+
+    textarea {
+        resize: none;
+    }
+
+    &:not(:has(.form-label)) {
+
+        &:has(input:required),
+        &:has(textarea:required) {
+            &::after {
+                content: '*';
+                position: absolute;
+                right: -0.5rem;
+                top: -0.25rem;
+                color: #d63939;
+            }
+        }
+    }
+}

@@ -1,0 +1,77 @@
+<div class="container-xl">
+  <div class="row row-cards">
+    
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">Rendimiento de Ventas (Últimos 7 días)</h3>
+          @if (chartOptions && chartOptions.series) {
+      <div id="chart">
+        <apx-chart
+          [series]="chartOptions.series"
+          [chart]="chartOptions.chart"
+          [xaxis]="chartOptions.xaxis"
+          [stroke]="chartOptions.stroke"
+          [dataLabels]="chartOptions.dataLabels"
+          [colors]="chartOptions.colors">
+        </apx-chart>
+      </div>
+    } @else {
+      <div class="progress progress-sm">
+        <div class="progress-bar progress-bar-indeterminate"></div>
+      </div>
+      <p class="text-muted text-center mt-2">Cargando gráfico...</p>
+    }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Facturas Recientes</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table card-table table-vcenter text-nowrap datatable">
+            <thead>
+              <tr>
+                <th>Factura</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of facturas; track f.id) {
+                <tr>
+                  <td><span class="text-muted">#{{ f.id }}</span></td>
+                  <td>{{ f.cliente_nombre || 'Consumidor Final' }}</td>
+                  <td>{{ f.fecha_facturacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ f.total_items }} art.</td>
+                  <td><strong>{{ f.total | currency:'NIO':'symbol-narrow':'1.2-2' }}</strong></td>
+                  <td class="text-end">
+                    <button class="btn btn-icon btn-ghost-primary" (click)="imprimir(f.id)">
+                      <i class="ti ti-printer"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+</div>
+@if (clienteFiltrado) {
+  <div class="alert alert-info d-flex justify-content-between align-items-center">
+    <div>
+      Mostrando compras de: <strong>{{ clienteFiltrado }}</strong>
+    </div>
+    <a routerLink="/history" class="btn btn-sm btn-white">Ver todas</a>
+  </div>
+}

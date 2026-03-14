@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../../services/supabase.service';
 import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class InventaryHttpsService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) { }
 
-  /**
-   * Obtiene el inventario basado en articulo_variante (Eje principal según tu SQL)
-   */
   getInventary() {
     return from(
       this.supabase.client
@@ -65,13 +63,11 @@ export class InventaryHttpsService {
             )
           )
         `)
-        .eq('activo', true) // Opcional: solo traer variantes activas
+        .eq('activo', true)
     );
   }
 
-  /**
-   * Obtiene categorías con sus subcategorías y atributos predefinidos
-   */
+
   getCategories() {
     return from(
       this.supabase.client
@@ -112,15 +108,12 @@ export class InventaryHttpsService {
     );
   }
 
-  /**
-   * Inserta una nueva variante de artículo
-   * Nota: Eliminamos la referencia a la tabla 'articulo' que no existe en tu SQL
-   */
-  insertProductVariant(data: { 
-    id_marca: number; 
-    id_sub_categoria: number; 
-    costo: number; 
-    codigo: string; 
+ 
+  insertProductVariant(data: {
+    id_marca: number;
+    id_sub_categoria: number;
+    costo: number;
+    codigo: string;
     descripcion: string;
   }) {
     return from(
@@ -131,9 +124,6 @@ export class InventaryHttpsService {
     );
   }
 
-  /**
-   * Registra stock inicial en la tabla inventario
-   */
   insertInitialInventory(data: {
     id_articulo_variante: number;
     id_sucursal: number;
@@ -148,18 +138,101 @@ export class InventaryHttpsService {
     );
   }
 
-  /**
- * Actualiza el stock de una variante específica en Supabase
- * @param idVariante ID de la variante del artículo
- * @param nuevoStock El valor total (Stock Actual + Ingreso)
- */
   updateStock(idVariante: number, nuevoStock: number): Observable<any> {
     return from(
       this.supabase.client
         .from('inventario')
         .update({ stock: nuevoStock })
         .eq('id_articulo_variante', idVariante)
-        .select() // Agregamos select para confirmar la respuesta
+        .select()
+    );
+  }
+
+  updateVariante(idVariante: number, datos: { costo: number, codigo: string }): Observable<any> {
+    return from(
+      this.supabase.client
+        .from('articulo_variante')
+        .update(datos)
+        .eq('id', idVariante)
+    );
+  }
+
+
+  async linkAttributesToVariant(idVariante: number, atributos: any[]) {
+    console.log("Iniciando linkAttributesToVariant para variante:", idVariante);
+
+    try {
+      const { error: deleteError } = await this.supabase.client
+        .from('articulo_variante_atr_val')
+        .delete()
+        .eq('id_articulo_variante', idVariante);
+
+      if (deleteError) {
+        console.error("Error al limpiar relaciones previas:", deleteError);
+      }
+
+      for (const atr of atributos) {
+        if (!atr.id_atributo || !atr.valor) {
+          console.warn("Atributo ignorado por falta de ID o Valor:", atr);
+          continue;
+        }
+
+        const valorLimpio = atr.valor.trim();
+
+        try {
+          let { data: valAtr } = await this.supabase.client
+            .from('atr_val')
+            .select('id')
+            .eq('id_atributo', atr.id_atributo)
+            .ilike('valor', valorLimpio)
+            .maybeSingle();
+
+          if (!valAtr) {
+            const { data: newVal, error: errorInsert } = await this.supabase.client
+              .from('atr_val')
+              .insert({ id_atributo: atr.id_atributo, valor: valorLimpio, activo: true})
+              .select()
+              .single();
+
+            if (errorInsert) throw errorInsert;
+            valAtr = newVal;
+          }
+
+          if (valAtr) {
+            const { error: errorRel } = await this.supabase.client
+              .from('articulo_variante_atr_val')
+              .insert({
+                id_articulo_variante: idVariante,
+                id_art_val: valAtr.id,
+                activo: true
+              });
+
+            if (errorRel) {
+              console.error("linkAttributesToVariant > errorRel > ", errorRel);
+            } else {
+              console.log(`Relación creada: Variante ${idVariante} -> Valor ${valAtr.id}`);
+            }
+          }
+        } catch (err) {
+          console.error("Error en el bucle de atributos para:", valorLimpio, err);
+        }
+      }
+    } catch (globalErr) {
+      console.error("Error global en linkAttributesToVariant:", globalErr);
+    }
+  }
+
+  getAtributosMaestros(): Observable<any[]> {
+    return from(
+      this.supabase.client
+        .from('atributo')
+        .select('id, nombre')
+        .order('nombre', { ascending: true })
+    ).pipe(
+      map(response => {
+        if (response.error) throw response.error;
+        return response.data || [];
+      })
     );
   }
 }

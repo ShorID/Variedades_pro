@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef,ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule, NavigationEnd } from '@angular/router';
@@ -7,8 +7,6 @@ import { firstValueFrom } from 'rxjs';
 import { NotifyService } from '../../services/notify.service';
 
 import { InventaryHttpsService } from '../incommings/services/incommings-https.service';
-import { BreadcrumbsComponent } from "../../components/Breadcrumbs/breadcrumbs.component";
-import { PaginationComponent } from "../../components/pagination/pagination.component";
 import { InventaryCreateComponent } from "../components/inventary-create/inventary-create.component";
 
 interface Producto {
@@ -31,8 +29,9 @@ interface Producto {
   templateUrl: 'incommings.component.html',
   styleUrl: 'incommings.component.scss',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BreadcrumbsComponent, PaginationComponent, InventaryCreateComponent]
+  imports: [CommonModule, FormsModule, RouterModule, InventaryCreateComponent]
 })
+
 export class IncommingsComponent implements OnInit {
   searchTerm: string = '';
   products: Producto[] = [];
@@ -45,6 +44,9 @@ export class IncommingsComponent implements OnInit {
   selectedProductsList: any[] = [];
   currentProductEditing: Producto | null = null;
 
+
+  atributosDinamicos: { id_atributo?: number, nombre: string, valor: string }[] = [];
+  listaAtributosMaestra: any[] = [];
   details: any = {
     category: '', subCategory: '', brand: '',
     cost: 0, code: '', attributes: '',
@@ -57,19 +59,32 @@ export class IncommingsComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private eRef: ElementRef,
-    private cdr: ChangeDetectorRef // 2. Inyecta el detector
+    private cdr: ChangeDetectorRef
   ) {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       this.isCreateModalActive = this.router.url.includes('modal:create');
     });
   }
 
-  ngOnInit(): void { this.loadProducts(); }
+  ngOnInit(): void { this.loadProducts(); this.initAtributosMaestros();}
 
   loadProducts(): void {
     this.inventoryService.getInventary().subscribe({
       next: (res: any) => this.products = res.data || [],
       error: (err) => console.error('Error al cargar productos:', err)
+    });
+  }
+
+
+  initAtributosMaestros() {
+    this.inventoryService.getAtributosMaestros().subscribe({
+      next: (data) => {
+        this.listaAtributosMaestra = data;
+      },
+      error: (err) => {
+        console.error('Error cargando atributos maestros:', err);
+        this.notify.error('No se pudieron cargar los tipos de atributos.');
+      }
     });
   }
 
@@ -84,7 +99,6 @@ export class IncommingsComponent implements OnInit {
       .filter(str => str !== '').join(', ');
   }
 
-  // MÉTODO ACTUALIZADO: Filtra duplicados
   onSearch(event: any): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTerm = value;
@@ -105,48 +119,66 @@ export class IncommingsComponent implements OnInit {
       const cat = (p.sub_categoria?.nombre || '').toLowerCase();
       // const attrs = this.formatAttributes(p).toLowerCase();
       // || attrs.includes(value)
-      return desc.includes(value) || cod.includes(value) || marc.includes(value) || cat.includes(value) ;
+      return desc.includes(value) || cod.includes(value) || marc.includes(value) || cat.includes(value);
     });
   }
 
-  selectItem(item: Producto): void {
+  selectItem(item: any): void {
     this.currentProductEditing = item;
     this.searchTerm = item.descripcion;
     this.filteredProducts = [];
 
-    const stockBase = (item.inventario && item.inventario.length > 0) ? item.inventario[0].stock : 0;
+    this.atributosDinamicos = item.articulo_variante_atr_val?.map((rel: any) => ({
+      id_atributo: rel.atr_val?.atributo?.id,
+      nombre: rel.atr_val?.atributo?.nombre,
+      valor: rel.atr_val?.valor || ''
+    })) || [];
+    
+    if (this.atributosDinamicos.length === 0) {
+      this.agregarAtributoVacio();
+    }
 
+    const stockBase = item.inventario?.[0]?.stock || 0;
     this.details = {
-      category: item.sub_categoria?.categoria?.nombre || '',
-      subCategory: item.sub_categoria?.nombre || '',
+      sub: item.sub_categoria?.nombre || '',
       brand: item.marca?.nombre || '',
       cost: item.costo || 0,
       code: item.codigo || '',
-      attributes: this.formatAttributes(item),
       stockActual: stockBase,
       cantidadSumar: 1
     };
   }
 
+  
   openModal(): void { this.filteredProducts = []; if (this.currentProductEditing) this.showModal = true; }
   closeModal(): void { this.showModal = false; this.isCreateModalActive = false; }
 
   confirmAdd(): void {
-    if (this.currentProductEditing && this.details.cantidadSumar > 0) {
-      this.selectedProductsList.push({
+    if (this.currentProductEditing) {
+      const atributosValidos = this.atributosDinamicos.filter(a => a.id_atributo && a.valor.trim() !== '');  
+
+      const itemParaLista = {
         id_variante: this.currentProductEditing.id,
         descripcion: this.currentProductEditing.descripcion,
-        marca: this.currentProductEditing.marca?.nombre || 'S/M',
+        sub: this.currentProductEditing?.sub_categoria?.nombre,
+        marca: this.details.brand,
         codigo: this.details.code,
         costo: this.details.cost,
-        atributos: this.details.attributes,
         stockPrevio: this.details.stockActual,
         cantidadIngreso: this.details.cantidadSumar,
-        stockFinal: this.details.stockActual + this.details.cantidadSumar
-      });
+        stockFinal: this.details.stockActual + this.details.cantidadSumar,
+
+        atributosArray: atributosValidos,
+        atributosFinales: atributosValidos.map(a => {
+          const nombreAtr = this.listaAtributosMaestra.find(m => m.id === a.id_atributo)?.nombre;
+          return `${nombreAtr}: ${a.valor}`;
+        }).join(' | ')
+      };
+
+      this.selectedProductsList.push(itemParaLista);
       this.closeModal();
       this.currentProductEditing = null;
-      this.searchTerm = '';
+      this.cdr.detectChanges();
     }
   }
 
@@ -158,7 +190,7 @@ export class IncommingsComponent implements OnInit {
   }
 
   async registrarEntradaCompleta() {
-    if (this.selectedProductsList.length === 0) return;
+    if (this.selectedProductsList.length === 0 || this.isSaving) return;
 
     this.isSaving = true;
     this.cdr.detectChanges();
@@ -170,32 +202,46 @@ export class IncommingsComponent implements OnInit {
       for (const item of this.selectedProductsList) {
         try {
           await firstValueFrom(this.inventoryService.updateStock(item.id_variante, item.stockFinal));
+
+          await firstValueFrom(this.inventoryService.updateVariante(item.id_variante, { costo: item.costo, codigo: item.codigo }));
+
+          if (item.atributosArray && item.atributosArray.length > 0) {
+            await this.inventoryService.linkAttributesToVariant(item.id_variante, item.atributosArray);
+          }
+          console.log("producto.>  " + JSON.stringify(item));
+
           exitosos++;
         } catch (err) {
-          console.error(`Error con el producto ${item.descripcion}:`, err);
+          console.error(`Error procesando ${item.descripcion}:`, err);
           fallidos++;
         }
       }
 
       if (fallidos === 0) {
-        // alert(`✅ ¡Éxito! Se actualizaron ${exitosos} productos.`);
-        this.notify.success(`✅ ¡Éxito!\n Se actualizaron ${exitosos} productos.`);
+        this.notify.success(`✅ ¡Éxito!\n Se procesaron ${exitosos} productos correctamente.`);
       } else {
-        // alert(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
-        this.notify.error(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
+        this.notify.error(`⚠️ Finalizado con errores: ${exitosos} exitosos, ${fallidos} fallidos.`);
       }
 
       this.selectedProductsList = [];
       this.loadProducts();
+
     } catch (err) {
-      // alert('❌ Ocurrió un error al procesar la carga.');
-        this.notify.info('❌ Ocurrió un error al procesar la carga.');
-    }finally {
+      console.error('Error crítico en el proceso:', err);
+      this.notify.info('❌ Ocurrió un error inesperado al procesar la carga.');
+    } finally {
       this.isSaving = false;
-        console.log("iSav"+ this.isSaving);
       this.cdr.detectChanges();
-        console.log("iSav"+ this.isSaving);
+      console.log("Estado isSaving final:", this.isSaving);
     }
+  }
+
+  agregarAtributoVacio() {
+    this.atributosDinamicos.push({ id_atributo: undefined, nombre: '', valor: '' });
+  }
+
+  eliminarAtributo(index: number) {
+    this.atributosDinamicos.splice(index, 1);
   }
 
   redirectToCreate(): void { this.router.navigate(['/inventary/incommings', { outlets: { modal: ['create'] } }]); }

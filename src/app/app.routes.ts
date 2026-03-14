@@ -77,14 +77,6 @@ export const routes: Routes = [
           {
             path: 'incommings',
             component: IncommingsComponent,
-            children: [
-              // Esta ruta se cargará en el outlet 'modal'
-              {
-                path: 'create',
-                component: InventaryCreateComponent,
-                outlet: 'modal' 
-              }
-            ]
           },
         ],
       },

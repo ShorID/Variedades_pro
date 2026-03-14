@@ -7,17 +7,14 @@
         <div class="card-header">
           <div class="row g-2 align-items-end w-100">
             <div class="col">
-              <label class="form-label">Búsqueda de Producto</label>
+              <label class="form-label">Búsqueda</label>
               <div class="input-icon">
-                <input type="text" class="form-control form-control-rounded"
-                  placeholder="Escriba nombre, marca o código..." [(ngModel)]="searchTerm" (input)="onSearch($event)"
-                  autocomplete="off">
-                <span class="input-icon-addon">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                </span>
-
-                <div class="dropdown-menu w-100" [class.show]="filteredProducts.length > 0">
-                  <button type="button" class="dropdown-item" *ngFor="let item of filteredProducts" (click)="selectItem(item)">
+                <input type="text" class="form-control form-control-rounded" placeholder="Buscar producto..."
+                  [(ngModel)]="searchTerm" (input)="onSearch($event)" (keydown.escape)="filteredProducts = []">
+                <div class="dropdown-menu w-100" style="border: 1px gray solid;"
+                  [class.show]="filteredProducts.length > 0">
+                  <button type="button" class="dropdown-item" *ngFor="let item of filteredProducts"
+                    (click)="selectItem(item)">
                     <div class="d-flex flex-column">
                       <span class="fw-bold">{{ item.sub_categoria.nombre }} - {{ item.marca.nombre }} </span>
                       <small class="text-muted">{{ item.codigo }} - {{ item.descripcion }}</small>
@@ -26,19 +23,12 @@
                 </div>
               </div>
             </div>
-
             <div class="col-auto">
-              <button type="button" class="btn btn-primary d-none d-sm-inline-flex" (click)="openModal()" [disabled]="!currentProductEditing">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                Agregar a lista
-              </button>
+              <button type="button" class="btn btn-primary" (click)="openModal()"
+                [disabled]="!currentProductEditing">Agregar a lista</button>
             </div>
-
             <div class="col-auto">
-              <button type="button" class="btn btn-outline-primary d-none d-sm-inline-flex" (click)="redirectToCreate()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                Crear producto
-              </button>
+              <button type="button" class="btn btn-outline-primary" (click)="redirectToCreate()">Crear nuevo</button>
             </div>
           </div>
         </div>
@@ -47,44 +37,31 @@
 
     <div class="col-12">
       <div class="card">
-        <div class="card-header">
-          <div class="col">
-            <div class="page-pretitle">Entradas</div>
-            <h2 class="page-title">Listado a registrar</h2>
-          </div>
-          <div class="col-auto">
-            <button class="btn btn-success" (click)="registrarEntradaCompleta()" [disabled]="selectedProductsList.length === 0">
-              Registrar {{ selectedProductsList.length }} productos
-            </button>
-          </div>
+        <div class="card-header d-flex justify-content-between">
+          <h3 class="card-title">Productos para ingresar</h3>
+          <button class="btn btn-success" (click)="registrarEntradaCompleta()"
+            [disabled]="selectedProductsList.length === 0 || isSaving">
+            {{ isSaving ? 'Procesando...' : 'Registrar ' + selectedProductsList.length + ' Productos' }}
+          </button>
         </div>
-        <div class="card-body p-0">
-          <table class="table table-responsive table-vcenter card-table">
+        <div class="table-responsive">
+          <table class="table card-table table-vcenter">
             <thead>
               <tr>
-                <th>#</th>
                 <th>Producto</th>
-                <th>Marca</th>
-                <th>Código</th>
-                <th>Costo</th>
-                <th class="w-1"></th>
+                <th class="text-center">Stock Actual</th>
+                <th class="text-center">Ingreso</th>
+                <th class="text-center">Stock Final</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let item of selectedProductsList; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td class="text-secondary">{{ item.descripcion }}</td>
-                <td class="text-secondary">{{ item.marca }}</td>
-                <td class="text-secondary">{{ item.codigo }}</td>
-                <td class="text-secondary">{{ item.costo | currency }}</td>
-                <td>
-                  <button class="btn btn-icon btn-ghost-danger" (click)="removeItem(i)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="selectedProductsList.length === 0">
-                <td colspan="6" class="text-center text-muted p-4">No hay productos en la lista.</td>
+                <td>{{ item.descripcion }} <br> <small class="text-muted">{{ item.codigo }}</small></td>
+                <td class="text-center">{{ item.stockPrevio }}</td>
+                <td class="text-center text-primary fw-bold">+ {{ item.cantidadIngreso }}</td>
+                <td class="text-center fw-bold text-success">{{ item.stockFinal }}</td>
+                <td><button class="btn btn-link link-danger" (click)="removeItem(i)">Eliminar</button></td>
               </tr>
             </tbody>
           </table>
@@ -94,49 +71,54 @@
   </div>
 </div>
 
-<div class="modal modal-blur fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal modal-blur fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content" *ngIf="showModal">
       <div class="modal-header">
         <h5 class="modal-title">Configurar Entrada: {{ currentProductEditing?.descripcion }}</h5>
         <button type="button" class="btn-close" (click)="closeModal()"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6 mb-3"><label class="form-label">Categoría</label><input type="text" class="form-control" [(ngModel)]="details.category" readonly></div>
-          <div class="col-lg-6 mb-3"><label class="form-label">Sub-Categoría</label><input type="text" class="form-control" [(ngModel)]="details.subCategory" readonly></div>
-          <div class="col-lg-6 mb-3"><label class="form-label">Marca</label><input type="text" class="form-control" [(ngModel)]="details.brand" readonly></div>
-          <div class="col-lg-6 mb-3"><label class="form-label">Modelo</label><input type="text" class="form-control" [(ngModel)]="details.model"></div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-4"><label class="form-label small">Talla</label><input type="text" class="form-control" [(ngModel)]="details.size"></div>
-          <div class="col-4"><label class="form-label small">Color</label><input type="text" class="form-control" [(ngModel)]="details.color"></div>
-          <div class="col-4"><label class="form-label small">Material</label><input type="text" class="form-control" [(ngModel)]="details.material"></div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-6"><label class="form-label">Costo Unitario</label><input type="number" class="form-control" [(ngModel)]="details.cost"></div>
-          <div class="col-6"><label class="form-label">Código de Barras</label><input type="text" class="form-control" [(ngModel)]="details.code"></div>
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Marca</label><input type="text" class="form-control"
+              [value]="details.brand" readonly></div>
+          <div class="col-6"><label class="form-label">Costo Unitario</label><input type="number" class="form-control"
+              [(ngModel)]="details.cost"></div>
+
+          <div class="col-12 bg-light p-3 rounded">
+            <div class="row align-items-center">
+              <div class="col-6 text-center border-end">
+                <label class="form-label text-muted">Stock Actual</label>
+                <div class="h1 mb-0">{{ details.stockActual }}</div>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold text-primary">Cantidad a Ingresar (+)</label>
+                <input type="number" class="form-control form-control-lg border-primary"
+                  [(ngModel)]="details.cantidadSumar" min="1">
+                <div class="mt-2">Total Final: <strong>{{ details.stockActual + details.cantidadSumar }}</strong></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary" (click)="closeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary ms-auto" (click)="confirmAdd()">Confirmar e incluir</button>
+        <button type="button" class="btn btn-link" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmAdd()">Confirmar e incluir</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal modal-blur fade" [class.show]="isCreateModalActive" [style.display]="isCreateModalActive ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal modal-blur fade" [class.show]="isCreateModalActive"
+  [style.display]="isCreateModalActive ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Nuevo Maestro de Producto</h5>
-        <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+        <h5>Nuevo Maestro de Producto</h5><button class="btn-close" (click)="closeCreateModal()"></button>
       </div>
       <div class="modal-body p-0">
-        <router-outlet name="modal"></router-outlet>
+        <page-inventary-create [redirectToInvAfterSave]="false" [title]="'KENOTA'" (onSave)="closeModal()"></page-inventary-create>
       </div>
     </div>
   </div>

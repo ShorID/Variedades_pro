@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../../services/supabase.service';
-import { from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class InventaryHttpsService {
@@ -145,6 +145,21 @@ export class InventaryHttpsService {
         .from('inventario')
         .insert([{ ...data, activo: true }])
         .select()
+    );
+  }
+
+  /**
+ * Actualiza el stock de una variante específica en Supabase
+ * @param idVariante ID de la variante del artículo
+ * @param nuevoStock El valor total (Stock Actual + Ingreso)
+ */
+  updateStock(idVariante: number, nuevoStock: number): Observable<any> {
+    return from(
+      this.supabase.client
+        .from('inventario')
+        .update({ stock: nuevoStock })
+        .eq('id_articulo_variante', idVariante)
+        .select() // Agregamos select para confirmar la respuesta
     );
   }
 }

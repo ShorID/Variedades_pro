@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, input, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { InventaryHttpsService } from '../../services/inventary-https.service';
 import { concatMap, filter, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { TextComponent } from '../../../components/Text/text.component';
@@ -39,6 +39,9 @@ import { Location } from '@angular/common';
 export class InventaryCreateComponent implements OnInit, OnDestroy {
   title = input<string>('Creando nuevo producto');
   defaultData = input<IInventaryItem>();
+  redirectToInvAfterSave = input<boolean> (true);
+  onSave = output();
+  
 
   defaultDataEffect = effect(() => {
     const defaultData = this.defaultData();
@@ -179,9 +182,18 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.notify.success('Articulo Creado correctamente!');
-            // this.router.navigateByUrl('inventary');
-            // this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route.parent });
-            this.location.back();
+            if( this.redirectToInvAfterSave()  ){
+              
+              this.router.navigateByUrl('inventary');
+
+            }else{              
+              // this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route.parent });
+              this.location.back();
+              
+
+            }
+
+            this.onSave.emit();
           },
           error: (err) => {
             this.notify.error('Ocurrio un error al crear el producto');

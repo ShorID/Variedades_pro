@@ -4,7 +4,7 @@ import {
   IInventaryItemDetail,
   IRawInventaryItem,
 } from '../interfaces/incommings.interfaces';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class InventaryService {

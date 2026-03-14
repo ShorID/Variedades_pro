@@ -125,7 +125,7 @@ export class IncommingsComponent implements OnInit {
     };
   }
 
-  openModal(): void { if (this.currentProductEditing) this.showModal = true; }
+  openModal(): void { this.filteredProducts = []; if (this.currentProductEditing) this.showModal = true; }
   closeModal(): void { this.showModal = false; this.isCreateModalActive = false; }
 
   confirmAdd(): void {

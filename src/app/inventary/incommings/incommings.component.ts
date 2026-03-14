@@ -46,8 +46,7 @@ export class IncommingsComponent implements OnInit {
 
   details: any = {
     category: '', subCategory: '', brand: '',
-    cost: 0, code: '', model: '',
-    size: '', color: '', material: '',
+    cost: 0, code: '', attributes: '',
     stockActual: 0, cantidadSumar: 1
   };
 
@@ -67,18 +66,44 @@ export class IncommingsComponent implements OnInit {
   loadProducts(): void {
     this.inventoryService.getInventary().subscribe({
       next: (res: any) => this.products = res.data || [],
-      error: (err) => console.error('Error:', err)
+      error: (err) => console.error('Error al cargar productos:', err)
     });
   }
 
+  formatAttributes(item: Producto): string {
+    if (!item?.articulo_variante_atr_val || !Array.isArray(item.articulo_variante_atr_val)) return '';
+    return item.articulo_variante_atr_val
+      .map(rel => {
+        const nombreAtr = rel?.atr_val?.atributo?.nombre || '';
+        const valorAtr = rel?.atr_val?.valor || '';
+        return (nombreAtr && valorAtr) ? `${nombreAtr}: ${valorAtr}` : '';
+      })
+      .filter(str => str !== '').join(', ');
+  }
+
+  // MÉTODO ACTUALIZADO: Filtra duplicados
   onSearch(event: any): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTerm = value;
-    this.filteredProducts = value ? this.products.filter(p =>
-      p.descripcion?.toLowerCase().includes(value) ||
-      p.codigo?.toLowerCase().includes(value) ||
-      p.marca?.nombre?.toLowerCase().includes(value)
-    ) : [];
+
+    if (!value) {
+      this.filteredProducts = [];
+      return;
+    }
+
+    const selectedIds = this.selectedProductsList.map(item => item.id_variante);
+
+    this.filteredProducts = this.products.filter(p => {
+      if (selectedIds.includes(p.id)) return false;
+
+      const desc = (p.descripcion || '').toLowerCase();
+      const cod = (p.codigo || '').toLowerCase();
+      const marc = (p.marca?.nombre || '').toLowerCase();
+      const cat = (p.sub_categoria?.nombre || '').toLowerCase();
+      // const attrs = this.formatAttributes(p).toLowerCase();
+      // || attrs.includes(value)
+      return desc.includes(value) || cod.includes(value) || marc.includes(value) || cat.includes(value) ;
+    });
   }
 
   selectItem(item: Producto): void {
@@ -86,7 +111,7 @@ export class IncommingsComponent implements OnInit {
     this.searchTerm = item.descripcion;
     this.filteredProducts = [];
 
-    const stockBase = item.inventario && item.inventario.length > 0 ? item.inventario[0].stock : 0;
+    const stockBase = (item.inventario && item.inventario.length > 0) ? item.inventario[0].stock : 0;
 
     this.details = {
       category: item.sub_categoria?.categoria?.nombre || '',
@@ -94,6 +119,7 @@ export class IncommingsComponent implements OnInit {
       brand: item.marca?.nombre || '',
       cost: item.costo || 0,
       code: item.codigo || '',
+      attributes: this.formatAttributes(item),
       stockActual: stockBase,
       cantidadSumar: 1
     };
@@ -107,9 +133,10 @@ export class IncommingsComponent implements OnInit {
       this.selectedProductsList.push({
         id_variante: this.currentProductEditing.id,
         descripcion: this.currentProductEditing.descripcion,
-        marca: this.currentProductEditing.marca.nombre,
+        marca: this.currentProductEditing.marca?.nombre || 'S/M',
         codigo: this.details.code,
         costo: this.details.cost,
+        atributos: this.details.attributes,
         stockPrevio: this.details.stockActual,
         cantidadIngreso: this.details.cantidadSumar,
         stockFinal: this.details.stockActual + this.details.cantidadSumar
@@ -124,9 +151,7 @@ export class IncommingsComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   clickout(event: any) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
-      this.filteredProducts = []; 
-    }
+    if (!this.eRef.nativeElement.contains(event.target)) this.filteredProducts = [];
   }
 
   async registrarEntradaCompleta() {
@@ -148,16 +173,15 @@ export class IncommingsComponent implements OnInit {
       }
 
       if (fallidos === 0) {
-        alert(`✅ ¡Éxito! Se actualizaron ${exitosos} productos correctamente.`);
+        alert(`✅ ¡Éxito! Se actualizaron ${exitosos} productos.`);
       } else {
-        alert(`⚠️ Proceso terminado con advertencias: ${exitosos} exitosos, ${fallidos} fallidos.`);
+        alert(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
       }
 
       this.selectedProductsList = [];
-      this.loadProducts(); 
-
-    } catch (globalError) {
-      alert('❌ Error crítico en el proceso de registro.');
+      this.loadProducts();
+    } catch (err) {
+      alert('❌ Ocurrió un error al procesar la carga.');
     } finally {
       this.isSaving = false;
     }

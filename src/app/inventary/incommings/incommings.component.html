@@ -9,15 +9,21 @@
             <div class="col">
               <label class="form-label">Búsqueda</label>
               <div class="input-icon">
-                <input type="text" class="form-control form-control-rounded" placeholder="Buscar producto..."
-                  [(ngModel)]="searchTerm" (input)="onSearch($event)" (keydown.escape)="filteredProducts = []">
-                <div class="dropdown-menu w-100" style="border: 1px gray solid;"
+                <input type="text" class="form-control form-control-rounded" 
+                  placeholder="Buscar por nombre, código o atributo..."
+                  [(ngModel)]="searchTerm" (input)="onSearch($event)" 
+                  (keydown.escape)="filteredProducts = []">
+                
+                <div class="dropdown-menu w-100" style="border: 1px gray solid; max-height: 350px; overflow-y: auto;"
                   [class.show]="filteredProducts.length > 0">
                   <button type="button" class="dropdown-item" *ngFor="let item of filteredProducts"
                     (click)="selectItem(item)">
                     <div class="d-flex flex-column">
-                      <span class="fw-bold">{{ item.sub_categoria.nombre }} - {{ item.marca.nombre }} </span>
+                      <span class="fw-bold">{{ item.sub_categoria?.nombre }} - {{ item.marca?.nombre }} </span>
                       <small class="text-muted">{{ item.codigo }} - {{ item.descripcion }}</small>
+                      <small class="text-primary fw-medium" *ngIf="formatAttributes(item)">
+                        <i class="ti ti-tag"></i> {{ formatAttributes(item) }}
+                      </small>
                     </div>
                   </button>
                 </div>
@@ -48,7 +54,7 @@
           <table class="table card-table table-vcenter">
             <thead>
               <tr>
-                <th>Producto</th>
+                <th>Producto / Atributos</th>
                 <th class="text-center">Stock Actual</th>
                 <th class="text-center">Ingreso</th>
                 <th class="text-center">Stock Final</th>
@@ -57,7 +63,13 @@
             </thead>
             <tbody>
               <tr *ngFor="let item of selectedProductsList; let i = index">
-                <td>{{ item.descripcion }} <br> <small class="text-muted">{{ item.codigo }}</small></td>
+                <td>
+                  <div class="fw-bold">{{ item.descripcion }}</div>
+                  <div class="text-muted small">Cód: {{ item.codigo }}</div>
+                  <span class="badge bg-azure-lt mt-1" *ngIf="item.atributos">
+                    {{ item.atributos }}
+                  </span>
+                </td>
                 <td class="text-center">{{ item.stockPrevio }}</td>
                 <td class="text-center text-primary fw-bold">+ {{ item.cantidadIngreso }}</td>
                 <td class="text-center fw-bold text-success">{{ item.stockFinal }}</td>
@@ -81,22 +93,31 @@
       </div>
       <div class="modal-body">
         <div class="row g-3">
-          <div class="col-6"><label class="form-label">Marca</label><input type="text" class="form-control"
-              [value]="details.brand" readonly></div>
-          <div class="col-6"><label class="form-label">Costo Unitario</label><input type="number" class="form-control"
-              [(ngModel)]="details.cost"></div>
+          <div class="col-6">
+            <label class="form-label">Marca</label>
+            <input type="text" class="form-control bg-light" [value]="details.brand" readonly>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Costo Unitario</label>
+            <input type="number" class="form-control" [(ngModel)]="details.cost">
+          </div>
+          
+          <div class="col-12" *ngIf="details.attributes">
+            <label class="form-label">Atributos (Talla, Color, etc.)</label>
+            <input type="text" class="form-control bg-light" [value]="details.attributes" readonly>
+          </div>
 
           <div class="col-12 bg-light p-3 rounded">
             <div class="row align-items-center">
               <div class="col-6 text-center border-end">
-                <label class="form-label text-muted">Stock Actual</label>
+                <label class="form-label text-muted small">Stock Actual</label>
                 <div class="h1 mb-0">{{ details.stockActual }}</div>
               </div>
               <div class="col-6">
                 <label class="form-label fw-bold text-primary">Cantidad a Ingresar (+)</label>
                 <input type="number" class="form-control form-control-lg border-primary"
                   [(ngModel)]="details.cantidadSumar" min="1">
-                <div class="mt-2">Total Final: <strong>{{ details.stockActual + details.cantidadSumar }}</strong></div>
+                <div class="mt-2 small">Total Final: <strong>{{ details.stockActual + details.cantidadSumar }}</strong></div>
               </div>
             </div>
           </div>
@@ -115,7 +136,8 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5>Nuevo Maestro de Producto</h5><button class="btn-close" (click)="closeCreateModal()"></button>
+        <h5>Nuevo Maestro de Producto</h5>
+        <button class="btn-close" (click)="closeCreateModal()"></button>
       </div>
       <div class="modal-body p-0">
         <page-inventary-create [redirectToInvAfterSave]="false" [title]="'KENOTA'" (onSave)="closeModal()"></page-inventary-create>

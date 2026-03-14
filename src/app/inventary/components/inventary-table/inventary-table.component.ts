@@ -1,4 +1,4 @@
-import { Component, computed, input, OnInit, signal } from '@angular/core';
+import { Component, computed, input, OnInit, output, signal } from '@angular/core';
 import { IInventaryItem } from '../../interfaces/inventary.interfaces';
 import { IconComponent } from '../../../components/Icon/icon.component';
 import { TextComponent } from '../../../components/Text/text.component';
@@ -90,7 +90,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                   <button type="button" class="btn btn-sm" (click)="redirectToProduct(item)">
                     <app-icon name="Pencil" [size]="16" />
                   </button>
-                  <button type="button" class="btn btn-sm">
+                  <button type="button" class="btn btn-sm" (click)="onDeleteItem(item)">
                     <app-icon name="Trash" [size]="16" />
                   </button>
                 </div>
@@ -142,7 +142,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                     <button type="button" class="btn btn-sm" (click)="redirectToProduct(item)">
                       <app-icon name="Pencil" [size]="16" />
                     </button>
-                    <button type="button" class="btn btn-sm">
+                    <button type="button" class="btn btn-sm" (click)="onDeleteItem(item)">
                       <app-icon name="Trash" [size]="16" />
                     </button>
                   </div>
@@ -157,6 +157,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   imports: [IconComponent, TextComponent],
 })
 export class InventaryTableComponent implements OnInit {
+  onDelete = output<IInventaryItem>();
   items = input<IInventaryItem[]>([]);
   filters = signal<{ q?: string; cty?: number; subCty?: number }>({});
   filteredItems = computed<IInventaryItem[]>(() => {
@@ -179,7 +180,10 @@ export class InventaryTableComponent implements OnInit {
   searchText: string = '';
   searchTextTimeout: number | undefined = undefined;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit() {}
 
@@ -223,6 +227,10 @@ export class InventaryTableComponent implements OnInit {
   }
 
   redirectToProduct(product: IInventaryItem) {
-    this.router.navigate(['product',product.id], { relativeTo: this.route });
+    this.router.navigate(['product', product.id], { relativeTo: this.route });
+  }
+
+  onDeleteItem(product: IInventaryItem) {
+    this.onDelete.emit(product);
   }
 }

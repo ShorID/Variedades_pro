@@ -31,6 +31,7 @@ export interface IRawInvAttr {
   id: any;
   nombre: any;
   activo: any;
+  limite_por_articulo: any;
   atr_val: {
     id: any;
     id_atributo: any;
@@ -121,6 +122,7 @@ export interface IInvAttr {
   nombre: string;
   activo: boolean;
   items: IInvAttrItem[];
+  limite_por_articulo: number | null
 }
 
 export interface IInvAttrItem {

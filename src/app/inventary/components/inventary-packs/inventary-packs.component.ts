@@ -92,7 +92,7 @@ import { IInvPack } from '../../interfaces/inventary.interfaces';
                     type="button"
                     class="btn btn-sm p-1 btn-icon btn-outline-danger"
                     (click)="deleteRow($index)"
-                    [disabled]="!!pack.default"
+                    [disabled]="!!pack.default || currentPacks().length === 1"
                   >
                     <app-icon name="Trash" [size]="16" />
                   </button>
@@ -190,7 +190,7 @@ import { IInvPack } from '../../interfaces/inventary.interfaces';
                 type="button"
                 class="btn btn-sm p-1 btn-icon btn-outline-danger"
                 (click)="deleteRow($index)"
-                [disabled]="!!pack.default"
+                [disabled]="!!pack.default || currentPacks().length === 1"
               >
                 <app-icon name="Trash" [size]="16" />
               </button>

@@ -64,4 +64,25 @@ $card-body-mh: 10rem;
             max-height: 100vh;
         }
     }
+    &-mode-collapsable {
+        .Card-selector-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height ease-in 0.3s;
+        }
+        // .Card-selector-content .card-header,
+        // .Card-selector-content .card-body{
+        //     border: var(--tblr-card-border-color) solid 01px;
+        //     border-radius: 0;
+        // }
+
+        // &.isOpen{
+        //     border-bottom-left-radius: 0;
+        //     border-bottom-right-radius: 0;
+        // }
+
+        &.isOpen .Card-selector-content {
+            max-height: 100vh;
+        }
+    }
 }

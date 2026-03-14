@@ -10,6 +10,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './services/supabase.service';
 import { provideToastr } from 'ngx-toastr';
 import { NgClickOutsideDirective } from 'ng-click-outside2';
+import { FormGroupDirective } from '@angular/forms';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,5 +19,6 @@ export const appConfig: ApplicationConfig = {
     provideToastr(),
     provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom([NgClickOutsideDirective]),
+    FormGroupDirective
   ],
 };

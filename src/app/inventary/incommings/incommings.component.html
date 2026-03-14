@@ -47,6 +47,8 @@
           <h3 class="card-title">Productos para ingresar</h3>
           <button class="btn btn-success" (click)="registrarEntradaCompleta()"
             [disabled]="selectedProductsList.length === 0 || isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            
             {{ isSaving ? 'Procesando...' : 'Registrar ' + selectedProductsList.length + ' Productos' }}
           </button>
         </div>

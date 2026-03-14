@@ -1,9 +1,10 @@
-import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { NotifyService } from '../../services/notify.service';
 
 import { InventaryHttpsService } from '../incommings/services/incommings-https.service';
 import { BreadcrumbsComponent } from "../../components/Breadcrumbs/breadcrumbs.component";
@@ -52,9 +53,11 @@ export class IncommingsComponent implements OnInit {
 
   constructor(
     private inventoryService: InventaryHttpsService,
+    private notify: NotifyService,
     private router: Router,
     private route: ActivatedRoute,
-    private eRef: ElementRef
+    private eRef: ElementRef,
+    private cdr: ChangeDetectorRef // 2. Inyecta el detector
   ) {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
       this.isCreateModalActive = this.router.url.includes('modal:create');
@@ -158,6 +161,8 @@ export class IncommingsComponent implements OnInit {
     if (this.selectedProductsList.length === 0) return;
 
     this.isSaving = true;
+    this.cdr.detectChanges();
+
     let exitosos = 0;
     let fallidos = 0;
 
@@ -173,17 +178,23 @@ export class IncommingsComponent implements OnInit {
       }
 
       if (fallidos === 0) {
-        alert(`✅ ¡Éxito! Se actualizaron ${exitosos} productos.`);
+        // alert(`✅ ¡Éxito! Se actualizaron ${exitosos} productos.`);
+        this.notify.success(`✅ ¡Éxito!\n Se actualizaron ${exitosos} productos.`);
       } else {
-        alert(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
+        // alert(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
+        this.notify.error(`⚠️ Finalizado: ${exitosos} exitosos, ${fallidos} fallidos.`);
       }
 
       this.selectedProductsList = [];
       this.loadProducts();
     } catch (err) {
-      alert('❌ Ocurrió un error al procesar la carga.');
-    } finally {
+      // alert('❌ Ocurrió un error al procesar la carga.');
+        this.notify.info('❌ Ocurrió un error al procesar la carga.');
+    }finally {
       this.isSaving = false;
+        console.log("iSav"+ this.isSaving);
+      this.cdr.detectChanges();
+        console.log("iSav"+ this.isSaving);
     }
   }
 

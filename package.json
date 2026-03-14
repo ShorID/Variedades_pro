@@ -36,6 +36,7 @@
     "jspdf": "^4.2.0",
     "lucide-angular": "^0.563.0",
     "ng-apexcharts": "^2.2.0",
+    "ngx-toastr": "^20.0.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "uuid": "^13.0.0"

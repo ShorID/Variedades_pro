@@ -1,15 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
-import { CheckInComponent } from './check-in/check-in.component';
 import { LayoutComponent } from './layout/layout.component';
 import { Page404Component } from './page404/page404.component';
-import { CategoriesComponent } from './categories/categories.component';
-import { HistorialComponent } from './check-in/historial/historial.component';
-import { ClienteComponent } from './check-in/clientes/cliente.component';
-import { InventaryComponent } from './inventary/inventary.component';
-import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
-import { InventaryEditComponent } from './inventary/components/inventary-edit/inventary-edit.component';
 
 export const routes: Routes = [
   {
@@ -34,26 +27,29 @@ export const routes: Routes = [
       {
         path: 'check-in',
         title: 'Facturar',
-        component: CheckInComponent,
-        
+        loadComponent: () =>
+          import('./check-in/check-in.component').then((m) => m.CheckInComponent),
       },
       {
-            path: 'history',
-            title: 'Historial de Facturas',
-            component: HistorialComponent,
-          },
+        path: 'history',
+        title: 'Historial de Facturas',
+        loadComponent: () =>
+          import('./check-in/historial/historial.component').then((m) => m.HistorialComponent),
+      },
       {
-            path: 'clients',
-            title: 'Clientes',
-            component: ClienteComponent,
-          },
+        path: 'clients',
+        title: 'Clientes',
+        loadComponent: () =>
+          import('./check-in/clientes/cliente.component').then((m) => m.ClienteComponent),
+      },
       {
         path: 'categories',
         title: 'Categorias',
         children: [
           {
             path: '',
-            component: CategoriesComponent,
+            loadComponent: () =>
+              import('./categories/categories.component').then((m) => m.CategoriesComponent),
           },
         ],
       },
@@ -63,29 +59,22 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            component: InventaryComponent,
+            loadComponent: () =>
+              import('./inventary/inventary.component').then((m) => m.InventaryComponent),
           },
           {
             path: 'create',
-            component: InventaryCreateComponent,
+            loadComponent: () =>
+              import('./inventary/components/inventary-create/inventary-create.component').then(
+                (m) => m.InventaryCreateComponent,
+              ),
           },
           {
             path: 'product/:id',
-            component: InventaryEditComponent,
-          },
-        ],
-      },
-      {
-        path: 'inventary',
-        title: 'Inventario',
-        children: [
-          {
-            path: '',
-            component: InventaryComponent,
-          },
-          {
-            path: 'create',
-            component: InventaryCreateComponent,
+            loadComponent: () =>
+              import('./inventary/components/inventary-edit/inventary-edit.component').then(
+                (m) => m.InventaryEditComponent,
+              ),
           },
         ],
       },

@@ -4,22 +4,26 @@ import { combineLatest, from, map, Observable } from 'rxjs';
 import {
   IInvAttr,
   IInvAttrItem,
+  IInvBrand,
   IInvCategory,
   IInvPack,
   IInvSubCategory,
   IRawInvAttr,
   IRawInvCategories,
-  IRawInventaryCateogry,
 } from '../interfaces/inventary.interfaces';
+import { IInsertInvProduct, IInsertInvStock } from '../interfaces/inventary-post.interface';
 
 @Injectable({ providedIn: 'root' })
 export class InventaryHttpsService {
   constructor(private supabase: SupabaseService) {}
 
-  getInventary() {
+  getInventary(options: { limit?: number; page?: number; q?: string }) {
+    const { limit = 5, page = 1, q = '' } = options;
     return from(
-      this.supabase.client.from('articulo_variante').select(
-        `id,
+      this.supabase.client
+        .from('articulo_variante')
+        .select(
+          `id,
         costo,
         codigo,
         activo,
@@ -31,7 +35,13 @@ export class InventaryHttpsService {
         articulo_empaque!inner(*),
         sub_categoria!inner(*, categoria!inner(*)),
         marca!inner(*)`,
-      ),
+          { count: 'exact' },
+        )
+        .eq('activo', true)
+        .eq('articulo_variante_atr_val.activo', true)
+        .eq('articulo_empaque.activo', true)
+        .eq('marca.activo', true)
+        .range(limit * (page - 1), limit * page),
     );
   }
 
@@ -53,7 +63,10 @@ export class InventaryHttpsService {
         sub_categoria!inner(*, categoria!inner(*)),
         marca!inner(*)`,
         )
-        .eq('id', productId),
+        .eq('id', productId)
+        .eq('articulo_variante_atr_val.activo', true)
+        .eq('articulo_empaque.activo', true)
+        .eq('marca.activo', true),
     );
   }
 
@@ -118,17 +131,35 @@ export class InventaryHttpsService {
     );
   }
 
-  getBrands() {
-    return from(this.supabase.client.from('marca').select('*'));
+  insertAttrItem(data: { id_atributo: number; valor: string }) {
+    return from(
+      this.supabase.client
+        .from('atr_val')
+        .insert([{ ...data, activo: true }])
+        .select(),
+    );
   }
 
-  insertProduct(data: {
-    id_marca: number;
-    descripcion: string;
-    costo: string;
-    codigo: string;
-    id_sub_categoria: number;
-  }) {
+  insertAttrItemSubCty(data: { id_sub_categoria: number; id_atr_val: number }) {
+    return from(
+      this.supabase.client
+        .from('sub_categoria_atr_val')
+        .insert([{ ...data, activo: true }])
+        .select(),
+    );
+  }
+
+  deleteProduct(id: number) {
+    return from(
+      this.supabase.client
+        .from('articulo_variante')
+        .update({ activo: false })
+        .eq('id', id)
+        .select(),
+    );
+  }
+
+  insertProduct(data: IInsertInvProduct) {
     return from(
       this.supabase.client
         .from('articulo_variante')
@@ -137,13 +168,21 @@ export class InventaryHttpsService {
     );
   }
 
-  insertProductInv(id: number, data: { stock: number; stock_minimo: number }) {
+  updateProduct(id: number, data: Partial<IInsertInvProduct>) {
+    return from(this.supabase.client.from('articulo_variante').update(data).eq('id', id).select());
+  }
+
+  insertProductInv(id_product: number, data: IInsertInvStock) {
     return from(
       this.supabase.client
         .from('inventario')
-        .insert([{ ...data, activo: true, id_sucursal: 1, id_articulo_variante: id }])
+        .insert([{ ...data, activo: true, id_sucursal: 1, id_articulo_variante: id_product }])
         .select(),
     );
+  }
+
+  updateProductInv(id: number, data: Partial<IInsertInvStock>) {
+    return from(this.supabase.client.from('inventario').update(data).eq('id', id).select());
   }
 
   insertProductAttr(id: number, data: IInvAttrItem[]) {
@@ -153,6 +192,16 @@ export class InventaryHttpsService {
         .insert(
           data.map((item) => ({ id_articulo_variante: id, id_art_val: item.id, activo: true })),
         )
+        .select(),
+    );
+  }
+  updateProductAttr(id: number, idAttrItem: number, active: boolean) {
+    return from(
+      this.supabase.client
+        .from('articulo_variante_atr_val')
+        .update({ activo: active })
+        .eq('id_articulo_variante', id)
+        .eq('id_art_val', idAttrItem)
         .select(),
     );
   }
@@ -173,6 +222,44 @@ export class InventaryHttpsService {
           })),
         )
         .select(),
+    );
+  }
+
+  updateProductPack(id: number, data: Partial<IInvPack>) {
+    return from(
+      this.supabase.client
+        .from('articulo_empaque')
+        .update({
+          ...data,
+          id_articulo_variante: id,
+          ...('unidades_empaques' in data ? { unidades_empaque: data.unidades_empaques } : {}),
+        })
+        .eq('id', data.id)
+        .select(),
+    );
+  }
+
+  insertSubCategory(data: Omit<IInvSubCategory, 'id'>) {
+    return from(
+      this.supabase.client
+        .from('sub_categoria')
+        .insert([
+          { id_categoria: data.id_categoria, activo: true, nombre: data.nombre, icono: data.icono },
+        ])
+        .select('*'),
+    );
+  }
+
+  getBrands() {
+    return from(this.supabase.client.from('marca').select('*').eq('activo', true));
+  }
+
+  insertBrand(data: Pick<IInvBrand, 'icono' | 'nombre'>) {
+    return from(
+      this.supabase.client
+        .from('marca')
+        .insert([{ ...data, activo: true }])
+        .select('*'),
     );
   }
 }

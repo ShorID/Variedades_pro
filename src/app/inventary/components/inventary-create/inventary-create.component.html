@@ -1,9 +1,9 @@
 <div class="inventary-create">
   <div class="card mt-3">
-    <div class="card-header">
+    <div class="card-header p-1 p-md-2">
       <Text tag="h5" bold="bold" tagClass="d-block">{{ title() }}</Text>
     </div>
-    <div class="card-body">
+    <div class="card-body p-1 p-md-2">
       <div class="row row-gap-3">
         <div class="col-12 col-md-4">
           <app-input
@@ -69,6 +69,18 @@
       <div class="hr-text">
         <Text>Clasificacion</Text>
       </div>
+      <p>
+        <Text bold="bold">Marca: </Text> <Text>{{ selectedBrand()?.nombre || '--' }}</Text
+        ><br />
+        <Text bold="bold">Categoria: </Text> <Text>{{ selectedCategory()?.nombre || '--' }}</Text
+        ><br />
+        <Text bold="bold">Sub categoria: </Text>
+        <Text>{{ selectedSubCategory()?.nombre || '--' }}</Text
+        ><br />
+        <Text bold="bold">Atributos: </Text>
+        <Text>{{ selectedAttrNames() }}</Text
+        ><br />
+      </p>
       <div class="row gy-2">
         <div class="col-6 col-md-3">
           <app-brands-selector
@@ -77,9 +89,11 @@
             (onSelect)="selectBrand($event)"
             [canCreate]="true"
             [value]="selectedBrand()?.id + ''"
+            (onRefresh)="refreshBrands()"
+            [loading]="loading().brand"
           />
         </div>
-        <div class="col-6 col-md-3">
+        <!-- <div class="col-6 col-md-3">
           <app-categories-selector
             title="Selecciona una categoria"
             [data]="categories()"
@@ -88,32 +102,79 @@
             [canCreate]="true"
             [value]="selectedCategory()?.id + ''"
           />
-        </div>
-        <div class="col-6 col-md-3">
-          <app-subcategory-selector
-            title="Selecciona una sub-categoria"
-            [categoryId]="selectedCategory()?.id || 0"
-            [data]="subcategories()"
-            (onSelect)="selectSubcategory($event)"
-            [canCreate]="true"
-            [value]="selectedSubCategory()?.id + ''"
-          />
-        </div>
-        <div class="col-6 col-md-3">
-          <app-attributes-selector
-            title="Selecciona los atributos"
-            [data]="attributes()"
-            (onSelect)="selectAttr($event)"
-            [subCategoryId]="selectedSubCategory()?.id || 0"
-            [canCreate]="true"
-            [value]="selectedAttr()"
-          />
+        </div> -->
+        <div class="col-12 col-md-9">
+          <div class="card">
+            <div class="card-header p-1">
+              <Text bold="bold" [tagClass]="'d-flex align-items-center'">
+                <app-icon [name]="'Shapes'" class="d-block-inline me-1" />
+                Selecciona una categoria
+              </Text>
+            </div>
+            <div class="card-header p-0 pt-1" style="border-bottom: none">
+              <ul class="nav nav-tabs w-100 px-1">
+                @for (category of categories(); track category.id) {
+                  <li class="nav-item">
+                    <button
+                      [class]="[
+                        'btn-link',
+                        'nav-link',
+                        'text-muted',
+                        selectedCategory()?.id === category.id ||
+                        ($index === 0 && !selectedCategory())
+                          ? 'active'
+                          : '',
+                      ]"
+                      aria-current="page"
+                      (click)="selectCategory(category)"
+                    >
+                      {{ category.nombre }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+            <div class="card-body p-1">
+              <div class="row">
+                <div class="col-6">
+                  <app-subcategory-selector
+                    title="Selecciona una sub-categoria"
+                    [categoryId]="
+                      selectedCategory()?.id ||
+                      (!selectedCategory() && categories().length && categories()[0].id) ||
+                      0
+                    "
+                    [data]="subcategories()"
+                    (onSelect)="selectSubcategory($event)"
+                    [canCreate]="true"
+                    [value]="selectedSubCategory()?.id + ''"
+                    [hearingCategory]="true"
+                    (onRefresh)="refreshCategories()"
+                    [loading]="loading().categories"
+                  />
+                </div>
+                <div class="col-6">
+                  <app-attributes-selector
+                    title="Selecciona los atributos"
+                    [data]="attributes()"
+                    (onSelect)="selectAttr($event)"
+                    [subCategoryId]="selectedSubCategory()?.id || 0"
+                    [canCreate]="true"
+                    [value]="selectedAttr()"
+                    (onRefresh)="refreshCategories()"
+                    [loading]="loading().categories"
+                  />
+                  <!-- <inventary-attributes [data]="attributes()" [subCategoryId]="selectedSubCategory()?.id || 0" /> -->
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- <div class="col-12 col-md-9"></div> -->
       </div>
     </div>
-    <div class="card-footer d-flex justify-content-between">
-      <button type="button" class="btn btn-secondary" (click)="goBack()" >
+    <div class="card-footer d-flex justify-content-between p-1 p-md-2">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
         <Text tagClass="d-flex"><app-icon name="arrow-back-up" class="me-2" /> Regresar</Text>
       </button>
       <button type="button" class="btn btn-primary" (click)="saveData()">

@@ -5,6 +5,7 @@ import { CheckInComponent } from './check-in/check-in.component';
 import { LayoutComponent } from './layout/layout.component';
 import { Page404Component } from './page404/page404.component';
 import { CategoriesComponent } from './categories/categories.component';
+import { IncommingsComponent } from './inventary/incommings/incommings.component';
 import { HistorialComponent } from './check-in/historial/historial.component';
 import { ClienteComponent } from './check-in/clientes/cliente.component';
 import { InventaryComponent } from './inventary/inventary.component';
@@ -72,6 +73,17 @@ export const routes: Routes = [
           {
             path: 'product/:id',
             component: InventaryEditComponent,
+          },
+          {
+            path: 'incommings',
+            component: IncommingsComponent,
+            children: [
+              {
+                path: 'create',
+                component: InventaryCreateComponent,
+                outlet: 'modal' 
+              }
+            ]
           },
         ],
       },

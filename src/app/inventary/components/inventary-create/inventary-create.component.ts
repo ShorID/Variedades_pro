@@ -1,4 +1,13 @@
-import { Component, computed, effect, input, OnDestroy, OnInit, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { InventaryHttpsService } from '../../services/inventary-https.service';
 import {
   BehaviorSubject,
@@ -50,9 +59,8 @@ import { ISaveDataInventaryCreate } from '../../interfaces/inventary-post.interf
 export class InventaryCreateComponent implements OnInit, OnDestroy {
   title = input<string>('Creando nuevo producto');
   defaultData = input<IInventaryItem>();
-  redirectToInvAfterSave = input<boolean> (true);
-  onSave = output();
-  
+  redirectToInvAfterSave = input<boolean>(true);
+
   rewriteSave = input<boolean>(false);
   onSave = output<ISaveDataInventaryCreate>();
 
@@ -196,14 +204,14 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
     if (this.selectedSubCategory()?.id !== item?.id) this.selectedAttributes.update(() => []);
     this.selectedSubCategory.update(() => item);
   }
-  refreshCategories(){
-    this.refreshSubject.next('categories')
+  refreshCategories() {
+    this.refreshSubject.next('categories');
   }
   selectBrand(item: IInvBrand | undefined) {
     this.selectedBrand.update(() => item);
   }
   refreshBrands() {
-  this.refreshSubject.next('brand')
+    this.refreshSubject.next('brand');
   }
   selectAttr(items: IInvAttrItem[]) {
     this.selectedAttributes.update(() => items);
@@ -258,29 +266,26 @@ export class InventaryCreateComponent implements OnInit, OnDestroy {
                 this.invHttpService.insertProductPack(id, this.selectedPacks()),
               ];
 
-            return forkJoin(inserts);
-          }),
-        )
-        .subscribe({
-          next: () => {
-            this.notify.success('Articulo Creado correctamente!');
-            if( this.redirectToInvAfterSave()  ){
-              
-              this.router.navigateByUrl('inventary');
+              return forkJoin(inserts);
+            }),
+          )
+          .subscribe({
+            next: () => {
+              this.notify.success('Articulo Creado correctamente!');
+              if (this.redirectToInvAfterSave()) {
+                this.router.navigateByUrl('inventary');
+              } else {
+                // this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route.parent });
+                this.location.back();
+              }
 
-            }else{              
-              // this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route.parent });
-              this.location.back();
-              
-
-            }
-
-            this.onSave.emit();
-          },
-          error: (err) => {
-            this.notify.error('Ocurrio un error al crear el producto');
-          },
-        });
+              this.onSave.emit(saveData);
+            },
+            error: (err) => {
+              this.notify.error('Ocurrio un error al crear el producto');
+            },
+          }); 
+    }
   }
 
   goBack() {

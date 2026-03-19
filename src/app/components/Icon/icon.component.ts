@@ -29,6 +29,7 @@ import {
   Trash,
   Search,
   X,
+  Save,
 } from 'lucide-angular';
 
 const lucidIconsObj = {
@@ -59,6 +60,7 @@ const lucidIconsObj = {
   ChevronLeft,
   Ellipsis,
   CirclePower,
+  Save
 };
 type LucidIconsType = keyof typeof lucidIconsObj;
 

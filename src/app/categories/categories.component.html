@@ -24,12 +24,12 @@
 
               <div class="col-auto ms-auto">
                 <div class="btn-list">
-                  <a class="btn btn-primary d-none d-sm-inline-flex gap-1" data-bs-toggle="modal" data-bs-target="#modal-report">
+                  <a class="btn btn-primary d-none d-sm-inline-flex gap-1" (click)="showModal(1, 'save', $event)">
                     <app-icon [name]="'Plus'" [size]="17"></app-icon>
                     Nueva Categoría
                   </a>
 
-                  <a class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report">
+                  <a class="btn btn-primary d-sm-none btn-icon">
                     <app-icon [name]="'Plus'" [size]="17"></app-icon>
                   </a>
                 </div>
@@ -78,10 +78,10 @@
                       <div class="card-body border-bottom p-1">
                         <div class="row g-1">
                           <div class="col">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." [(ngModel)]="filter.category" (keydown.enter)="filterPanel('categoria')"/>
                           </div>
                           <div class="col-auto d-flex align-items-center">
-                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('categoria')">
                               <app-icon [name]="'Search'" [size]="14"></app-icon>
                             </a>
                           </div>
@@ -126,7 +126,7 @@
                                       <div class="ms-auto d-flex align-items-center gap-3">
                                         <a class="btn btn-icon btn-sm p-0 text-muted" 
                                            style="background-color: transparent;border: none;" 
-                                           (click)="editCat(cat, $event)">
+                                           (click)="showModal(1, 'edit', $event, cat.name, cat.id)">
                                           
                                            <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                         </a>
@@ -188,7 +188,7 @@
 
 
                             <div class="col-auto ms-auto">
-                              <a class="btn btn-icon btn-sm p-2">
+                              <a class="btn btn-icon btn-sm p-2" (click)="showModal(3, 'save', $event)">
                                 <app-icon [name]="'Plus'" [size]="15"></app-icon>
                               </a>
                             </div>
@@ -200,10 +200,10 @@
                       <div class="card-body border-bottom p-1">
                         <div class="row g-1">
                           <div class="col">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar Subcategorías..." [(ngModel)]="filter.subcategory" (keydown.enter)="filterPanel('sub_categoria')"/>
                           </div>
                           <div class="col-auto d-flex align-items-center">
-                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('sub_categoria')">
                               <app-icon [name]="'Search'" [size]="14"></app-icon>
                             </a>
                           </div>
@@ -247,13 +247,13 @@
                                   <div class="card-body p-2">
                                     <div class="row">
                                       <div class="col">
-                                        <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                        <button type="button" class="btn btn-secondary btn-sm gap-2" (click)="showModal(3, 'edit', $event, subCat.name, subCat.id)">
                                           <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                           Editar
                                         </button>
                                       </div>
                                       <div class="col-auto ms-auto">
-                                        <button type="button" class="btn btn-sm gap-2">
+                                        <button type="button" class="btn btn-sm gap-2" (click)="showManageAttrModal(subCat.id)">
                                           <app-icon [name]="'Tag'" [size]="15"></app-icon>
                                           Atributos
                                         </button>
@@ -306,7 +306,7 @@
                               </div>
 
                               <div class="col-auto ms-auto">
-                                <a class="btn btn-icon btn-sm p-2">
+                                <a class="btn btn-icon btn-sm p-2" (click)="showModal(2, 'save', $event)">
                                   <app-icon [name]="'Plus'" [size]="15"></app-icon>
                                 </a>
                               </div>
@@ -318,10 +318,10 @@
                         <div class="card-body border-bottom p-1">
                           <div class="row g-1">
                             <div class="col">
-                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar marcas..." [(ngModel)]="filter.brand" (keydown.enter)="filterPanel('marca')"/>
                             </div>
                             <div class="col-auto d-flex align-items-center">
-                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('marca')">
                                 <app-icon [name]="'Search'" [size]="14"></app-icon>
                               </a>
                             </div>
@@ -362,7 +362,7 @@
                                         </div>
 
                                         <div class="ms-auto d-flex align-items-center gap-3">
-                                          <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                          <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;" (click)="showModal(2, 'edit', $event, brand.name, brand.id)">
                                             <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                           </a>
 
@@ -417,7 +417,7 @@
                               </div>
 
                               <div class="col-auto ms-auto">
-                                <a class="btn btn-icon btn-sm p-2">
+                                <a class="btn btn-icon btn-sm p-2" (click)="showModal(4, 'save', $event)">
                                   <app-icon [name]="'Plus'" [size]="15"></app-icon>
                                 </a>
                               </div>
@@ -429,10 +429,10 @@
                         <div class="card-body border-bottom p-1">
                           <div class="row g-1">
                             <div class="col">
-                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar atributos..." [(ngModel)]="filter.attribute" (keydown.enter)="filterPanel('atr_val')"/>
                             </div>
                             <div class="col-auto d-flex align-items-center">
-                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('atr_val')">
                                 <app-icon [name]="'Search'" [size]="14"></app-icon>
                               </a>
                             </div>
@@ -473,7 +473,7 @@
                                           </div>
 
                                           <div class="ms-auto d-flex align-items-center gap-3">
-                                            <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                            <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;" (click)="showModal(4, 'edit', $event, attr.value, attr.id, attr.attribute, attr.id_attribute)">
                                               <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                             </a>
 
@@ -523,4 +523,134 @@
   </div>
 </div>
 
-<app-disableModal [modal]="modal()" (onConfirm)="disable()"></app-disableModal>
+<!-- Modal para deshabilitar (funciona para todos los paneles) -->
+<app-modal [isOpen]="disableModal().isOpen" [Mbuttonclose]="true" [Mbadges]="(!disableModal().item?.active ? 'success' : 'danger')" [Mheader]="false" [Mfooter]="true" (onClose)="disableModal().isOpen = $event">
+  <app-bodyDisable [status]="(!disableModal().item?.active ? 'success' : 'danger')" [textQuestion]="disableModal().textQuestion" [textAdditional]="disableModal().textAdditional" [textbold]="disableModal().textbold" body>
+    <app-icon [name]="'CirclePower'" [size]="50" icon></app-icon>
+  </app-bodyDisable>
+
+  <app-footerDisable [status]="(!disableModal().item?.active ? 'success' : 'danger')" (onCancel)="disableModal().isOpen = $event" (onConfirm)="disable()" footer></app-footerDisable>
+</app-modal>
+
+
+<!-- Modal para crear y editar (funciona los paneles de categoria, subcategoria y marcas) -->
+<app-modal [isOpen]="addEditModal().isOpen" [Mheader]="true" [Mfooter]="true" (onClose)="addEditModal().isOpen = $event">
+  <app-headerAddEdit [Mtitle]="addEditModal().title" (onClose)="addEditModal().isOpen = $event" header></app-headerAddEdit>
+
+  <app-bodyAddEdit body>
+    <app-input
+      lClass="fw-semibold"
+      label="Nombre"
+      name="name"
+      class="mb-1"
+      [placeholder]="addEditModal().placeholder"
+      [iClass]="(addEditModal().errorMsg !== '' && 'is-invalid') || ''"
+      (onChange)="changeForm($event)"
+      [value]="this.formData()['name']"
+
+      input
+    >
+      @if (addEditModal().errorMsg !== '') {
+        <div class="invalid-feedback">{{addEditModal().errorMsg}}</div>
+      }
+    </app-input>
+  </app-bodyAddEdit>
+
+  <app-footerAddEdit (onClose)="addEditModal().isOpen = $event" (onConfirm)="saveEdit()"  footer></app-footerAddEdit>
+</app-modal>
+
+<!-- Modal para crear y editar (funciona solo para el panel de atributos) -->
+<app-modal [isOpen]="addEditAttrModal().isOpen" [Mheader]="true" [Mfooter]="true" (onClose)="addEditAttrModal().isOpen = $event">
+  <app-headerAddEdit [Mtitle]="addEditAttrModal().title" (onClose)="addEditAttrModal().isOpen = $event" header></app-headerAddEdit>
+
+  <app-bodyAddEditAttr body>
+
+    <div class="mb-3" dropdown>
+      <label class="form-label fw-semibold">Atributo</label>
+      <div class="position-relative">
+        <select class="form-select" [disabled]="loadingDrop() || addEditAttrModal().action == 'edit'" [(ngModel)]="selectedAttributeId">
+          @if (!loadingDrop()) {
+            @for (option of addEditAttrModal().options; track option.id) {
+              <option value="{{option.id}}"> {{option.nombre}} </option>
+            }
+          }
+        </select>
+
+        @if (loadingDrop()) {
+          <div
+              class="spinner-border spinner-border-sm position-absolute"
+              style="top:30%; left:3%;">
+          </div>
+        }
+      </div>
+    </div>
+
+    <app-input
+      lClass="fw-semibold"
+      label="Valor"
+      name="value"
+      class="mb-1"
+      [disabled]="selectedAttributeId == -1"
+      [placeholder]="addEditAttrModal().placeholder"
+      [iClass]="(addEditAttrModal().errorMsg !== '' && 'is-invalid') || ''"
+      (onChange)="changeForm($event)"
+      [value]="this.formData()['value']"
+
+      input
+    >
+      @if (addEditAttrModal().errorMsg !== '') {
+        <div class="invalid-feedback">{{addEditAttrModal().errorMsg}}</div>
+      }
+    </app-input>
+  </app-bodyAddEditAttr>
+
+  <app-footerAddEdit (onClose)="addEditAttrModal().isOpen = $event" (onConfirm)="saveEditAttr()"  footer></app-footerAddEdit>
+</app-modal>
+
+<app-modal [isOpen]="manageAttrModal().isOpen" [Mheader]="true" [Mfooter]="true" [Msize]="'large'" (onClose)="manageAttrModal().isOpen = $event">
+  <app-headerManageAttrValue [Mtitle]="manageAttrModal().title" (onClose)="manageAttrModal().isOpen = $event" header></app-headerManageAttrValue>
+
+  <div  class="modal-body py-2"
+        style="height: clamp(10rem,43vh,25rem);overflow-y: auto;overflow-x: hidden;" 
+        body>
+    @for (attribute of manageAttrModal().options; track attribute.id_attribute) {
+      <div class="hr-text hr-text-start my-5 fw-semibold"> {{attribute.attribute}} </div>
+
+      @for (value of attribute.attributes; track value.id_value) {
+        <span class="badge badge-custom m-2 gap-3">
+          {{value.value}}
+          <a class="text-danger cursor-pointer p-1">
+            <app-icon [name]="'X'" [size]="15"></app-icon>
+          </a>
+        </span>
+      }
+
+      <span class="badge bg-primary badge-custom m-2 gap-3">
+        <a class="text-white cursor-pointer p-1">
+          <app-icon [name]="'Plus'" [size]="13"></app-icon>
+        </a>
+      </span>
+    }
+  </div>
+
+  <div class="modal-footer" footer>
+    <div class="w-100">
+      <div class="row gap-2">
+        <div class="col-sm-2 col-md-3 col-lg-5">
+          <input type="text" class="form-control form-control-sm" placeholder="Añadir atributo..." [(ngModel)]="filter.subcategory" (keydown.enter)="filterPanel('sub_categoria')"/>
+        </div>
+        <div class="col-2 d-flex align-items-center">
+          <a class="btn btn-icon btn-sm p-2 gap-2" aria-label="Button">
+            Añadir <app-icon [name]="'Plus'" [size]="14"></app-icon>
+          </a>
+        </div>
+
+        <div class="col-auto ms-auto d-flex">
+          <a class="btn btn-primary btn-icon btn-sm p-2 gap-2" aria-label="Button">
+            Guardar <app-icon [name]="'Save'" [size]="14"></app-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-modal>

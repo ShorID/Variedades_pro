@@ -11,3 +11,9 @@ export interface IBrand{
   icon: string
   p_records:number
 }
+
+export interface IinsertUpdateBrand {
+  id?: number
+  nombre: string,
+  activo: boolean
+}

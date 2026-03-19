@@ -13,3 +13,18 @@
     }
   }
 }
+
+.badge.badge-custom {
+    background-color: #f1f3f5;
+    color: #343a40;
+    // border: 1px solid #ced4da;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #e9ecef;
+      color: #212529;
+    }
+}

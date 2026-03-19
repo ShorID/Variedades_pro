@@ -1,9 +1,19 @@
-import { Component, computed, effect, input, OnDestroy, OnInit, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import {
   CardSelectComponent,
   ICardSelectItem,
 } from '../../../components/CardSelector/card-select.component';
 import { IInvAttr, IInvAttrItem } from '../../../inventary/interfaces/inventary.interfaces';
+import { AttributesSelectorCreatorComponent } from './attributes-selector-creator.component';
 
 @Component({
   selector: 'app-attributes-selector',
@@ -18,11 +28,21 @@ import { IInvAttr, IInvAttrItem } from '../../../inventary/interfaces/inventary.
       [value]="selectedItems"
       [canCreate]="canCreate()"
       [mode]="mode()"
+      (onCreate)="handleCreate($event)"
+      [loading]="loading()"
+    />
+    <attributes-selector-creator
+      [title]="createFormTitle()"
+      (onClose)="handleCreate()"
+      (onSubmit)="onSubmit($event)"
+      [idSubCategory]="subCategoryId()"
+      [attributes]="data()"
     />
   `,
-  imports: [CardSelectComponent],
+  imports: [CardSelectComponent, AttributesSelectorCreatorComponent],
 })
 export class AttributesSelectorComponent implements OnInit, OnDestroy {
+  loading = input<boolean>(true);
   icon = input<string>('tag');
   title = input<string>('Atributos');
   subCategoryId = input<number>(0);
@@ -30,24 +50,29 @@ export class AttributesSelectorComponent implements OnInit, OnDestroy {
   parseData = computed<ICardSelectItem[]>(() => {
     if (!this.subCategoryId()) return [];
     const newData: ICardSelectItem[] = [];
+    let tempAttributesItem: ICardSelectItem[] = [];
     this.data().forEach((item) => {
-      newData.push({
-        value: item.id + '',
-        label: item.nombre,
-        isDivider: true,
-      });
+      tempAttributesItem = [];
       item.items?.forEach((attr) => {
         if (!('relatedSubCategories' in attr))
-          newData.push({
+          tempAttributesItem.push({
             value: attr.id + '',
             label: attr.valor,
           });
         else if (attr.relatedSubCategories?.some((item) => item === this.subCategoryId()))
-          newData.push({
+          tempAttributesItem.push({
             value: attr.id + '',
             label: attr.valor,
           });
       });
+      if (tempAttributesItem.length) {
+        newData.push({
+          value: item.id + '',
+          label: item.nombre,
+          isDivider: true,
+        });
+        newData.push(...tempAttributesItem);
+      }
     });
     return newData;
   });
@@ -61,7 +86,9 @@ export class AttributesSelectorComponent implements OnInit, OnDestroy {
   mode = input<'select' | 'card'>('card');
   canCreate = input<boolean>(false);
   selectedItems: string[] = [];
+
   onSelect = output<IInvAttrItem[]>();
+  onRefresh = output();
 
   value = input<string | string[]>();
 
@@ -69,6 +96,7 @@ export class AttributesSelectorComponent implements OnInit, OnDestroy {
     const value = this.value();
     this.selectedItems = value ? [value].flat() : [];
   });
+  createFormTitle = signal<string>('');
 
   constructor() {}
 
@@ -80,14 +108,48 @@ export class AttributesSelectorComponent implements OnInit, OnDestroy {
 
   onChange(items: ICardSelectItem[]) {
     let selected: IInvAttrItem[] = [];
-    items.forEach((selectedItem) => {
+    let newItems: ICardSelectItem[] = [];
+    let qtySelectedPerAttr: Record<number, number> = {};
+    items.reverse().forEach((selectedItem) => {
       this.data().forEach((attr) => {
+        const maxAttrPerProduct = attr.limite_por_articulo;
         attr.items.forEach((attrItem) => {
-          if (attrItem.id === +selectedItem.value) selected.push(attrItem);
+          if (
+            attrItem.id === +selectedItem.value &&
+            (typeof maxAttrPerProduct === 'number'
+              ? maxAttrPerProduct > (qtySelectedPerAttr[attr.id] || 0)
+              : true)
+          ) {
+            selected.push(attrItem);
+            newItems.push(selectedItem);
+            qtySelectedPerAttr[attr.id] = (qtySelectedPerAttr[attr.id] || 0) + 1;
+          }
         });
       });
     });
-    this.selectedItems = items.map((item) => item.value);
+    this.selectedItems = items.map((item) => item.value).reverse();
+    this.onSelect.emit(selected.reverse());
+  }
+
+  handleCreate(name: string = '') {
+    this.createFormTitle.update(() => name);
+  }
+
+  onSubmit(newItem: IInvAttrItem) {
+    this.handleCreate();
+
+    const selected: IInvAttrItem[] = [newItem];
+    this.selectedItems.forEach((selectedItem) => {
+      this.data().forEach((attr) => {
+        attr.items.forEach((attrItem) => {
+          if (attrItem.id === +selectedItem) {
+            selected.push(attrItem);
+          }
+        });
+      });
+    });
+    
     this.onSelect.emit(selected);
+    this.onRefresh.emit();
   }
 }

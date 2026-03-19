@@ -28,7 +28,9 @@ export interface ICardSelectItem {
           }
           {{ title() }}
           @if (selectedItemQty) {
-            <span class="badge bg-red text-red-fg badge-notification">{{ selectedItemQty }}</span>
+            <span class="badge bg-red text-red-fg badge-notification">{{
+              multiSelect() ? selectedItemQty : ''
+            }}</span>
           }
         </Text>
       </div>
@@ -46,7 +48,11 @@ export interface ICardSelectItem {
             </div>
             @if (canCreate()) {
               <div class="col-auto">
-                <button type="button" class="btn btn-sm btn-success">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-success"
+                  (click)="onCreate.emit(searchText())"
+                >
                   Crear <app-icon name="plus" [size]="18" />
                 </button>
               </div>
@@ -54,35 +60,42 @@ export interface ICardSelectItem {
           </div>
         </div>
         <div class="card-body p-0">
-          @for (item of filteredItems(); track $index) {
-            @if (item.isDivider) {
-              <div class="hr-text hr-text-center my-3">
-                {{ item.label }}
-              </div>
-            } @else {
-              @let selected = item.value === selectedItem[item.value]?.value;
-              <button
-                type="button"
-                [class]="['btn', 'Card-selector-item', selected && 'active']"
-                (click)="selectItem(item)"
-              >
-                <div class="row">
-                  @if (item.icon) {
-                    <app-icon [name]="item.icon" class="col-auto" />
-                  }
-                  <div class="col">
-                    <Text [bold]="selected ? 'bold' : 'regular'">{{ item.label }} </Text>
-                    @if ('qty' in item) {
-                      <span class="status status-lite ms-auto"> {{ item.qty }} </span>
-                    }
-                  </div>
+          @if (!loading()) {
+            @for (item of filteredItems(); track $index) {
+              @if (item.isDivider) {
+                <div class="hr-text hr-text-center my-3">
+                  {{ item.label }}
                 </div>
-              </button>
+              } @else {
+                @let selected = selectedItem.has(item);
+                <button
+                  type="button"
+                  [class]="['btn', 'Card-selector-item', selected && 'active']"
+                  (click)="selectItem(item)"
+                >
+                  <div class="row">
+                    @if (item.icon) {
+                      <app-icon [name]="item.icon" class="col-auto" />
+                    }
+                    <div class="col">
+                      <Text [bold]="selected ? 'bold' : 'regular'">{{ item.label }} </Text>
+                      @if ('qty' in item) {
+                        <span class="status status-lite ms-auto"> {{ item.qty }} </span>
+                      }
+                    </div>
+                  </div>
+                </button>
+              }
             }
-          }
-          @if (errorMsg()) {
-            <div class="Card-selector-error">
-              {{ errorMsg() }}
+            @if (errorMsg()) {
+              <div class="Card-selector-error">
+                {{ errorMsg() }}
+              </div>
+            }
+          } @else {
+            <div class="m-auto d-flex justify-content-center align-items-center h-100">
+              Cargando
+              <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
             </div>
           }
         </div>
@@ -99,6 +112,7 @@ export interface ICardSelectItem {
   imports: [IconComponent, TextComponent, NgClickOutsideDirective, InputComponent],
 })
 export class CardSelectComponent implements OnInit {
+  loading = input<boolean>(false);
   canUnselect = input<boolean>(false);
   multiSelect = input<boolean>(false);
   items = input<ICardSelectItem[]>([]);
@@ -122,24 +136,25 @@ export class CardSelectComponent implements OnInit {
   onSelect = output<ICardSelectItem | null>();
   onMultiSelect = output<ICardSelectItem[]>();
   errorMsg = input<string>('');
+  onCreate = output<string>();
 
-  selectedItem: Record<string, ICardSelectItem> = {};
+  selectedItem = new Set<ICardSelectItem>();
   selectedItemQty: number = 0;
 
   value = input<string | string[]>();
   valueEffect = effect(() => {
     const value = this.value() ? [this.value()].flat() : [];
-    this.selectedItem = {};
-    this.selectedItemQty = 0
+    this.selectedItem.clear();
+    this.selectedItemQty = 0;
     this.items().forEach((i) => {
       if (value.some((j) => j === i.value)) {
-        this.selectedItem[i.value] = i;
-        if(!i.isDivider) this.selectedItemQty += 1;
+        this.selectedItem.add(i);
+        if (!i.isDivider) this.selectedItemQty += 1;
       }
     });
   });
 
-  mode = input<'card' | 'select'>('card');
+  mode = input<'card' | 'select' | 'collapsable'>('card');
   isOpen = signal<boolean>(false);
 
   searchText = signal<string>('');
@@ -150,14 +165,14 @@ export class CardSelectComponent implements OnInit {
   ngOnInit() {}
 
   selectItem(item: ICardSelectItem) {
-    if ((this.canUnselect() || this.multiSelect()) && item.value in this.selectedItem) {
-      delete this.selectedItem[item.value];
+    if ((this.canUnselect() || this.multiSelect()) && this.selectedItem.has(item)) {
+      this.selectedItem.delete(item);
     } else {
-      if (!this.multiSelect()) this.selectedItem = {};
-      this.selectedItem[item.value] = item;
+      if (!this.multiSelect()) this.selectedItem.clear();
+      this.selectedItem.add(item);
     }
-    const newValue = Object.values(this.selectedItem);
-    
+    const newValue = Array.from(this.selectedItem);
+
     this.selectedItemQty = newValue.length;
 
     if (this.multiSelect()) this.onMultiSelect.emit(newValue);
@@ -165,7 +180,7 @@ export class CardSelectComponent implements OnInit {
   }
 
   handleOpen(to: boolean) {
-    if (this.mode() === 'select') this.isOpen.update(() => to);
+    if (this.mode() === 'select' || this.mode() === 'collapsable') this.isOpen.update(() => to);
   }
 
   handleSearchText(e: Event) {

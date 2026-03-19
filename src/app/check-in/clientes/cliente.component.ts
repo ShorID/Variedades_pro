@@ -48,8 +48,9 @@ export class ClienteComponent implements OnInit {
     try {
       const data = await this.service.obtener_Clientes();
       if (data) {
+        //setTimeout(() => {
         this.clientes = data;
-        
+        //});
         // Calculamos las estadísticas reales
         this.totalClientes = this.clientes.length;
         this.clientesActivos = this.clientes.filter(c => c.activo === 'true').length;

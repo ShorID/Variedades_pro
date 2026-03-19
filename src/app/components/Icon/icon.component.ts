@@ -30,9 +30,10 @@ import {
   Search,
   X,
   Save,
+  Shirt,
 } from 'lucide-angular';
 
-const lucidIconsObj = {
+export const lucidIconsObj = {
   Warehouse,
   Store,
   House,
@@ -60,7 +61,8 @@ const lucidIconsObj = {
   ChevronLeft,
   Ellipsis,
   CirclePower,
-  Save
+  Save,
+  Shirt,
 };
 type LucidIconsType = keyof typeof lucidIconsObj;
 

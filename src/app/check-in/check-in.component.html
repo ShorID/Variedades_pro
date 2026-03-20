@@ -87,8 +87,8 @@
               type="button"
               class="btn btn-sm"
               [class.btn-primary]="categoriaSeleccionada === cat"
-              (click)="seleccionarCategoria(cat)"
-            >
+              (click)="seleccionarCategoria(cat)" ><!--filtrarPorCategoria-->
+            <i class="ti ti-tag me-1"></i>
               {{ cat }}
             </button>
           }

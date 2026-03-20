@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
-import { from, of } from 'rxjs';
+import { from, of, switchMap, mapTo } from 'rxjs';
 
 //Interfaces
 import { IinsertUpdateCat, IinsertUpdateSubCat } from '../interfaces/categories.interface';
 import { IinsertUpdateBrand } from '../interfaces/brand.interface';
-import { IinsertUpdateAttr } from '../interfaces/attributes.interface';
+import { IinsertUpdateAttr, ISubCatAtrVal } from '../interfaces/attributes.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -109,6 +109,12 @@ export class CategoriesServices {
     return from(query);
   }
 
+  getAvailableValues(id_atr: number, id_sub: number, filter: string, exclude: number[]){
+    return from( this.supabase.client
+      .rpc("get_available_values", {id_atr: id_atr, id_sub: id_sub, filter: filter, exclude: exclude})
+    );
+  }
+
   fillDropdown(){
     return from(
       this.supabase.client
@@ -157,7 +163,7 @@ export class CategoriesServices {
     );
   }
 
-  addEdit(entity:string, action: string, body: IinsertUpdateCat | IinsertUpdateSubCat | IinsertUpdateBrand | IinsertUpdateAttr){
+  addEdit(entity:string, action: string, body: IinsertUpdateCat[] | IinsertUpdateSubCat[] | IinsertUpdateBrand[] | IinsertUpdateAttr[]){
     console.log(entity, action, body)
 
     switch (action) {
@@ -175,7 +181,7 @@ export class CategoriesServices {
           this.supabase.client
             .from(entity)
             .update(body)
-            .eq('id', body?.id)
+            .eq('id', body[0]?.id)
             .select()
         );
 
@@ -184,4 +190,65 @@ export class CategoriesServices {
     }
   }
 
+  insertAtrValue(
+    AtrsValues: ISubCatAtrVal[],
+    insertsAtrsValues: IinsertUpdateAttr[],
+    updatesAtrsValues: number[],
+    id_sub_categoria: number
+  ) {
+
+    const insertRelation = (values: ISubCatAtrVal[]) => {
+      return from(
+        this.supabase.client
+          .from("sub_categoria_atr_val")
+          .insert(values)
+      );
+    };
+
+    const updateState$ = updatesAtrsValues.length > 0
+      ? from(
+          this.supabase.client
+            .from('sub_categoria_atr_val')
+            .update({ activo: false })
+            .eq("id_sub_categoria", id_sub_categoria)
+            .in('id_atr_val', updatesAtrsValues)
+        ).pipe(mapTo(null))
+      : of(null); 
+
+    return updateState$.pipe(
+      switchMap(() => {
+
+        if (AtrsValues.length === 0 && insertsAtrsValues.length === 0)
+          return of(null);
+
+        if (insertsAtrsValues.length > 0) {
+          return from(
+            this.supabase.client
+              .from("atr_val")
+              .insert(insertsAtrsValues)
+              .select()
+          ).pipe(
+            switchMap(({ data, error }) => {
+              if (error) throw error;
+
+              const nuevos = (data ?? []).map(item => ({
+                id_atr_val: item.id,
+                id_sub_categoria: id_sub_categoria,
+                activo: true
+              })) as ISubCatAtrVal[];
+
+              const finalValues = [...AtrsValues, ...nuevos];
+
+              return insertRelation(finalValues);
+            })
+          );
+        }
+
+        if (AtrsValues.length === 0)
+          return of(null);
+
+        return insertRelation(AtrsValues);
+      })
+    );
+  }
 }

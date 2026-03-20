@@ -1,11 +1,13 @@
 //Dependencias
 import { Component, OnInit, Signal, signal } from '@angular/core';
 import { CategoriesServices } from './services/categories.services';
-import { catchError, of, switchMap, tap, EMPTY, map } from 'rxjs';
+import { catchError, of, switchMap, tap, EMPTY, map, Subject, pipe } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { NgClass } from "@angular/common"
 
 //Componentes
 import { IconComponent } from '../components/Icon/icon.component';
+import { PaginationComponent } from '../components/pagination/pagination.component';
 import { InputComponent } from '../components/Form/Input/Input.component';
 import { modalComponent } from './components/modal.component';
 import { bodyDisable } from './components/disable-selector/bodyDisable.component';;
@@ -19,22 +21,23 @@ import { headerManageAttrValue } from "./components/manageAttrValue-selector/hea
 //Interfaces
 import { IpaginationCat, ICategories, IpaginationSubCat, IinsertUpdateCat, IinsertUpdateSubCat } from './interfaces/categories.interface';
 import { IBrand, IpaginationBrand, IinsertUpdateBrand } from './interfaces/brand.interface';
-import { IAttribute, IpaginationAttr, IinsertUpdateAttr } from './interfaces/attributes.interface';
+import { IAttribute, IpaginationAttr, IinsertUpdateAttr, ISearchAvailableAtr, ISubCatAtrVal } from './interfaces/attributes.interface';
 import { IdisableModal, IaddEditModal, IaddEditAttrModal, ImanageAttrModal } from './interfaces/components.interface';
 
 //Utilidades
 import { formatName } from '../utils/commons';
-import { stringify } from 'uuid';
 import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'categories-page',
   templateUrl: 'categories.component.html',
   styleUrl: 'categories.component.scss',
-  imports: [NgClass, IconComponent, InputComponent, modalComponent, bodyDisable, footerDisable, bodyAddEditComponent, bodyAddEditAttrComponent, headerAddEditComponent, footerAddEditComponent, headerManageAttrValue, FormsModule],
+  imports: [NgClass, IconComponent, InputComponent, modalComponent, bodyDisable, footerDisable, bodyAddEditComponent, bodyAddEditAttrComponent, headerAddEditComponent, footerAddEditComponent, headerManageAttrValue, FormsModule, PaginationComponent],
 })
 export class CategoriesComponent implements OnInit {
   constructor(private categoriesService: CategoriesServices) {}
+
+  search$ = new Subject<string>();
   
   // Variables de seleccion
   catSelected = signal<ICategories>({id: 0, name : "", active: false, icon: "", sc_record: 0, p_record: 0});
@@ -45,7 +48,9 @@ export class CategoriesComponent implements OnInit {
   paginationBrand = signal<IpaginationBrand>({brands: [], totalRecords : 0, totalPages: 0});
   paginationAttr = signal<IpaginationAttr>({attributes: [], totalRecords : 0, totalPages: 0});
 
-  formData = signal<Record<string, string>>({ name: '', value: ''});
+  //Variables para contener response
+  availableAtr = signal<ISearchAvailableAtr[]>([]);
+  actionEditAtr = signal<boolean>(false);
 
   // Variables de carga
   loadingCat = signal<boolean>(false);
@@ -53,23 +58,63 @@ export class CategoriesComponent implements OnInit {
   loadingBrand = signal<boolean>(false);
   loadingattr = signal<boolean>(false);
   loadingDrop = signal<boolean>(false);
+  loadingAttrVal = signal<boolean>(false);
+  loadingAvailableAtr = signal<boolean>(false);
+  loadingInsertAtrValue = signal<boolean>(false);
 
+  //Declaraciones de Variables
   selectedAttributeId: number = -1;
+  selectedAtrValueId:number = -1;
+  selectedavaibleSub: number = 0;
+
+  AtrsValues = signal<ISubCatAtrVal[]>([]);
+  insertsAtrsValues: IinsertUpdateAttr[] = [];
+  updatesAtrsValues: number[] = [];
+  searchValue: string = "";
 
   page = {category: 1, subcategory: 1, brand: 1, attribute: 1};
   filter = {category: "", subcategory: "", brand: "", attribute: ""};
+  formData = signal<Record<string, string>>({ name: '', value: ''});
 
   //Variables Modal
   disableModal = signal<IdisableModal>({isOpen: false, entity: "", textQuestion: "", textAdditional: "", textbold: ""});
   addEditModal = signal<IaddEditModal>({isOpen: false, entity: "", title: "", placeholder: "", action: "", errorMsg: "", value: "", itemId: -1});
   addEditAttrModal = signal<IaddEditAttrModal>({isOpen: false, entity: "", title: "", placeholder: "", action: "", errorMsg: "", options: [], value: "", itemId: -1});
   manageAttrModal = signal<ImanageAttrModal>({isOpen: false, title: "Administrar atributos", options: []});
-  // addEditAttrModal = signal<>();
 
   limit = signal<number>(10);
 
   ngOnInit() {
     this.loadInfo();
+
+    this.search$
+    .pipe(
+      debounceTime(500),
+      tap(value => {
+        if (value) this.loadingAvailableAtr.set(true);
+      }),
+      switchMap(value => {
+        if (!value) {
+          this.availableAtr.set([]);
+          this.loadingAvailableAtr.set(false);
+          return of(null);
+        }
+
+        return this.categoriesService.getAvailableValues(
+          this.selectedAttributeId,
+          this.selectedavaibleSub,
+          value,
+          this.updatesAtrsValues
+        );
+      })
+    )
+    .subscribe(res => {
+      if (res?.data) {
+        this.availableAtr.set(res.data);
+      }
+
+      this.loadingAvailableAtr.set(false);
+    });
   }
 
   // Carga toda la info de inicio
@@ -145,21 +190,25 @@ export class CategoriesComponent implements OnInit {
   // Funcionalidad panel de categorias
   // ** Metodo de seleccion de categoria
   selectCat(cat: ICategories){
-    this.loadingSubcat.set(true);
-    this.catSelected.set(cat);
-    this.categoriesService.getSubCats(this.catSelected().id)
-    .pipe(
-      tap(({data, count}) => {
-        this.paginationSubCat.set({
-          Subcategories: data ?? [],
-          totalRecords: count ?? 0,
-          totalPages: Math.ceil((count ?? 0) / this.limit())
-        });
-      })
-    ).
-    subscribe(() => {
-      this.loadingSubcat.set(false);
-    });
+    if(this.catSelected().id !== cat.id){
+      this.filter.subcategory = "";
+      this.page.subcategory = 1;
+      this.loadingSubcat.set(true);
+      this.catSelected.set(cat);
+      this.categoriesService.getSubCats(this.catSelected().id)
+      .pipe(
+        tap(({data, count}) => {
+          this.paginationSubCat.set({
+            Subcategories: data ?? [],
+            totalRecords: count ?? 0,
+            totalPages: Math.ceil((count ?? 0) / this.limit())
+          });
+        })
+      ).
+      subscribe(() => {
+        this.loadingSubcat.set(false);
+      });
+    }
   }
 
   // ** Metodo para visualizar modal de crear o editar
@@ -333,10 +382,31 @@ export class CategoriesComponent implements OnInit {
 
   // ** Metodo para visualizar el modal de administración de productos
   showManageAttrModal(id: number){
+    this.searchValue = "";
+    this.selectedAttributeId = -1;
+    this.selectedavaibleSub = id;
+    this.selectedAtrValueId = -1;
+    this.insertsAtrsValues = [];
+    this.updatesAtrsValues = [];
+    this.AtrsValues.set([]);
     this.manageAttrModal.update(obj => ({
       ...obj,
       isOpen: true
     }));
+    this.loadingDrop.set(true);
+    this.loadingAttrVal.set(true);
+
+    this.categoriesService.fillDropdown()
+    .subscribe(({data}) => {
+      if(data)
+        data.unshift({id:-1, nombre: "Seleccione un atributto..."});
+
+      this.addEditAttrModal.update(obj => ({
+        ...obj,
+        options: data || []
+      }));
+      this.loadingDrop.set(false);
+    });
 
     this.categoriesService.getAtrValue(id)
     .subscribe(({data}) => {
@@ -344,6 +414,7 @@ export class CategoriesComponent implements OnInit {
         ...obj,
         options: data || []
       }));
+      this.loadingAttrVal.set(false);
     });
   }
 
@@ -586,24 +657,29 @@ export class CategoriesComponent implements OnInit {
   filterPanel(entity: string){
     switch (entity) {
       case "categoria":
-        this.loadingCat.set(true);
+        // if(this.filter.category == "")
+        //   return EMPTY;
 
-        return this.categoriesService.getCats(this.page.category, this.limit(), this.filter.category)
-        .pipe(
-          tap(({data, count}) => {
-            this.paginationCat.set({
-              categories: data ?? [],
-              totalRecords: count ?? 0,
-              totalPages: Math.ceil((count ?? 0) / this.limit())
-            });
+          this.loadingCat.set(true);
 
-            this.loadingCat.set(false)
-          })
-        ).subscribe(() => {});
+          return this.categoriesService.getCats(this.page.category, this.limit(), this.filter.category)
+          .pipe(
+            tap(({data, count}) => {
+              this.paginationCat.set({
+                categories: data ?? [],
+                totalRecords: count ?? 0,
+                totalPages: Math.ceil((count ?? 0) / this.limit())
+              });
+
+              this.loadingCat.set(false)
+            })
+          ).subscribe();
 
       case "sub_categoria":
+        // if(this.filter.subcategory == "")
+        //   return EMPTY;
+
         this.loadingSubcat.set(true);
-        console.log(this.filter.subcategory)
         return this.categoriesService.getSubCats(this.catSelected().id, this.page.subcategory, this.limit(), this.filter.subcategory)
         .pipe(
           tap(({data, count}) => {
@@ -615,9 +691,12 @@ export class CategoriesComponent implements OnInit {
 
             this.loadingSubcat.set(false);
           })
-        ).subscribe(() => {});
+        ).subscribe();
 
       case "marca":
+        // if(this.filter.brand == "")
+        //   return EMPTY;
+
         this.loadingBrand.set(true);
 
         return this.categoriesService.getBrands(this.page.brand, this.limit(), this.filter.brand)
@@ -631,9 +710,12 @@ export class CategoriesComponent implements OnInit {
 
             this.loadingBrand.set(false);
           })
-        ).subscribe(() => {});
+        ).subscribe();
 
       case "atr_val":
+        // if(this.filter.attribute == "")
+        //   return EMPTY;
+
         this.loadingattr.set(true);
 
         return this.categoriesService.getAtrs(this.page.attribute, this.limit(), this.filter.attribute)
@@ -655,7 +737,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   // ** Metodo retorna el objeto necesario para la creacion o edicion de categorias, subcategorias, marcas y atributos
-  getBodyRequest(entity: string, action: string, value:string, id: number): IinsertUpdateCat | IinsertUpdateSubCat | IinsertUpdateBrand | IinsertUpdateAttr{
+  getBodyRequest(entity: string, action: string, value:string, id: number): IinsertUpdateCat[] | IinsertUpdateSubCat[] | IinsertUpdateBrand[] | IinsertUpdateAttr[]{
     const base = {
       nombre: value,
       activo: true
@@ -667,7 +749,7 @@ export class CategoriesComponent implements OnInit {
       if(action === "edit")
         body.id = id;
 
-      return body;
+      return [body];
 
     } else if (entity === "marca"){
       const body: IinsertUpdateBrand = { ...base };
@@ -675,7 +757,7 @@ export class CategoriesComponent implements OnInit {
       if(action === "edit")
         body.id = id;
 
-      return body;
+      return [body];
 
     } else if (entity === "sub_categoria"){
       const body: IinsertUpdateSubCat = { ...base };
@@ -686,7 +768,7 @@ export class CategoriesComponent implements OnInit {
       if(action === "edit")
         body.id = id;
 
-      return body;
+      return [body];
 
     }else if (entity === "atr_val"){
       const body: IinsertUpdateAttr = { valor: value, activo: true };
@@ -697,10 +779,211 @@ export class CategoriesComponent implements OnInit {
       if(action === "edit")
         body.id = id;
 
-      return body;
+      return [body];
 
     } else {
       throw new Error("Entidad no válida");
     } 
+  }
+
+  optionExist(id: number): boolean {
+    return this.AtrsValues().some(item => item.id_atr_val === id);
+  }
+
+  countOptions(): number {
+    return this.availableAtr()
+      .filter(atr => 
+        !this.AtrsValues().some(atrValue => atrValue.id_atr_val === atr.id_value)
+      ).length;
+  }
+
+  onBlur(event: FocusEvent){
+    const related = event.relatedTarget as HTMLElement;
+
+    if (related && related.closest('.dropdown-menu')) {
+      return;
+    }
+
+    this.availableAtr.set([]);
+  }
+
+  onSelect(value: string, id: number){
+    this.searchValue = value;
+    this.selectedAtrValueId = id;
+    this.availableAtr.set([]);
+  }
+
+  onAddAtr(){
+    const selectedavaibleSub = this.selectedavaibleSub;
+    const selectedAtrValueId = this.selectedAtrValueId;
+    const searchValue = formatName(this.searchValue);
+    const selectedAttributeId = this.selectedAttributeId;
+
+    this.searchValue = "";
+    this.selectedAttributeId = -1;
+    this.selectedAtrValueId = -1;
+
+    if(searchValue != ""){
+      const selectedAtrName = this.addEditAttrModal().options.find((item) => selectedAttributeId == item.id)?.nombre;
+
+      this.categoriesService.checkOutAttr(searchValue, selectedAttributeId)
+      .pipe(
+        map(res => res.data && res.data.length > 0),
+      )
+      .subscribe((exists) => {
+        const indexAttribute = this.manageAttrModal().options.findIndex((item) => selectedAttributeId == item.id_attribute);
+        const valueAdd = this.manageAttrModal().options[indexAttribute]?.attributes.some(attr => attr.value === searchValue)
+
+
+        if(exists){
+          if(!this.updatesAtrsValues.includes(selectedAtrValueId) && !valueAdd){
+            this.AtrsValues.update((obj) => {
+              return obj.concat([{id_sub_categoria: selectedavaibleSub, id_atr_val: selectedAtrValueId, activo: true}]);
+            });
+          }else if(this.updatesAtrsValues.includes(selectedAtrValueId))
+            this.updatesAtrsValues = this.updatesAtrsValues.filter(attr => attr !== selectedAtrValueId);
+
+        } else if(!exists){
+          this.insertsAtrsValues = this.insertsAtrsValues.concat([{id_atributo: selectedAttributeId, valor: searchValue, activo: true}]);
+        }
+
+        if(!valueAdd){
+          this.manageAttrModal.update(obj => {
+            //const indexAttribute = obj.options.findIndex((item) => selectedAttributeId == item.id_attribute);
+
+            if (indexAttribute !== -1) {
+              return {
+                ...obj,
+                options: obj.options.map((item, index) => {
+                  if (index === indexAttribute) {
+                    return {
+                      ...item,
+                      attributes: [
+                        ...item.attributes,
+                        {
+                          id_value: selectedAtrValueId,
+                          value: searchValue,
+                          state: exists ? "AtrValue" : "Insert"
+                        }
+                      ]
+                    };
+                  }
+                  return item;
+                })
+              };
+            }
+
+            return {
+              ...obj,
+              options: [
+                ...obj.options,
+                {
+                  id_attribute: selectedAttributeId,
+                  id_sub_categoria: selectedavaibleSub,
+                  attribute: selectedAtrName || "",
+                  attributes: [
+                    {
+                      id_value: selectedAtrValueId,
+                      value: searchValue,
+                      state: exists ? "AtrValue" : "Insert"
+                    }
+                  ]
+                }
+              ]
+            };
+          });
+        }
+        
+      });
+    }
+  }
+
+  onChangePage(page:number, entity:string){
+    console.log(page);
+    if(entity == "category")
+      this.page.category = page;
+    else if(entity == "sub_categoria")
+      this.page.subcategory = page;
+    else if(entity == "marca")
+      this.page.brand = page;
+    else if(entity == "atr_val")
+      this.page.attribute = page;
+
+    this.filterPanel(entity);
+  }
+
+  insertAtrValue(){
+    this.loadingInsertAtrValue.set(true);
+
+    this.categoriesService.insertAtrValue(this.AtrsValues(), this.insertsAtrsValues, this.updatesAtrsValues, this.selectedavaibleSub)
+    .subscribe(() => {
+      this.loadingInsertAtrValue.set(false);
+
+      this.manageAttrModal.update(obj => ({
+        ...obj,
+        isOpen: false
+      }));
+    });
+  }
+
+  deleteAtrValue(state: string, value: string = "", id: number = -1,){
+    switch(state){
+      case(undefined):
+        this.updatesAtrsValues.push(id);
+        this.manageAttrModal.update((obj) => {
+          return {
+            ...obj,
+            options: obj.options.map(option => ({
+              ...option,
+              attributes: option.attributes.filter(
+                attr => attr.id_value !== id
+              )
+            }))
+          }
+        });
+        break;
+
+      case("insert"):
+        this.insertsAtrsValues = this.insertsAtrsValues.filter(item => item.valor !== value);
+        this.manageAttrModal.update((obj) => {
+          return {
+            ...obj,
+            options: obj.options.map(option => ({
+              ...option,
+              attributes: option.attributes.filter(
+                attr => attr.value !== value
+              )
+            }))
+          }
+        });
+        break;
+
+      case("AtrValue"):
+        this.AtrsValues.update((obj) => {
+          return obj.filter(attr => attr.id_atr_val !== id)
+        });
+
+        this.manageAttrModal.update((obj) => {
+          return {
+            ...obj,
+            options: obj.options.map(option => ({
+              ...option,
+              attributes: option.attributes.filter(
+                attr => attr.id_value !== id
+              )
+            }))
+          }
+        });
+        break;
+    }
+
+    this.manageAttrModal.update((obj) => {
+      return {
+        ...obj,
+        options: obj.options.filter( (option) => option.attributes.length > 0)
+      }
+    });
+
+    console.log(this.updatesAtrsValues.length);
   }
 }

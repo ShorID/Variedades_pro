@@ -31,6 +31,7 @@ import {
   X,
   Save,
   Shirt,
+  Frown
 } from 'lucide-angular';
 
 export const lucidIconsObj = {
@@ -63,6 +64,7 @@ export const lucidIconsObj = {
   CirclePower,
   Save,
   Shirt,
+  Frown
 };
 type LucidIconsType = keyof typeof lucidIconsObj;
 

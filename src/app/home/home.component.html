@@ -1,44 +1,181 @@
-<div class="page-header">
-  <div class="row align-items-center mw-100">
-    <div class="col">
-      <ol class="breadcrumb" aria-label="breadcrumbs">
-        <li class="breadcrumb-item">
-          <a href="#">Home</a>
-        </li>
-        <li class="breadcrumb-item">
-          <a href="#">Library</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-          <a href="#">Articles</a>
-        </li>
-      </ol>
-      <h2 class="page-title">
-        <span class="text-truncate">How to Build a Modern Dashboard with Tabler</span>
-      </h2>
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">Panel de Control - Comercial Jazmin
+          @if (cargando) {
+            <div class="spinner-border spinner-border-sm text-primary ms-2" role="status"></div>
+          }
+        </h2>
+        <div class="text-secondary mt-1">Resumen general del negocio--Actualiza en 5m</div>
+      </div>
     </div>
-    <div class="col-auto">
-      <div class="btn-list">
-        <a href="#" class="btn d-none d-md-inline-flex">
-          <!-- Download SVG icon from http://tabler.io/icons/icon/edit -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="icon icon-1"
-          >
-            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-            <path d="M16 5l3 3" />
-          </svg>
-          Edit
-        </a>
-        <a href="#" class="btn btn-primary">Publish</a>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-primary text-white avatar shadow-sm">
+                  <i class="ti ti-currency-dollar fs-2"></i>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium text-uppercase text-secondary" style="font-size: 0.7rem;">Total Facturado</div>
+                <div class="h2 mb-0"> {{ estadisticas.totalVentas | currency:'NIO':'symbol-narrow':'1.2-2'  }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-green text-white avatar shadow-sm">
+                  <i class="ti ti-shopping-cart fs-2"></i>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium text-uppercase text-secondary" style="font-size: 0.7rem;">Ventas Realizadas</div>
+                <div class="h2 mb-0">{{ estadisticas.cantidadVentas }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-red text-white avatar shadow-sm">
+                  <i class="ti ti-alert-triangle fs-2"></i>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium text-uppercase text-secondary" style="font-size: 0.7rem;">Stock Crítico</div>
+                <div class="h2 mb-0 text-danger">{{ productosBajos.length }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (esAdministrador) {
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-yellow text-white avatar shadow-sm">
+                    <i class="ti ti-trending-up fs-2"></i>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="font-weight-medium text-uppercase text-secondary" style="font-size: 0.7rem;">Ganancia Estimada</div>
+                  <div class="h2 mb-0">C$ {{ estadisticas.ganancia | currency:'NIO':'symbol-narrow':'1.2-2' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card bg-primary-lt shadow-none border-primary">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col">
+                <h3 class="mb-0 text-primary">Operaciones Rápidas</h3>
+                <p class="text-secondary mb-0">Accede directamente a los módulos principales.</p>
+              </div>
+              <div class="col-auto">
+                <div class="btn-list">
+                  <a routerLink="/check-in" class="btn btn-primary btn-pill">
+                    <i class="ti ti-receipt me-2"></i> Nueva Factura (F2)
+                  </a>  
+                  <a routerLink="/inventary/incommings" class="btn btn-white btn-pill">
+                    <i class="ti ti-package-import me-2"></i> Entrada de Mercadería
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row row-cards mt-2">
+      <div class="col-lg-4">
+        <div class="card" style="height: 28rem">
+          <div class="card-header">
+            <h3 class="card-title">Alertas de Reposición</h3>
+          </div>
+          <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+            <div class="divide-y">
+              @for (p of productosBajos; track p.id) {
+                <div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="text-truncate"><strong>{{ p.nombre }}</strong></div>
+                      <div class="text-secondary small">Cod: {{ p.codigo }}</div>
+                    </div>
+                    <div class="col-auto">
+                      <span class="badge bg-red-lt">Stock: {{ p.stock }}</span>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="text-center py-4 text-secondary">
+                  <i class="ti ti-check fs-1 text-success"></i>
+                  <p>¡Inventario al día!</p>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card" style="height: 28rem">
+          <div class="card-header">
+            <h3 class="card-title">Ventas Recientes</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table table-striped">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th class="w-1"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (v of ultimasVentas; track v.id) {
+                  <tr>
+                    <td>{{ v.fecha | date:'shortTime' }} - {{ v.fecha | date:'dd/MM' }}</td>
+                    <td class="text-secondary">C$ {{ v.total | currency:'NIO':'symbol-narrow':'1.2-2' }}</td>
+                    <td><span class="badge bg-success">Completado</span></td>
+                    <td><a [routerLink]="['/check-in', v.id]" class="btn btn-sm btn-ghost-primary">Ver</a></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

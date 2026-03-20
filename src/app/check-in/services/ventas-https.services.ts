@@ -226,6 +226,115 @@ async obtenerSugerenciasRapidas(texto: string, atributo: string, valorAttr: stri
     ).pipe(map((res) => res.data));
   }
   generarTicketPro(factura: any) {
+      // Aumentamos el alto dinámico: cada item ahora puede ocupar unas 3 líneas (aprox 12mm)
+      const altoDinamico = 110 + (factura.items.length * 12); 
+      const doc = new jsPDF('p', 'mm', [80, altoDinamico]);
+  
+      // 1. Encabezado
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('COMERCIAL JAZMIN', 40, 10, { align: 'center' });
+      
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text('RUC: 0012605900001X', 40, 14, { align: 'center' });
+      doc.text('Chinandega, Nicaragua', 40, 18, { align: 'center' });
+  
+      // 2. Info de Factura
+      doc.text(`Factura: # ${factura.id}`, 5, 25);
+      doc.text(`Fecha: ${new Date().toLocaleString()}`, 5, 29);
+      doc.text(`Cliente: ${factura.cliente?.nombre || 'Comercial Jazmin'}`, 5, 33);
+      doc.text('-'.repeat(45), 5, 37);
+  
+      // 3. Detalle de Productos
+      let y = 42;
+      doc.setFontSize(8);
+      
+      factura.items.forEach((item: any) => {
+          // Línea 1: Nombre + Marca
+          const descripcionPrincipal = `${item.nombre} ${item.marca ? '[' + item.marca + ']' : ''}`;
+          doc.setFont('helvetica', 'bold');
+          doc.text(descripcionPrincipal.substring(0, 35), 5, y);
+          
+          // Línea 2: Subcategoría y Atributos (Color, Talla, etc.)
+          y += 4;
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          const detalles = `${item.subcategoria || ''} | ${item.color || ''} | Talla: ${item.talla || 'N/A'}`;
+          doc.text(detalles, 5, y);
+  
+          // Línea 3: Cantidad, Precio Unitario y Subtotal de línea
+          y += 4;
+          doc.setFontSize(8);
+          const subtotalLinea = item.cantidad * item.precio_unitario;
+          doc.text(`${item.cantidad} x C$ ${item.precio_unitario.toFixed(2)}`, 5, y);
+          doc.text(`C$ ${subtotalLinea.toFixed(2)}`, 75, y, { align: 'right' });
+          
+          y += 6; // Espacio entre productos
+      });
+  
+      // 4. Totales
+      y += 2;
+      doc.text('-'.repeat(45), 5, y);
+      
+      doc.setFontSize(9);
+      const labelX = 40;
+      const valueX = 75;
+  
+      y += 5;
+      doc.text('SUBTOTAL:', labelX, y);
+      doc.text(`C$ ${factura.subtotal.toFixed(2)}`, valueX, y, { align: 'right' });
+  
+      y += 5;
+      doc.text('IVA (15%):', labelX, y);
+      doc.text(`C$ ${(factura.iva).toFixed(2)}`, valueX, y, { align: 'right' });
+  
+      if (factura.descuento > 0) {
+          y += 5;
+          doc.text('DESCUENTO:', labelX, y);
+          doc.text(`- C$ ${factura.descuento_total.toFixed(2)}`, valueX, y, { align: 'right' });
+      }
+  
+      y += 6;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text('TOTAL A PAGAR:', labelX, y);
+      doc.text(`C$ ${factura.total.toFixed(2)}`, valueX, y, { align: 'right' });
+  
+      // 5. Pago y Cambio
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text('RECIBIDO:', labelX, y);
+      doc.text(`C$ ${(factura.montoPagado || 0).toFixed(2)}`, valueX, y, { align: 'right' });
+  
+      y += 5;
+      doc.setFont('helvetica', 'bold');
+      doc.text('CAMBIO:', labelX, y);
+      doc.text(`C$ ${(factura.cambio || 0).toFixed(2)}`, valueX, y, { align: 'right' });
+  
+      // 6. Pie de página
+      y += 12;
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('¡Gracias por su compra!', 40, y, { align: 'center' });
+      doc.text('No se aceptan devoluciones después de 24h', 40, y + 4, { align: 'center' });
+  
+      // Salida del PDF (Mantenemos tu lógica de ventana derecha)
+      const pdfBlob = doc.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const windowFeatures = `width=400,height=600,left=${window.screen.width - 400},top=0,menubar=no,toolbar=no`;
+      
+      const nuevaVentana = window.open(url, 'TicketVenta', windowFeatures);
+      if (!nuevaVentana) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.click();
+      }
+    }
+  /*
+  generarTicketPro(factura: any) {
   const altoDinamico = 100 + (factura.items.length * 5); 
       const doc = new jsPDF('p', 'mm', [80, altoDinamico]);
       //const doc = new jsPDF('p', 'mm', [80, 150]); // 80mm de ancho
@@ -303,6 +412,7 @@ async obtenerSugerenciasRapidas(texto: string, atributo: string, valorAttr: stri
         link.click();
       }
   }
+  */
   /*
   generarTicketPro(factura: any) {
       const altoDinamico = 100 + (factura.items.length * 5); 

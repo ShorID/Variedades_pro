@@ -19,10 +19,23 @@ export interface ICategories {
   p_record: number
 }
 
+export interface IinsertUpdateCat {
+  id?: number,
+  nombre: string,
+  activo: boolean
+}
+
 export interface ISubCategories {
   id: number,
   name : string,
   icon: string,
   active: boolean
   p_record: number
+}
+
+export interface IinsertUpdateSubCat {
+  id?: number,
+  id_categoria?: number,
+  nombre: string,
+  activo: boolean
 }

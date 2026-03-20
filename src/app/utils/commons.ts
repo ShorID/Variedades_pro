@@ -5,6 +5,13 @@ export function validateEmail(email: string) {
   return regex.test(email);
 }
 
+export function formatName(value: string) {
+  if(value.toUpperCase() == value)
+    return value;
+  else
+    return value[0].toUpperCase() + value.slice(1).toLowerCase();
+}
+
 export function isSameObj<T extends object>(obj1: T, obj2: T): DiffResult<T> {
   const changes: Partial<Record<keyof T, { oldValue: any; newValue: any }>> = {};
 

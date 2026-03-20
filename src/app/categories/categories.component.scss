@@ -1,6 +1,4 @@
-.Categories{
-
-  .form-control:focus {
+.form-control:focus {
     box-shadow: none;
     border-color: var(--tblr-primary);
   }
@@ -12,4 +10,23 @@
       background-color: var(--tblr-gray-50);
     }
   }
+
+.badge.badge-custom {
+    background-color: #f1f3f5;
+    color: #25282b;
+    // border: 1px solid #ced4da;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #e9ecef;
+      color: #212529;
+    }
+}
+
+.form-select-sm {
+  height: 31px; // igual al input-sm
+  font-size: 0.875rem;
 }

@@ -29,7 +29,9 @@ import {
   Trash,
   Search,
   X,
+  Save,
   Shirt,
+  Frown
 } from 'lucide-angular';
 
 export const lucidIconsObj = {
@@ -60,7 +62,9 @@ export const lucidIconsObj = {
   ChevronLeft,
   Ellipsis,
   CirclePower,
-  Shirt
+  Save,
+  Shirt,
+  Frown
 };
 type LucidIconsType = keyof typeof lucidIconsObj;
 

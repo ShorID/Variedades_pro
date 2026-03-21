@@ -43,7 +43,7 @@
           </div>
         </div>
         <div class="card-body p-0">
-          <inventary-table [items]="filteredInventary()" (onDelete)="deleteItem($event)">
+          <inventary-table [items]="inventary()" (onDelete)="deleteItem($event)" (onSearch)="handleSearch($event)" >
             <div class="d-block w-100 d-md-flex gap-2">
               <app-categories-selector
                 [data]="categories()"
@@ -67,13 +67,14 @@
                 style="min-width: 9rem"
                 (onSelect)="setFilter('subcategory', $event)"
                 [value]="filters()['subcategory'] ? filters()['subcategory'] + '' : ''"
+                [loading]="false"
               />
             </div>
           </inventary-table>
         </div>
         @if (paginationStatus().pages > 1) {
           <div class="card-footer d-flex align-items-center">
-            Mostrando {{ this.filteredInventary().length }} / {{ paginationStatus().count }}
+            Mostrando {{ this.inventary().length }} / {{ paginationStatus().count }}
             <app-pagination
               [totalPages]="paginationStatus().pages"
               [page]="page$.getValue()"

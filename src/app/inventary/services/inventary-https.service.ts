@@ -17,13 +17,18 @@ import { IInsertInvProduct, IInsertInvStock } from '../interfaces/inventary-post
 export class InventaryHttpsService {
   constructor(private supabase: SupabaseService) {}
 
-  getInventary(options: { limit?: number; page?: number; q?: string }) {
-    const { limit = 5, page = 1, q = '' } = options;
-    return from(
-      this.supabase.client
-        .from('articulo_variante')
-        .select(
-          `id,
+  getInventary(options: {
+    limit?: number;
+    page?: number;
+    q?: string;
+    cty?: string;
+    sCty?: string;
+  }) {
+    const { limit = 5, page = 1, q = '', cty = '', sCty = '' } = options;
+    let query = this.supabase.client
+      .from('articulo_variante')
+      .select(
+        `id,
         costo,
         codigo,
         activo,
@@ -35,14 +40,21 @@ export class InventaryHttpsService {
         articulo_empaque!inner(*),
         sub_categoria!inner(*, categoria!inner(*)),
         marca!inner(*)`,
-          { count: 'exact' },
-        )
-        .eq('activo', true)
-        .eq('articulo_variante_atr_val.activo', true)
-        .eq('articulo_empaque.activo', true)
-        .eq('marca.activo', true)
-        .range(limit * (page - 1), limit * page),
-    );
+        { count: 'exact' },
+      )
+      .eq('activo', true)
+      .eq('articulo_variante_atr_val.activo', true)
+      .eq('articulo_empaque.activo', true)
+      .eq('marca.activo', true)
+      .range(limit * (page - 1), limit * page);
+
+    if (cty) query = query.eq('sub_categoria.categoria.id', cty);
+    if (sCty) query = query.eq('sub_categoria.id', sCty);
+    if (q) {
+      query = query.ilike('articulo_variante_atr_val.atr_val.valor', `%${q}%`);
+      // query = query.or(`descripcion.ilike.%${q}%`);
+    }
+    return from(query);
   }
 
   getInventaryById(productId: number) {

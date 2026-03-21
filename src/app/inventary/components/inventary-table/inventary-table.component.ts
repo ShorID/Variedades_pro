@@ -1,4 +1,4 @@
-import { Component, computed, input, OnInit, output, signal } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { IInventaryItem } from '../../interfaces/inventary.interfaces';
 import { IconComponent } from '../../../components/Icon/icon.component';
 import { TextComponent } from '../../../components/Text/text.component';
@@ -19,7 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
               autocomplete="off"
             />
             <span class="input-group-text">
-              @if (filters().q) {
+              @if (searchText) {
                 <a
                   href="#"
                   class="link-secondary"
@@ -62,7 +62,7 @@ import { ActivatedRoute, Router } from '@angular/router';
           </tr>
         </thead>
         <tbody>
-          @for (item of filteredItems(); track item.id + '-desktop') {
+          @for (item of items(); track item.id + '-desktop') {
             @let stockStatus = getStockStatus(item);
             <tr>
               <td><app-icon [name]="item.categoria.icono || 'Barcode'" /></td>
@@ -108,7 +108,7 @@ import { ActivatedRoute, Router } from '@angular/router';
           </tr>
         </thead>
         <tbody>
-          @for (item of filteredItems(); track item.id + '-mobile') {
+          @for (item of items(); track item.id + '-mobile') {
             @let stockStatus = getStockStatus(item);
             <tr>
               <td>
@@ -158,25 +158,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class InventaryTableComponent implements OnInit {
   onDelete = output<IInventaryItem>();
+  onSearch = output<string>();
   items = input<IInventaryItem[]>([]);
-  filters = signal<{ q?: string; cty?: number; subCty?: number }>({});
-  filteredItems = computed<IInventaryItem[]>(() => {
-    const currentFilters = this.filters();
-
-    if (currentFilters.q || currentFilters.cty || currentFilters.subCty)
-      return this.items().filter((item) => {
-        const insideQ = currentFilters.q
-          ?.toLowerCase()
-          .split(',')
-          .some((q) => item.forSearch.includes(q.trim() || ''));
-        const insideQty = currentFilters.cty ? item.categoria.id === currentFilters.cty : true;
-        const insideSubQty = currentFilters.subCty
-          ? item.sub_categoria.id === currentFilters.subCty
-          : true;
-        return insideQ && insideQty && insideSubQty;
-      });
-    return this.items();
-  });
   searchText: string = '';
   searchTextTimeout: number | undefined = undefined;
 
@@ -211,7 +194,7 @@ export class InventaryTableComponent implements OnInit {
 
     clearTimeout(this.searchTextTimeout);
     this.searchTextTimeout = setTimeout(() => {
-      this.filters.update((item) => ({ ...item, q: text }));
+      this.onSearch.emit(text);
     }, 700);
   }
 

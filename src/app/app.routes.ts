@@ -3,6 +3,8 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { LayoutComponent } from './layout/layout.component';
 import { Page404Component } from './page404/page404.component';
+import { IncommingsComponent } from './inventary/incommings/incommings.component';
+import { InventaryCreateComponent } from './inventary/components/inventary-create/inventary-create.component';
 
 export const routes: Routes = [
   {
@@ -75,6 +77,17 @@ export const routes: Routes = [
               import('./inventary/components/inventary-edit/inventary-edit.component').then(
                 (m) => m.InventaryEditComponent,
               ),
+          },
+          {
+            path: 'incommings',
+            component: IncommingsComponent,
+            children: [
+              {
+                path: 'create',
+                component: InventaryCreateComponent,
+                outlet: 'modal',
+              },
+            ],
           },
         ],
       },

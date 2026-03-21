@@ -1,0 +1,47 @@
+.input-icon {
+  position: relative;
+
+  .form-control {
+    // Añadimos espacio a la derecha para que el texto no toque la lupa
+    padding-right: 2.5rem; 
+  }
+
+  .input-icon-addon {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem; // Lo pegamos a la derecha
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    pointer-events: none; // Para que puedas hacer clic en el input a través del icono
+    color: #959ba4; // Color gris suave típico de Tabler
+  }
+}
+
+/* Ajuste para que el dropdown no se vea pegado al input */
+.dropdown-menu.show {
+  margin-top: 5px;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+
+.modal.show {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.2); /* Oscurece el fondo */
+  backdrop-filter: blur(2px); /* Efecto moderno de Tabler */
+}
+
+.modal-dialog {
+  z-index: 1060;
+}
+
+/* Estilo para los inputs del modal */
+.form-select, .form-control {
+  border-color: #e6e7e9;
+  &:focus {
+    border-color: #206bc4;
+    box-shadow: 0 0 0 0.25rem rgba(32, 107, 196, 0.25);
+  }
+}

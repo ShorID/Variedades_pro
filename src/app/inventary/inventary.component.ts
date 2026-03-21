@@ -1,4 +1,4 @@
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, effect, OnDestroy, OnInit, signal } from '@angular/core';
 import { TextComponent } from '../components/Text/text.component';
 import { IconComponent } from '../components/Icon/icon.component';
 import { CategoriesSelectorComponent } from '../categories/components/category-selector-card/category-selector-card.component';
@@ -11,6 +11,8 @@ import { InventaryTableComponent } from './components/inventary-table/inventary-
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubcategorySelectorComponent } from '../categories/subcategories/components/subcategory-selector-card/subcategory-selector-card.component';
 import { NotifyService } from '../services/notify.service';
+
+type filtersType = 'subcategory' | 'category' | 'q';
 
 @Component({
   selector: 'page-inventary',
@@ -33,16 +35,9 @@ export class InventaryComponent implements OnInit, OnDestroy {
   suscriptions: Subscription[] = [];
 
   page$ = new BehaviorSubject<number>(1);
-  filters = signal<Record<string, number | null>>({});
-  filteredInventary = computed(() => {
-    return this.inventary().filter((item) => {
-      if (this.filters()['subcategory'] || this.filters()['cateogory'])
-        return (
-          (this.filters()['subcategory'] || 0) === item.sub_categoria.id ||
-          (this.filters()['cateogory'] || 0) === item.sub_categoria.id_categoria
-        );
-      return true;
-    });
+  filters = signal<Record<filtersType | string, number | string | null>>({});
+  filtersEffect = effect(() => {
+    this.page$.next(1);
   });
 
   readonly itemsPerPage = 9;
@@ -67,9 +62,13 @@ export class InventaryComponent implements OnInit, OnDestroy {
         .asObservable()
         .pipe(
           filter((page) => !!page),
+          tap(() => this.loading.update(() => true)),
           switchMap((page) => {
-            this.loading.update(() => true);
-            return this.invHttpsService.getInventary({ page, limit: this.itemsPerPage }).pipe(
+            const params: Record<string, any> = { page, limit: this.itemsPerPage };
+            if (this.filters()['subcategory']) params['sCty'] = this.filters()['subcategory'];
+            if (this.filters()['category']) params['cty'] = this.filters()['category'];
+            if (this.filters()['q']) params['q'] = this.filters()['q'];
+            return this.invHttpsService.getInventary(params).pipe(
               tap(({ data, error, count }) => {
                 this.paginationStatus.update(() => ({
                   count: count || 0,
@@ -78,8 +77,8 @@ export class InventaryComponent implements OnInit, OnDestroy {
                 if (data) {
                   const inv = this.invService.buildData(data);
                   this.invService.setItems(inv.items);
-                  this.categories.set(inv.categories);
-                  this.subcategories.set(inv.subcategories);
+                  // this.categories.set(inv.categories);
+                  // this.subcategories.set(inv.subcategories);
                 }
               }),
               catchError(() => {
@@ -87,6 +86,16 @@ export class InventaryComponent implements OnInit, OnDestroy {
                 return of(null);
               }),
             );
+          }),
+          switchMap(() => {
+            if (!this.categories().length)
+              return this.invHttpsService.getInvClasification().pipe(
+                tap(({ attributes, categories, subCategories }) => {
+                  this.categories.set(categories);
+                  this.subcategories.set(subCategories);
+                }),
+              );
+            return of(null);
           }),
         )
         .subscribe(() => this.loading.update(() => false)),
@@ -96,6 +105,7 @@ export class InventaryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.suscriptions.forEach((e) => e.unsubscribe());
+    this.filtersEffect.destroy()
   }
 
   refreshProducts() {
@@ -106,12 +116,12 @@ export class InventaryComponent implements OnInit, OnDestroy {
     this.router.navigate(['create'], { relativeTo: this.route });
   }
 
-  setFilter(key: string, value: IInvCategory | IInvSubCategory | undefined) {
+  setFilter(key: filtersType, value: IInvCategory | IInvSubCategory | undefined) {
     this.filters.update((prev) => ({ ...prev, [key]: value ? value?.id : null }));
   }
 
   onChangePage(newPage: number) {
-    this.filters.update(() => ({}));
+    // this.filters.update(() => ({}));
     this.page$.next(newPage);
   }
 
@@ -136,5 +146,9 @@ export class InventaryComponent implements OnInit, OnDestroy {
           }),
         )
         .subscribe();
+  }
+
+  handleSearch(q: string) {
+    this.filters.update((prev) => ({ ...prev, q: q || null }));
   }
 }

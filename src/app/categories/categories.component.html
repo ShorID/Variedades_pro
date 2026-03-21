@@ -24,12 +24,12 @@
 
               <div class="col-auto ms-auto">
                 <div class="btn-list">
-                  <a class="btn btn-primary d-none d-sm-inline-flex gap-1" data-bs-toggle="modal" data-bs-target="#modal-report">
+                  <a class="btn btn-primary d-none d-sm-inline-flex gap-1" (click)="showModal(1, 'save', $event)">
                     <app-icon [name]="'Plus'" [size]="17"></app-icon>
                     Nueva Categoría
                   </a>
 
-                  <a class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report">
+                  <a class="btn btn-primary d-sm-none btn-icon">
                     <app-icon [name]="'Plus'" [size]="17"></app-icon>
                   </a>
                 </div>
@@ -66,7 +66,7 @@
                             </div>
 
                             <div class="col-auto ms-auto">
-                              <a class="btn btn-icon btn-sm p-2">
+                              <a class="btn btn-icon btn-sm p-2" (click)="filterPanel('categoria')">
                                 <app-icon [name]="'RefreshCcw'" [size]="15"></app-icon>
                               </a>
                             </div>
@@ -78,10 +78,10 @@
                       <div class="card-body border-bottom p-1">
                         <div class="row g-1">
                           <div class="col">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." [(ngModel)]="filter.category" (keydown.enter)="filterPanel('categoria')"/>
                           </div>
                           <div class="col-auto d-flex align-items-center">
-                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('categoria')">
                               <app-icon [name]="'Search'" [size]="14"></app-icon>
                             </a>
                           </div>
@@ -126,7 +126,7 @@
                                       <div class="ms-auto d-flex align-items-center gap-3">
                                         <a class="btn btn-icon btn-sm p-0 text-muted" 
                                            style="background-color: transparent;border: none;" 
-                                           (click)="editCat(cat, $event)">
+                                           (click)="showModal(1, 'edit', $event, cat.name, cat.id)">
                                           
                                            <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                         </a>
@@ -154,16 +154,15 @@
                       </div>
 
                       <!-- Paginado del panel de categorias -->
-                      <div class="card-footer py-2 px-2">
-                        <ul class="pagination m-0">
-                          <li class="page-item disabled">
-                            <a class="page-link">Previous</a>
-                          </li>
-                          <li class="page-item active"><a class="page-link">1</a></li>
-                          <li class="page-item"><a class="page-link">2</a></li>
-                          <li class="page-item"><a class="page-link">3</a></li>
-                          <li class="page-item"><a class="page-link">Next</a></li>
-                        </ul>
+                      <div class="card-footer d-flex align-items-center">
+                        Mostrando {{ this.paginationCat().categories.length }} / {{ paginationCat().totalRecords }}
+                        <app-pagination
+                          [pagesToRender]="3"
+                          [totalPages]="paginationCat().totalPages"
+                          [page]="page.category"
+                          (onChange)="onChangePage($event,'categoria')"
+                          class="ms-auto"
+                        />
                       </div>
                     </div>
                   </div>
@@ -188,7 +187,7 @@
 
 
                             <div class="col-auto ms-auto">
-                              <a class="btn btn-icon btn-sm p-2">
+                              <a class="btn btn-icon btn-sm p-2" (click)="showModal(3, 'save', $event)">
                                 <app-icon [name]="'Plus'" [size]="15"></app-icon>
                               </a>
                             </div>
@@ -200,10 +199,10 @@
                       <div class="card-body border-bottom p-1">
                         <div class="row g-1">
                           <div class="col">
-                            <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                            <input type="text" class="form-control form-control-sm" placeholder="Buscar Subcategorías..." [(ngModel)]="filter.subcategory" (keydown.enter)="filterPanel('sub_categoria')"/>
                           </div>
                           <div class="col-auto d-flex align-items-center">
-                            <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                            <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('sub_categoria')">
                               <app-icon [name]="'Search'" [size]="14"></app-icon>
                             </a>
                           </div>
@@ -217,6 +216,16 @@
                         
                         @if (loadingSubcat()) {
                           <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+                        }@else if (paginationSubCat().Subcategories.length == 0) {
+                          <div class="empty">
+                            <div class="empty-icon">
+                              <app-icon [name]="'Frown'"></app-icon>
+                            </div>
+                            <p class="empty-title">No se encontraron subcategorias</p>
+                            <p class="empty-subtitle text-secondary">
+                              Por favor, registre subcategorias para la categoria seleccionada
+                            </p>
+                          </div>
                         } @else {
                           <div class="row row-cards">
                             @for (subCat of paginationSubCat().Subcategories; track subCat.id) {
@@ -247,13 +256,13 @@
                                   <div class="card-body p-2">
                                     <div class="row">
                                       <div class="col">
-                                        <button type="button" class="btn btn-secondary btn-sm gap-2">
+                                        <button type="button" class="btn btn-secondary btn-sm gap-2" (click)="showModal(3, 'edit', $event, subCat.name, subCat.id)">
                                           <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                           Editar
                                         </button>
                                       </div>
                                       <div class="col-auto ms-auto">
-                                        <button type="button" class="btn btn-sm gap-2">
+                                        <button type="button" class="btn btn-sm gap-2" (click)="showManageAttrModal(subCat.id)">
                                           <app-icon [name]="'Tag'" [size]="15"></app-icon>
                                           Atributos
                                         </button>
@@ -268,17 +277,16 @@
                       </div>
 
                       <!-- Apartado de paginación para las Subcategorias -->
-                      <div class="card-footer py-2 px-2"> 
-                        <ul class="pagination m-0">
-                          <li class="page-item disabled">
-                            <a class="page-link">Previous</a>
-                          </li>
-                          <li class="page-item active"><a class="page-link">1</a></li>
-                          <li class="page-item"><a class="page-link">2</a></li>
-                          <li class="page-item"><a class="page-link">3</a></li>
-                          <li class="page-item"><a class="page-link">Next</a></li>
-                        </ul>
-                      </div>
+                        <div class="card-footer d-flex align-items-center">
+                          Mostrando {{ this.paginationSubCat().Subcategories.length }} / {{ paginationSubCat().totalRecords }}
+                          <app-pagination
+                            [pagesToRender]="3"
+                            [totalPages]="paginationSubCat().totalPages"
+                            [page]="page.subcategory"
+                            (onChange)="onChangePage($event,'sub_categoria')"
+                            class="ms-auto"
+                          />
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -306,7 +314,7 @@
                               </div>
 
                               <div class="col-auto ms-auto">
-                                <a class="btn btn-icon btn-sm p-2">
+                                <a class="btn btn-icon btn-sm p-2" (click)="showModal(2, 'save', $event)">
                                   <app-icon [name]="'Plus'" [size]="15"></app-icon>
                                 </a>
                               </div>
@@ -318,10 +326,10 @@
                         <div class="card-body border-bottom p-1">
                           <div class="row g-1">
                             <div class="col">
-                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar marcas..." [(ngModel)]="filter.brand" (keydown.enter)="filterPanel('marca')"/>
                             </div>
                             <div class="col-auto d-flex align-items-center">
-                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('marca')">
                                 <app-icon [name]="'Search'" [size]="14"></app-icon>
                               </a>
                             </div>
@@ -362,7 +370,7 @@
                                         </div>
 
                                         <div class="ms-auto d-flex align-items-center gap-3">
-                                          <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                          <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;" (click)="showModal(2, 'edit', $event, brand.name, brand.id)">
                                             <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                           </a>
 
@@ -384,19 +392,16 @@
                         </div>
 
                         <!-- Apartado de paginacion para el panel de marcas -->
-                        <div class="card-footer py-2 px-2">
-                          <div class="d-flex align-items-center justify-content">
-                            <ul class="pagination m-0">
-                              <li class="page-item disabled">
-                                <a class="page-link">Previous</a>
-                              </li>
-                              <li class="page-item active"><a class="page-link">1</a></li>
-                              <li class="page-item"><a class="page-link">2</a></li>
-                              <li class="page-item"><a class="page-link">3</a></li>
-                              <li class="page-item"><a class="page-link">Next</a></li>
-                            </ul>
+                          <div class="card-footer d-flex align-items-center">
+                            <!-- Mostrando {{ this.paginationBrand().brands.length }} / {{ paginationBrand().totalRecords }} -->
+                            <app-pagination
+                              [pagesToRender]="3"
+                              [totalPages]="paginationBrand().totalPages"
+                              [page]="page.brand"
+                              (onChange)="onChangePage($event,'marca')"
+                              class="ms-auto"
+                            />
                           </div>
-                        </div>
                       </div>
                     </div>
 
@@ -417,7 +422,7 @@
                               </div>
 
                               <div class="col-auto ms-auto">
-                                <a class="btn btn-icon btn-sm p-2">
+                                <a class="btn btn-icon btn-sm p-2" (click)="showModal(4, 'save', $event)">
                                   <app-icon [name]="'Plus'" [size]="15"></app-icon>
                                 </a>
                               </div>
@@ -429,10 +434,10 @@
                         <div class="card-body border-bottom p-1">
                           <div class="row g-1">
                             <div class="col">
-                              <input type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." />
+                              <input type="text" class="form-control form-control-sm" placeholder="Buscar atributos..." [(ngModel)]="filter.attribute" (keydown.enter)="filterPanel('atr_val')"/>
                             </div>
                             <div class="col-auto d-flex align-items-center">
-                              <a class="btn btn-icon btn-sm p-2" aria-label="Button">
+                              <a class="btn btn-icon btn-sm p-2" aria-label="Button" (click)="filterPanel('atr_val')">
                                 <app-icon [name]="'Search'" [size]="14"></app-icon>
                               </a>
                             </div>
@@ -473,7 +478,7 @@
                                           </div>
 
                                           <div class="ms-auto d-flex align-items-center gap-3">
-                                            <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;">
+                                            <a class="btn btn-icon btn-sm p-0 text-muted" style="background-color: transparent;border: none;" (click)="showModal(4, 'edit', $event, attr.value, attr.id, attr.attribute, attr.id_attribute)">
                                               <app-icon [name]="'Pencil'" [size]="15"></app-icon>
                                             </a>
 
@@ -496,19 +501,16 @@
                         </div>
 
                         <!-- Apartado de paginación para atributos -->
-                        <div class="card-footer py-2 px-2">
-                          <div class="d-flex align-items-center">
-                            <ul class="pagination m-0">
-                              <li class="page-item disabled">
-                                <a class="page-link">Previous</a>
-                              </li>
-                              <li class="page-item active"><a class="page-link">1</a></li>
-                              <li class="page-item"><a class="page-link">2</a></li>
-                              <li class="page-item"><a class="page-link">3</a></li>
-                              <li class="page-item"><a class="page-link">Next</a></li>
-                            </ul>
+                          <div class="card-footer d-flex align-items-center">
+                            <!-- Mostrando {{ this.paginationAttr().attributes.length }} / {{ paginationAttr().totalRecords }} -->
+                            <app-pagination
+                              [pagesToRender]="3"
+                              [totalPages]="paginationAttr().totalPages"
+                              [page]="page.attribute"
+                              (onChange)="onChangePage($event,'atr_val')"
+                              class="ms-auto"
+                            />
                           </div>
-                        </div>
 
                       </div>
                     </div>
@@ -523,4 +525,228 @@
   </div>
 </div>
 
-<app-disableModal [modal]="modal()" (onConfirm)="disable()"></app-disableModal>
+<!-- Modal para deshabilitar (funciona para todos los paneles) -->
+<app-modal [isOpen]="disableModal().isOpen" [Mbuttonclose]="true" [Mbadges]="(!disableModal().item?.active ? 'success' : 'danger')" [Mheader]="false" [Mfooter]="true" (onClose)="disableModal().isOpen = $event">
+  <app-bodyDisable [status]="(!disableModal().item?.active ? 'success' : 'danger')" [textQuestion]="disableModal().textQuestion" [textAdditional]="disableModal().textAdditional" [textbold]="disableModal().textbold" body>
+    <app-icon [name]="'CirclePower'" [size]="50" icon></app-icon>
+  </app-bodyDisable>
+
+  <app-footerDisable [status]="(!disableModal().item?.active ? 'success' : 'danger')" (onCancel)="disableModal().isOpen = $event" (onConfirm)="disable()" footer></app-footerDisable>
+</app-modal>
+
+
+<!-- Modal para crear y editar (funciona los paneles de categoria, subcategoria y marcas) -->
+<app-modal [isOpen]="addEditModal().isOpen" [Mheader]="true" [Mfooter]="true" (onClose)="addEditModal().isOpen = $event">
+  <app-headerAddEdit [Mtitle]="addEditModal().title" (onClose)="addEditModal().isOpen = $event" header></app-headerAddEdit>
+
+  <app-bodyAddEdit body>
+    <app-input
+      lClass="fw-semibold"
+      label="Nombre"
+      name="name"
+      class="mb-1"
+      [placeholder]="addEditModal().placeholder"
+      [iClass]="(addEditModal().errorMsg !== '' && 'is-invalid') || ''"
+      (onChange)="changeForm($event)"
+      [value]="this.formData()['name']"
+
+      input
+    >
+      @if (addEditModal().errorMsg !== '') {
+        <div class="invalid-feedback">{{addEditModal().errorMsg}}</div>
+      }
+    </app-input>
+  </app-bodyAddEdit>
+
+  <app-footerAddEdit (onClose)="addEditModal().isOpen = $event" (onConfirm)="saveEdit()"  footer></app-footerAddEdit>
+</app-modal>
+
+<!-- Modal para crear y editar (funciona solo para el panel de atributos) -->
+<app-modal [isOpen]="addEditAttrModal().isOpen" [Mheader]="true" [Mfooter]="true" (onClose)="addEditAttrModal().isOpen = $event">
+  <app-headerAddEdit [Mtitle]="addEditAttrModal().title" (onClose)="addEditAttrModal().isOpen = $event" header></app-headerAddEdit>
+
+  <app-bodyAddEditAttr body>
+
+    <div class="mb-3" dropdown>
+      <label class="form-label fw-semibold">Atributo</label>
+      <div class="position-relative">
+        <select class="form-select" [disabled]="loadingDrop() || addEditAttrModal().action == 'edit'" [(ngModel)]="selectedAttributeId">
+          @if (!loadingDrop()) {
+            @for (option of addEditAttrModal().options; track option.id) {
+              <option value="{{option.id}}"> {{option.nombre}} </option>
+            }
+          }
+        </select>
+
+        @if (loadingDrop()) {
+          <div
+              class="spinner-border spinner-border-sm position-absolute"
+              style="top:30%; left:3%;">
+          </div>
+        }
+      </div>
+    </div>
+
+    <app-input
+      lClass="fw-semibold"
+      label="Valor"
+      name="value"
+      class="mb-1"
+      [disabled]="selectedAttributeId == -1"
+      [placeholder]="addEditAttrModal().placeholder"
+      [iClass]="(addEditAttrModal().errorMsg !== '' && 'is-invalid') || ''"
+      (onChange)="changeForm($event)"
+      [value]="this.formData()['value']"
+
+      input
+    >
+      @if (addEditAttrModal().errorMsg !== '') {
+        <div class="invalid-feedback">{{addEditAttrModal().errorMsg}}</div>
+      }
+    </app-input>
+  </app-bodyAddEditAttr>
+
+  <app-footerAddEdit (onClose)="addEditAttrModal().isOpen = $event" (onConfirm)="saveEditAttr()"  footer></app-footerAddEdit>
+</app-modal>
+
+<app-modal [isOpen]="manageAttrModal().isOpen" [Mheader]="true" [Mfooter]="true" [Msize]="'large'" (onClose)="manageAttrModal().isOpen = $event">
+  <app-headerManageAttrValue [Mtitle]="manageAttrModal().title" (onClose)="manageAttrModal().isOpen = $event" header></app-headerManageAttrValue>
+
+  <div  class="modal-body py-2"
+        style="height: clamp(10rem,48vh,30rem);overflow-y: auto;overflow-x: hidden;" 
+        [ngClass]="{'d-flex': loadingAttrVal(), 'justify-content-center': loadingAttrVal(), 'align-items-center': loadingAttrVal()}"
+        body>
+    @if (loadingAttrVal()) {
+      <div class="spinner-border spinner-border-sm ms-2" role="status"></div>
+    }@else if (manageAttrModal().options.length == 0) {
+      <div class="empty">
+        <div class="empty-icon">
+          <app-icon [name]="'Frown'"></app-icon>
+        </div>
+        <p class="empty-title">No se encontraron atributos</p>
+        <p class="empty-subtitle text-secondary">
+          Por favor, registre atributos a la subcategoria seleccionada
+        </p>
+      </div>
+    } @else {
+      @for (attribute of manageAttrModal().options; track attribute.id_attribute) {
+        <div class="hr-text hr-text-start my-5 fw-semibold"> {{attribute.attribute}} </div>
+
+        @for (value of attribute.attributes; track value.id_value) {
+          <span class="badge badge-custom m-1 gap-1">
+            {{value.value}}
+
+            @if(value.state == null){
+              <a class="text-danger cursor-pointer" (click)="deleteAtrValue(value.state, value.value, value.id_value)">
+                <app-icon [name]="'X'" [size]="13"></app-icon>
+              </a>
+            }
+
+            @if(value.state == "Insert"){
+              <a class="text-danger cursor-pointer" (click)="deleteAtrValue(value.state, value.value)">
+                <app-icon [name]="'X'" [size]="13"></app-icon>
+              </a>
+            }
+
+            @if(value.state == "AtrValue"){
+              <a class="text-danger cursor-pointer" (click)="deleteAtrValue(value.state, value.value, value.id_value)">
+                <app-icon [name]="'X'" [size]="13"></app-icon>
+              </a>
+            }
+          </span>
+        }
+      }
+    }
+  </div>
+
+  <div class="modal-footer" footer>
+    <div class="w-100">
+      <div class="row gap-0">
+        <div class="col-lg-4" dropdown>
+          <div class="position-relative">
+            <select 
+                    class="form-select form-select-sm" 
+                    [disabled]="loadingDrop() " 
+                    [(ngModel)]="selectedAttributeId">
+              @if (!loadingDrop()) {
+                @for (option of addEditAttrModal().options; track option.id) {
+                  <option value="{{option.id}}"> {{option.nombre}} </option>
+                }
+              }
+            </select>
+
+            @if (loadingDrop()) {
+              <div
+                  class="spinner-border spinner-border-sm position-absolute"
+                  style="top:30%; left:3%;">
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <div class="input-icon">
+            <input  type="text" class="form-control form-control-sm"
+                    placeholder="Añadir atributo..." 
+                    [disabled]="selectedAttributeId == -1"
+                    (blur)="onBlur($event)"
+                    [(ngModel)]="searchValue"
+                    (input)="search$.next($event.target.value)">
+
+            @if (loadingAvailableAtr()) {
+              <div class="dropdown-menu w-100 show" style="border: 1px gray solid; max-height: 350px; overflow-y: none;">
+                  <button type="button" class="dropdown-item" disabled="true">
+                    <div class="d-flex flex-column">
+                      <small class="text-primary fw-medium" >
+                        <div class="spinner-border spinner-border-sm"></div> 
+                      </small>
+                    </div>
+                  </button>
+              </div>
+            }
+
+            <div class="dropdown-menu w-100" style="border: 1px gray solid; max-height: 350px; overflow-y: none;"
+              [class.show]="availableAtr().length > 0 && countOptions() > 0">
+
+              @for (atr of availableAtr(); track atr.id_value) {
+                @if(!optionExist(atr.id_value)){
+                  <button type="button" class="dropdown-item" (click)="onSelect(atr.value, atr.id_value)">
+                    <div class="d-flex flex-column">
+                      <small class="text-primary fw-medium" >
+                        <i class="ti ti-tag"> {{atr.name}} - {{atr.value}}</i> 
+                      </small>
+                    </div>
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-2 d-flex align-items-center">
+          <button 
+              class="btn btn-icon btn-sm p-2 gap-2" 
+              aria-label="Button"
+              [disabled]="selectedAttributeId == -1"
+              (click)="onAddAtr()">
+            Añadir <app-icon [name]="'Plus'" [size]="14"></app-icon>
+          </button>
+        </div>
+
+        <div class="col-auto ms-auto d-flex">
+          <button 
+                  class="btn btn-primary btn-icon btn-sm p-2 gap-2" 
+                  aria-label="Button"
+                  [disabled]="(insertsAtrsValues.length == 0 && AtrsValues().length == 0) && updatesAtrsValues.length == 0"
+                  (click)="insertAtrValue()">
+            Confirmar 
+            @if (loadingInsertAtrValue()) {
+              <div class="spinner-border spinner-border-sm"></div> 
+            } @else {
+              <app-icon [name]="'Save'" [size]="14"></app-icon>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-modal>

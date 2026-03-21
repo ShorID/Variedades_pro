@@ -28,7 +28,16 @@ export class ClienteComponent implements OnInit {
   direccion: '',
   clasificacion: 'Minorista', // Valor por defecto
   identificacion: ''
+  
 };  
+  // Lista que se muestra en el HTML (la filtrada)
+  clientesFiltrados: any[] = []; 
+
+  // Texto de búsqueda vinculado al [(ngModel)]
+  buscarCliente: string = ''; 
+
+// Para el retraso de búsqueda (Debounce)
+private clienteTimer: any;
   // Añade esta variable
   isEditing = false;
   //esta para salvar
@@ -48,8 +57,11 @@ export class ClienteComponent implements OnInit {
     try {
       const data = await this.service.obtener_Clientes();
       if (data) {
+        //setTimeout(() => {
         this.clientes = data;
-        
+        //});
+        // IMPORTANTE: Al cargar, la lista filtrada es igual a la original
+        this.clientesFiltrados = [...this.clientes];
         // Calculamos las estadísticas reales
         this.totalClientes = this.clientes.length;
         this.clientesActivos = this.clientes.filter(c => c.activo === 'true').length;
@@ -166,7 +178,7 @@ abrirDesdeVentas(nombre?: string) {
     clasificacion: 'Minorista'
   }
   this.showModal = true;
-}
+ }
 
 /*
 // Dentro de tu función guardarCliente(), en el éxito de la respuesta:
@@ -175,6 +187,36 @@ if (respuesta.status === 'success') {
    this.cerrarModal();
 }
    */
-}
+ }
+
+ onBuscarCliente() {
+  if (this.clienteTimer) clearTimeout(this.clienteTimer);
+
+  const termino = this.buscarCliente.toLowerCase().trim();
+
+  if (!termino) {
+    // Si borra el texto, mostramos todos de nuevo
+    this.clientesFiltrados = [...this.clientes];
+  } else {
+    // Filtramos sobre la lista original para no perder datos
+    this.clientesFiltrados = this.clientes.filter(c => 
+      c.nombre?.toLowerCase().includes(termino) || 
+      c.telefono?.includes(termino) ||
+      c.identificacion?.toLowerCase().includes(termino) // Por si buscan por RUC/Cédula
+    );
+  }
+
+  // 2. Búsqueda en Servidor (Opcional, si tienes miles de clientes)
+  if (termino.length > 2) {
+    this.clienteTimer = setTimeout(async () => {
+      // Aquí podrías llamar a un servicio de Supabase si el cliente no está en la lista local
+      // const res = await this.service.buscarClienteRemoto(termino);
+      // this.clientesFiltrados = res;
+      this.cdr.detectChanges();
+    }, 300);
+  }
+
+  this.cdr.detectChanges();
+ }
 
 }

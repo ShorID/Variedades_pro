@@ -12,7 +12,6 @@ import { Component, computed, input, OnInit, output, signal } from '@angular/cor
           (click)="navigateTo($event, -1)"
         >
           <i class="ti ti-chevrons-left"></i>
-          Previous
         </a>
       </li>
       @for (p of pages(); track $index) {
@@ -62,7 +61,6 @@ import { Component, computed, input, OnInit, output, signal } from '@angular/cor
           role="button"
           (click)="navigateTo($event)"
         >
-          Next
           <i class="ti ti-chevrons-right"></i>
         </a>
       </li>

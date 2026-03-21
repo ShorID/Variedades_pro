@@ -12,12 +12,14 @@ export class homehttpServices {
   // 1. Obtener productos con stock bajo (Alertas)
   async getStockBajo(limite: number = 5) {
     const { data, error } = await this.supabase.client
-      .from('productos')
-      .select('id, nombre, codigo, stock')
+      .from('vw_articulo_empaque')
+      .select('id, nombre, stock')
       .lt('stock', limite) // Less Than (Menor que)
       .order('stock', { ascending: true });
 
     if (error) throw error;
+    //throw error;
+    console.log("Resultados encontrados:", data); // Verifica si aquí llega algo
     return data;
   }
 
@@ -29,17 +31,16 @@ export class homehttpServices {
     manana.setDate(manana.getDate() + 1);
 
     const { data, error } = await this.supabase.client
-      .from('ventas')
+      .from('vw_historial_facturas')
       .select(`
         id, 
         total, 
-        fecha, 
-        costo_total,
-        clientes (nombre)
+        fecha_facturacion, 
+        cliente_nombre
       `)
-      .gte('fecha', hoy.toISOString()) // mas oigual (Inicio de hoy)
-      .lt('fecha', manana.toISOString()) // menos que (Mañana)
-      .order('fecha', { ascending: false });
+      .gte('fecha_facturacion', hoy.toISOString()) // mas oigual (Inicio de hoy)
+      .lt('fecha_facturacion', manana.toISOString()) // menos que (Mañana)
+      .order('fecha_facturacion', { ascending: false });
 
     if (error) throw error;
     return data;

@@ -28,13 +28,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private service: homehttpServices,private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
+    //cargar datos
+    this.cargarDatos();
+    //verifica permisos
+    this.esAdministrador = this.service.getRolUsuario() === 'ADMIN';
     // 2. Configurar el auto-refresh cada 5 minutos
     // 1000ms * 60 * 5 = 300,000
     this.refreshSub = interval(300000).subscribe(() => {
       console.log('Actualizando datos del inicio automáticamente...');
       this.cargarDatos();
     });
-    this.esAdministrador = this.service.getRolUsuario() === 'ADMIN';
+    
   }
 
   // ¡CRÍTICO! Limpiar el temporizador al cerrar la pantalla
@@ -51,7 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   try {
     // Disparamos ambas consultas en paralelo
     const [productos, ventas] = await Promise.all([
-      this.service.getStockBajo(10), // Traer los que tienen menos de 10
+      this.service.getStockBajo(5), // Traer los que tienen menos de 5
       this.service.getVentasHoy()
     ]);
 
@@ -63,6 +67,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.estadisticas.cantidadVentas = ventas.length;
     this.estadisticas.totalVentas = ventas.reduce((acc, v) => acc + (v.total || 0), 0);
 
+    //agrega a una tabla para mostarr en consola
+    /*
+    console.log("¿Qué hay en productosBajos?");
+    console.table(this.productosBajos); // Esto te mostrará una tablita
+    */
+   
+    /*
     // Solo si es ADMIN calculamos la ganancia
     if (this.esAdministrador) {
       // Ganancia = Total Venta - Costo de Compra
@@ -70,12 +81,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         return acc + ((v.total || 0) - (v.costo_total || 0));
       }, 0);
     }
-
-    this.cdr.markForCheck(); // Notificamos a Angular del cambio de datos
+    */
+    //this.cdr.markForCheck(); // Notificamos a Angular del cambio de datos
 
     } catch (error) {
-    console.error("Error cargando el Dashboard:", error);
-    }
+    console.error("Error al cargar datos de tablero:", error);
+  } finally {
+    this.cargando = false;
+    this.cdr.detectChanges(); // <-- ¡VITAL! Fuerza a Angular a pintar los datos
+  }
   }
 
   // Este decorador escucha las teclas en toda la ventana del navegador

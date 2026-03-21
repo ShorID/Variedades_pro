@@ -129,7 +129,7 @@
                 <div>
                   <div class="row">
                     <div class="col">
-                      <div class="text-truncate"><strong>{{ p.nombre }}</strong></div>
+                      <div class="text-truncate"><strong>{{ p.cliente_nombre }}</strong></div>
                       <div class="text-secondary small">Cod: {{ p.codigo }}</div>
                     </div>
                     <div class="col-auto">
@@ -166,7 +166,7 @@
               <tbody>
                 @for (v of ultimasVentas; track v.id) {
                   <tr>
-                    <td>{{ v.fecha | date:'shortTime' }} - {{ v.fecha | date:'dd/MM' }}</td>
+                    <td>{{ v.fecha_facturacion | date:'shortTime' }} - {{ v.fecha_facturacion | date:'dd/MM' }}</td>
                     <td class="text-secondary">C$ {{ v.total | currency:'NIO':'symbol-narrow':'1.2-2' }}</td>
                     <td><span class="badge bg-success">Completado</span></td>
                     <td><a [routerLink]="['/check-in', v.id]" class="btn btn-sm btn-ghost-primary">Ver</a></td>
